@@ -1,0 +1,25 @@
+<div class="nav">
+    <h2>Navigation</h2>
+    <ul>
+        <li>
+            <Mainpage::MainpageItem @content="Settings" @index="0" />
+        </li>
+        <li>
+            <Mainpage::MainpageItem @content="Pixcrawl" @index="1" />
+        </li>
+        <li>
+            <Mainpage::MainpageItem @content="File Manager" @index="2" />
+        </li>
+        <li>
+            <Mainpage::MainpageItem @content="IRIS" @index="3" />
+        </li>
+    </ul>
+</div>
+<div class="desc">
+    <Mainpage::DiagInfo />
+    <Mainpage::MainpageDesc::DescSettings />
+    <Mainpage::MainpageDesc::DescPixcrawl />
+    <Mainpage::MainpageDesc::DescFm />
+    <Mainpage::MainpageDesc::DescIris />
+</div>
+<Mainpage::JumpTransition />
