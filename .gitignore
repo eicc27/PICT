@@ -1,0 +1,39 @@
+# back-end
+/back/node_modules/
+/back/.vscode/
+/back/.eslintrc.js
+
+# front-end
+
+# See https://help.github.com/ignore-files/ for more about ignoring files.
+
+# compiled output
+/front/dist/
+/front/tmp/
+
+# dependencies
+/front/bower_components/
+/front/node_modules/
+
+# misc
+/front/.env*
+/front/.pnp*
+/front/.sass-cache
+/front/.eslintcache
+/front/connect.lock
+/front/coverage/
+/front/libpeerconnection.log
+/front/npm-debug.log*
+/front/testem.log
+/front/yarn-error.log
+
+# ember-try
+/front/.node_modules.ember-try/
+/front/bower.json.ember-try
+/front/npm-shrinkwrap.json.ember-try
+/front/package.json.ember-try
+/front/package-lock.json.ember-try
+/front/yarn.lock.ember-try
+
+# broccoli-debug
+/front/DEBUG/
