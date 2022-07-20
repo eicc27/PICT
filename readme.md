@@ -1,5 +1,23 @@
 # PICT - Pixiv Integrated Crawling Toolset
 
+## Content
+
+- PixCrawl core
+  - Python(`playwright`)
+  - Node(`playwright`)
+- Customized file manager
+- IRIS experimental enhancement toolset
+  - IRIS(`TODO`)
+    - Python(`matplotlib`)
+    - Node(`js`, `hbs`)
+  - SRCNN(`TODO`, `python`)
+
+## Arch
+
+Front-end(`ember.js`) & back-end(`koa2 with ts`), localhost application
+
+**port: 3000, 4200**
+
 ## Initialization - npm modules
 
 ### back
