@@ -1,0 +1,18 @@
+{{#let (if (eq @direction "left") "left" "right") as |direction|}}
+<div class="arrow-trans">
+    <div class="arrow-trans-{{direction}}">
+        <div class="thin">
+            <div class="upper"></div>
+            <div class="lower"></div>
+        </div>
+        <div class="thick">
+            <div class="upper"></div>
+            <div class="lower"></div>
+        </div>
+    </div>
+    <div class="arrow-bg-{{direction}}">
+        <div class="upper"></div>
+        <div class="lower"></div>
+    </div>
+</div>
+{{/let}}

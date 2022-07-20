@@ -47,5 +47,6 @@ module.exports = function (environment) {
         // here you can enable a production-specific feature
     }
     ENV.API_HOST = 'http://localhost:3000';
+    ENV.DOWNLOADING = false;
     return ENV;
 };

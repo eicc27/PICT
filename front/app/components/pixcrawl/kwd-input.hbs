@@ -1,0 +1,17 @@
+<div class="kwd-input">
+    {{#each this.tags as |tag|}}
+    <Pixcrawl::InputBox @index={{tag.index}} @kwd={{tag.kwd}} @tag={{tag.tag}} @tags={{this.tags}}>
+        <button class="delete" type="button" {{on "click" (fn this.deleteBox tag.index)}}>
+            <Icons::CrossX />
+        </button>
+    </Pixcrawl::InputBox>
+    {{/each}}
+    <div class="placeholder">
+        <span>Add a new searching option by pressing</span>
+        <button type="button" class="add-new" {{on "mouseenter" this.showAdd}} {{on "mouseleave" this.hideAdd}}
+                {{on "click" this.addTag}}>
+            <Icons::Tag />
+            <Icons::Tags />
+        </button>
+    </div>
+</div>

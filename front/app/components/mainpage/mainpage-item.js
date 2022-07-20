@@ -29,7 +29,7 @@ export default class MainpageItemComponent extends Component {
     animate() {
         let trans = document.getElementsByClassName('jump-trans')[0];
         let transText = trans.getElementsByTagName('h2')[0];
-        let timeOut = 600;
+        let timeOut = 400;
         let route = '';
         switch (parseInt(this.args.index)) {
             case 0:

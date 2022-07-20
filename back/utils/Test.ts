@@ -63,14 +63,15 @@ export default class Test {
         await Promise.all(promises);
         ws.send('download done');
         // joins the temp files into the final file
-        const file = fs.createWriteStream('./test.jpg');
-        for (let i = 0; i < threads; i++) {
-            file.write(fs.readFileSync(`./test${i}.tmp`));
-        }
-        // and deletes the temp files
-        for (let i = 0; i < threads; i++) {
-            fs.unlinkSync(`./test${i}.tmp`);
-        }
+        // const file = fs.createWriteStream('./test.jpg');
+        // for (let i = 0; i < threads; i++) {
+        //     file.write(fs.readFileSync(`./test${i}.tmp`));
+        // }
+        // // and deletes the temp files
+        // for (let i = 0; i < threads; i++) {
+        //     fs.unlinkSync(`./test${i}.tmp`);
+        // }
+        console.log('done');
     }
 
     static async testThreadedDownload(ws: websocket.WebSocket, fromBytes: number, toBytes: number, index: number) {
@@ -85,10 +86,10 @@ export default class Test {
                         Range: `bytes=${fromBytes}-${toBytes}`
                     },
                 }, (response) => {
-                    response.pipe(fs.createWriteStream(`./test${index}.tmp`)); //, {
-                    //    start: fromBytes,
-                    //    flags: 'r+'
-                    //}));
+                    response.pipe(fs.createWriteStream('./test.jpg', {
+                        start: fromBytes,
+                        flags: 'r+'
+                    }));
                     // on every data chunk, send the progress to the websocket,
                     // and write the data to the file
                     response.on('data', (chunck) => {

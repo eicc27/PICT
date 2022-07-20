@@ -1,0 +1,9 @@
+<div class="tag-dragdown" {{on "mouseleave" (fn this.hideDragdown @index)}}>
+    <ul class="list">
+        {{#each this.tags as |tag|}}
+        <Pixcrawl::DragdownItem @tag={{tag.tag}} @desc={{tag.desc}} @index={{@index}} @tags={{@tags}} />
+        {{/each}}
+    </ul>
+</div>
+<span class="tag-type" {{on "mouseenter" (fn this.showDragdown @index)}}>
+    {{@tag}}</span>

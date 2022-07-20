@@ -4,6 +4,14 @@ import { action } from '@ember/object';
 import ENV from 'front/config/environment';
 import axios from 'axios';
 
+/** Example response:
+ *
+ * {"system":"linux",
+ * "browsers":[{"browser":"chromium","type":"playwright"},
+ * {"browser":"firefox","type":"playwright"},
+ * {"browser":"firefox","type":"system"},
+ * {"browser":"chromium","type":"system"}]}
+ */
 export default class DiagInfoComponent extends Component {
     createInfo(
         info = 'info',
@@ -34,10 +42,6 @@ export default class DiagInfoComponent extends Component {
 
     @action
     async startDiag() {
-        // let diagInfo = document.getElementsByClassName('diag-info')[0];
-        this.createInfo('>> Starting diagnose...');
-        // Checks System info
-        this.createInfo('>> Checking available browsers...');
         let response = await this.checkBrowser();
         this.createInfo(
             `<div class="init-indicator-info"></div> You're now on ${response.system}.`
@@ -74,6 +78,5 @@ export default class DiagInfoComponent extends Component {
                 );
             }
         }
-        this.createInfo('>> Diagnose finished! For more info, go to settings.');
     }
 }

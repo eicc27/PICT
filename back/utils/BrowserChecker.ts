@@ -1,23 +1,14 @@
 import { exec } from 'child_process';
 import { readdirSync } from 'fs';
-
-/**
- * All available browsers.
-*/
-class Browsers{
-    static Firefox = 'firefox';
-    static Chrome = 'chrome';
-    static Edge = 'edge';
-    static Chromium = 'chromium';
-}
+import Browsers from '../config/browsers';
 
 
-/**  pre-checks browsers for playwright.
-* chromium, chrome & edge can use native versions.
-* firefox must use shipped versions.
+/**  Pre-checks browsers for playwright.
+* Chromium, Chrome & Edge can use native versions.
+* Firefox must use shipped versions.
 * https://playwright.dev/docs/browsers
 * 
-* Versions list of browsers:
+* Version list of browsers:
 * https://www.mozilla.org/en-US/firefox/releases/
 * 
 */

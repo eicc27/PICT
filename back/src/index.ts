@@ -1,7 +1,9 @@
 import * as Koa from 'koa';
 import * as Router from 'koa-router';
 import * as websocket from 'ws';
+import ENV from '../config/environment';
 import BrowserChecker from '../utils/BrowserChecker';
+import NetworkChecker from '../utils/NetworkChecker';
 import Test from '../utils/Test';
 
 const app = new Koa();
@@ -17,6 +19,23 @@ router.get('/check-browser', async (ctx) => {
 
 router.get('/download', async(ctx) => {
     ctx.body = 'success';
+});
+
+router.get('/browser-info', (ctx) => {
+    ctx.body = {
+        name: ENV.BROWSER.getName(),
+        profile: ENV.BROWSER.getProfileName()
+    };
+});
+
+const networkChecker = new NetworkChecker();
+
+router.get('/check-network', async (ctx) => {
+    ctx.body = await networkChecker.checkNetworkStaus();
+});
+
+router.get('/check-account', async (ctx) => {
+    ctx.body = await networkChecker.checkLoginStatus();
 });
 
 app.use(async (ctx, next) => {

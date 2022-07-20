@@ -1,2 +1,12 @@
-<h1>Pixcrawl</h1>
-<Pixcrawl::DownloadBar />
+{{page-title "PixCrawl"}}
+
+<Navbar @page="PixCrawl" @pages={{array "Home" "Settings" "PixCrawl" "File Manager" "IRIS" }} />
+
+
+<div class="pixcrawl">
+    <Pixcrawl::Steps />
+    <Pixcrawl::KwdInput />
+</div>
+
+<ArrowTransition @direction="left" />
+<ArrowTransition @direction="right" />
