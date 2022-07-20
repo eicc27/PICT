@@ -708,17 +708,16 @@ h2 {
 .pixcrawl {
     position: absolute;
     left: 0;
-    top: 0;
-    padding-top: 50px;
-    min-height: calc(100vh - 50px);
+    top: 150px;
+    min-height: calc(100vh - 150px);
     width: calc(100vw - 80px);
-    margin: 0px 40px 0px 40px;
+    margin: 0 40px;
     /* background: hsl(0, 0%, 95%); */
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    /* justify-content: baseline; */
 }
 
 .steps {
@@ -817,13 +816,22 @@ h2 {
 }
 
 .kwd-input {
-    width: 80%;
+    margin: 50px 0;
+    width: 60%;
     min-height: 50px;
-    border: 2px solid hsl(0, 0%, 90%);
-    border-radius: 25px;
+    /* border: 2px solid hsl(0, 0%, 90%);
+    border-radius: 25px; */
     display: flex;
+    flex-wrap: wrap;
     flex-direction: row;
     align-items: center;
+    transition: all 0.2s linear;
+}
+
+.kwd-input h2 {
+    font-size: 2rem;
+    margin: 0;
+    margin-right: 20px;
 }
 
 .kwd-input .placeholder {
@@ -890,6 +898,7 @@ h2 {
     border-radius: 15px;
     background: hsl(0, 0%, 90%);
     margin: 10px;
+    animation: none;
 }
 
 .input-box input {
@@ -900,6 +909,7 @@ h2 {
     margin: 0 15px 0 5px;
     width: 30px;
     min-width: 30px;
+    max-width: 300px;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
@@ -919,6 +929,7 @@ h2 {
     align-items: baseline;
     justify-content: center;
     display: none;
+    z-index: 200;
 }
 
 .input-box ul {
@@ -992,5 +1003,113 @@ h2 {
     color: white;
     padding: 2px 3px;
     background: royalblue;
+    height: 20px;
     border-radius: 2px;
+}
+
+.next-step {
+    border: none;
+    background: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 50px;
+}
+
+.next-step span {
+    font-weight: bold;
+    font-size: 2rem;
+}
+
+.next-step .angles-right {
+    margin-left: 10px;
+    width: 30px;
+    height: 30px;
+    fill: royalblue;
+    transition: all 0.2s ease-in-out;
+}
+
+.next-step:hover {
+    cursor: pointer;
+    text-decoration: underline;
+    color: royalblue;
+}
+
+.diag-msg {
+    position: fixed;
+    right: 10px;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    display: none;
+}
+
+.diag-msg .top-line {
+    width: inherit;
+    height: 10px;
+    background: orangered;
+    animation: toright-topline 5.3s linear forwards;
+}
+
+@keyframes toright-topline {
+    0% {
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+
+    100% {
+        clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+    }
+}
+
+.diag-msg .msg-box {
+    margin-top: 5px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 1.2rem;
+    min-height: 100px;
+    width: 180px;
+    background: #ffca28;
+    padding: 5px 10px;
+    animation: fill-bg-msgbox 0.3s ease-in forwards, slideaway-msgbox 0.3s 5s ease-out forwards;
+}
+
+@keyframes fill-bg-msgbox {
+    0% {
+        clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+    }
+
+    100% {
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+}
+
+
+@keyframes slideaway-msgbox {
+    0% {
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+
+    100% {
+        clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+    }
+}
+
+@keyframes highlight-inputbox {
+    0% {
+        background: hsl(0, 0%, 90%);
+    }
+
+    100% {
+        background: #ffca28;
+    }
+}
+
+@keyframes dim-inputbox {
+    0% {
+        background: #ffca28;
+    }
+
+    100% {
+        background: hsl(0, 0%, 90%);
+    }
 }

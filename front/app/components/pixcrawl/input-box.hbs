@@ -1,6 +1,6 @@
-<div class="input-box">
+<div class="input-box" {{on "animationend" (fn this.clearAnimation @index)}}>
     <Pixcrawl::TagDragdown @tag={{@tag}} @index={{@index}} @tags={{@tags}} />
-    <input type="text" contenteditable="true" {{on "input" (fn this.changeWidth @index @tags)}} {{on "blur" (fn
-           this.changeWidth @index @tags)}} {{did-insert (fn this.fillWith @kwd @index)}} ...attributes>
+    <input type="text" contenteditable="true" spellcheck="false" {{on "input" (fn this.changeWidth @index @tags)}} {{on "blur" (fn
+           this.changeWidth @index @tags)}} {{did-insert (fn this.fillWith @kwd @index @tags)}} ...attributes>
     {{yield}}
 </div>

@@ -2,6 +2,8 @@ import Component from '@glimmer/component';
 import { action } from '@ember/object';
 
 export default class InputBoxComponent extends Component {
+    animationClock = 0;
+
     @action
     changeWidth(index, tags) {
         let inputElement = document
@@ -14,14 +16,23 @@ export default class InputBoxComponent extends Component {
         let otherLength = inputContent.length - charLength;
         inputElement.style.width = `${charLength * 8 + otherLength * 14}px`;
         tags[index].kwd = inputContent;
-        tags = JSON.parse(JSON.stringify(tags));
     }
 
     @action
-    fillWith(kwd, index) {
+    fillWith(kwd, index, tags) {
         let inputElement = document
             .getElementsByClassName('input-box')
             [index].getElementsByTagName('input')[0];
         inputElement.value = kwd;
+        this.changeWidth(index, tags);
+    }
+
+    @action
+    clearAnimation(index) {
+        this.animationClock = ~this.animationClock;
+        if (~this.animationClock) {
+            let inputBox = document.getElementsByClassName('input-box')[index];
+            inputBox.style.animation = 'none';
+        }
     }
 }

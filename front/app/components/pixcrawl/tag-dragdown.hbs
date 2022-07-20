@@ -5,5 +5,5 @@
         {{/each}}
     </ul>
 </div>
-<span class="tag-type" {{on "mouseenter" (fn this.showDragdown @index)}}>
-    {{@tag}}</span>
+<button type="button" class="tag-type" {{on "click" (fn this.showDragdown @index)}}>
+    {{@tag}}</button >

@@ -1,4 +1,5 @@
 <div class="kwd-input">
+<h2>Keywords:</h2>
     {{#each this.tags as |tag|}}
     <Pixcrawl::InputBox @index={{tag.index}} @kwd={{tag.kwd}} @tag={{tag.tag}} @tags={{this.tags}}>
         <button class="delete" type="button" {{on "click" (fn this.deleteBox tag.index)}}>
@@ -15,3 +16,9 @@
         </button>
     </div>
 </div>
+<button class="next-step" type="button" {{on "click" this.toSearch}}
+    {{on "mouseenter" this.translateRightAngle }}
+    {{on "mouseleave" this.resetRightAngle}}>
+    <span>Search</span>
+    <Icons::AnglesRight />
+</button>
