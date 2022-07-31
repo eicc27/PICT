@@ -4,7 +4,8 @@ import * as websocket from 'ws';
 import ENV from '../config/environment';
 import BrowserChecker from '../utils/BrowserChecker';
 import NetworkChecker from '../utils/NetworkChecker';
-import Test from '../utils/Test';
+import PixcrawlWSHandler from '../utils/PixcrawlWSHandler';
+// import Test from '../utils/Test';
 
 const app = new Koa();
 const router = new Router();
@@ -52,9 +53,9 @@ app.listen(3000);
 
 const socket = new websocket.Server({ port: 3001 });
 socket.on('connection', (ws) => {
-    ws.on('message', (message) => {
-        console.log(message.toLocaleString());
-        Test.testHeadRequest(ws);
-    });
-    ws.send('hello');
+    ws.onmessage = (msg) => {
+        const data = JSON.parse(msg.data.toLocaleString());
+        const handler = new PixcrawlWSHandler(data);
+        ws.send(handler.handle());
+    };
 });
