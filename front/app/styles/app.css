@@ -719,3 +719,8 @@ input {
         background: white;
     }
 }
+
+.angle-right {
+    width: 20px;
+    height: 20px;
+}

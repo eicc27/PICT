@@ -1,47 +1,51 @@
 <div class="pixcrawl" {{did-insert this.setVisibility}}>
+
+    {{!-- steps topbar --}}
     <div class="steps">
         <button type="button" class="step step-current" {{on "mouseenter" (fn this.highlightDiamond 0)}}
-                {{on "mouseleave" this.dimDiamond}} {{on "click" (fn this.showStep 1)}}>
+            {{on "mouseleave" this.dimDiamond}} {{on "click" (fn this.showStep 1)}}>
             <div class="title-up">Keyword</div>
             <div class="diamond diamond-current" />
         </button>
         <div class="join" />
         <button type="button" class="step" {{on "mouseenter" (fn this.highlightDiamond 1)}} {{on "mouseleave"
-                this.dimDiamond}} {{on "click" (fn this.showStep 2)}}>
+            this.dimDiamond}} {{on "click" (fn this.showStep 2)}}>
             <div class="diamond" />
             <div class="title-down">Search</div>
         </button>
         <div class="join" />
         <button type="button" class="step" {{on "mouseenter" (fn this.highlightDiamond 2)}} {{on "mouseleave"
-                this.dimDiamond}} {{on "click" (fn this.showStep 3)}}>
+            this.dimDiamond}} {{on "click" (fn this.showStep 3)}}>
             <div class="title-up">Crawl</div>
             <div class="diamond" />
         </button>
         <div class="join" />
         <button type="button" class="step" {{on "mouseenter" (fn this.highlightDiamond 3)}} {{on "mouseleave"
-                this.dimDiamond}}>
+            this.dimDiamond}}>
             <div class="diamond" />
             <div class="title-down">Download</div>
         </button>
     </div>
+
+    {{!-- keyword step --}}
     <div class="keyword">
         <div class="main">
             <h2>Keywords - </h2>
             {{#each this.keywords as |kwd|}}
-            <div class="tag-item">
+            <div class="tag-item" {{on "animationend" (fn this.cancelTagHighlight kwd.index)}}>
                 <button class="tag-name" type="button" {{on "click" (fn this.showDropdown
-                        kwd.index)}}>{{kwd.type}}</button>
+                    kwd.index)}}>{{kwd.type}}</button>
                 <div class="tag-dropdown" {{on 'mouseleave' (fn this.hideDragdown kwd.index)}}>
                     {{#each kwd.dropdown as |dropdownItem|}}
                     <button class="dropdown-item" type="button" {{on "click" (fn this.changeTag dropdownItem.tag
-                            kwd.index)}}>
+                        kwd.index)}}>
                         <span class="tag-icon">{{dropdownItem.tag}}</span>
                         <span class="tag-desc">{{dropdownItem.desc}}</span>
                     </button>
                     {{/each}}
                 </div>
                 <input aria-label="input tag content" spellcheck="false" {{on "input" (fn this.changeInputWidth
-                       kwd.index)}} {{did-insert (fn this.fillTagContent kwd.index)}}>
+                    kwd.index)}} {{did-insert (fn this.fillTagContent kwd.index)}}>
                 <button type="button" class="close-tag" {{on "click" (fn this.removeTag kwd.index)}}>
                     <Icons::CrossX />
                 </button>
@@ -50,7 +54,7 @@
             <div class="add-tags">
                 <span>Add new searching options by clicking </span>
                 <button type="button" {{on "mouseenter" this.showTagsIcon}} {{on "mouseleave" this.hideTagsIcon}}
-                        {{on "click" this.addTags}}>
+                    {{on "click" this.addTags}}>
                     <Icons::Tag />
                     <Icons::Tags />
                 </button>
@@ -63,17 +67,43 @@
             </button>
         </div>
     </div>
+
+    {{!-- search step --}}
     <div class="search">
-        <h2>Search Results</h2>
-        <div class="main">
-            {{#each this.keywords as |kwd|}}
-            <div class="tag-item">
-                <button class="tag-name" type="button">{{kwd.type}}</button>
-                <input aria-label="input tag content" spellcheck="false" readonly="readonly"
-                 value={{kwd.value}}>
+        <div class="progress">
+            <h2>Total Progress</h2>
+            <div class="search-target">
+                Searching <span>test</span>...
             </div>
-            {{/each}}
+            <div class="bar-content">
+                <div class="bar-bg" />
+                <div class="bar" />
+                <div class="percent">100%</div>
+            </div>
+            <div class="abstract">
+                {{!-- xxx tags, xxx user names, xxx picture ids... --}}
+                <span>10</span> tags.
+            </div>
+            <div class="abstract-progress">
+                <span class="completed">10</span> completed. <span class="failed">10</span> failed.
+            </div>
         </div>
+        <ul class="contents">
+            {{#each this.keywords as |kwd|}}
+            <li>
+                <div class="content-keyword">
+                    <span>{{kwd.value}}</span>
+                    <span>{{kwd.type}}</span>
+                </div>
+                <Pixcrawl::Arrow /> {{!-- displays only when search starts --}}
+                <span>waiting...</span> {{!-- displays only when search awaits --}}
+                <div class="content-result">
+                    <span>type</span>
+                    <span>value</span>
+                </div>
+            </li>
+            {{/each}}
+        </ul>
     </div>
     <div class="crawl">
 
@@ -81,5 +111,11 @@
     <div class="download">
 
     </div>
-    <Pixcrawl::Hint />
+    <div class="hint">
+        <div class="topbar"></div>
+        <div class="content" {{on "animationend" this.hideHint}}>
+            Hello World!
+            {{!-- insert hints by JS --}}
+        </div>
+    </div>
 </div>

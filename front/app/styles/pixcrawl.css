@@ -92,7 +92,7 @@
     position: absolute;
     top: 200px;
     display: flex;
-    width: 60%;
+    width: 60vw;
     flex-direction: column;
     justify-content: center;
 }
@@ -103,8 +103,8 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-start;
-    border-left: 5px solid royalblue;
-    padding-left: 10px;
+    /* border-left: 5px solid royalblue; */
+    /* padding-left: 10px; */
 }
 
 .pixcrawl .keyword h2 {
@@ -141,6 +141,18 @@
     background: hsl(0, 0%, 90%);
     border-radius: 15px;
     margin: 10px;
+}
+
+@keyframes tagitem-highlight {
+    100% {
+        background: #FBC02D;
+    }
+}
+
+@keyframes tagitem-dim {
+    100% {
+        background: hsl(0, 0%, 90%);
+    }
 }
 
 .pixcrawl .tag-item input {
@@ -283,15 +295,214 @@
     display: none;
 }
 
-.pixcrawl .search .tag-item {
-    width: fit-content;
+.pixcrawl .hint {
+    position: fixed;
+    z-index: 100;
+    right: 5px;
+    display: none;
+    animation: hint-showup 0.2s ease-out forwards;
 }
 
-.pixcrawl .search .tag-item input{
-    margin-right: 15px;
+@keyframes hint-showup {
+    0% {
+        clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+    }
+
+    100% {
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+}
+
+.pixcrawl .hint .topbar {
+    height: 10px;
+    width: 150px;
+    background: orange;
+    animation: topbar-countdown 5s 0.2s linear forwards;
+}
+
+@keyframes topbar-countdown {
+    0% {
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+
+    100% {
+        clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+    }
+}
+
+.pixcrawl .hint .content {
+    min-height: 130px;
+    width: 130px;
+    padding: 10px;
+    background: #FBC02D;
+    animation: hint-content-hide 0.2s 5.2s ease-out forwards;
+    font-weight: bold;
+}
+
+@keyframes hint-content-hide {
+    100% {
+        clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+    }
+
+    0% {
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+}
+
+.pixcrawl .arrow {
+    display: flex;
+    margin: 0 50px;
+    /* display: none; */
+    flex-direction: row;
+    align-items: center;
+}
+
+.pixcrawl .arrow .angle-right {
+    padding: 0;
+    margin: 0 -5px;
+}
+
+.pixcrawl .arrow .angle-right:nth-child(1) {
+    animation: blink-angle 1.5s linear infinite; 
+}
+
+.pixcrawl .arrow .angle-right:nth-child(2) {
+    animation: blink-angle 1.5s 0.5s linear infinite; 
+}
+
+.pixcrawl .arrow .angle-right:nth-child(3) {
+    animation: blink-angle 1.5s 1s linear infinite; 
+}
+
+@keyframes blink-angle {
+    0% {
+        fill-opacity: 100%;
+    }
+
+    17% {
+        fill-opacity: 0%;
+    }
+
+    33% {
+        fill-opacity: 100%;
+    }
+}
+
+.pixcrawl .search li,
+.pixcrawl .search li .content-keyword,
+.pixcrawl .search li .content-result {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+/* value */
+.pixcrawl .search li .content-keyword span:first-child {
+    font-size: 1.5rem;
+}
+
+.pixcrawl .search li .content-keyword span:last-child {
+    font-size: 0.8rem;
+    align-self: baseline;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    background: royalblue;
+    padding: 0 1px;
+    margin-left: 2px;
+    text-align: center;
+    vertical-align: middle;
+    border-radius: 2px;
+}
+
+.pixcrawl .search li > span {
+    font-size: 1.5rem;
+    display: none; 
+    margin: 0 50px;
+}
+
+.pixcrawl .search li .content-result span:first-child {
+    background: rosybrown;
+    color: white;
+    border-radius: 2px;
+    margin-right: 5px;
+    padding: 0 2px;
+}
+
+.pixcrawl .search li .content-result span:last-child {
+    font-size: 1.5rem;
+}
+
+.pixcrawl .search .progress {
+    display: flex;
+    flex-direction: column;
+    width: 60vw;
+    /* border: 1px solid hsl(0, 0%, 50%); */
+    background:hsl(0, 0%, 90%);
+    padding: 20px;
+}
+
+.pixcrawl .search .progress h2 {
+    font-size: 1.2rem;
+    font-weight: normal;
+    margin: 0;
+    margin-bottom: 5px;
+}
+
+.pixcrawl .search .progress .search-target {
+    color:hsl(0, 0%, 50%);
+}
+
+.pixcrawl .search .progress .search-target span {
+    font-style: italic;
+}
+
+.pixcrawl .search .progress .bar-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 
-.pixcrawl .search .tag-item button {
-    cursor: default;
+.pixcrawl .search .progress .bar,
+.pixcrawl .search .progress .bar-bg {
+    height: 10px;
+    width: 600px;
 }
+
+.pixcrawl .search .progress .bar {
+    width: 300px;
+    background: royalblue;
+    position: absolute;
+}
+
+.pixcrawl .search .progress .bar-bg {
+    background: hsl(0, 0%, 80%);
+    position: relative;
+}
+
+.pixcrawl .search .progress .percent {
+    margin-left: 20px;
+}
+
+.pixcrawl .search .progress .abstract,
+.pixcrawl .search .progress .abstract-progress {
+    font-size: 1.5rem;
+}
+.pixcrawl .search .progress .abstract span,
+.pixcrawl .search .progress .abstract-progress span {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 2rem;
+}
+
+.pixcrawl .search .progress .abstract span {
+    color: rosybrown;
+}
+
+.pixcrawl .search .progress .completed {
+    color: #00C9A7;
+}
+
+.pixcrawl .search .progress .failed {
+    color: #C44F6F;
+}
+

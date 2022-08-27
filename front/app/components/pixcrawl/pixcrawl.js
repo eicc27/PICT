@@ -12,12 +12,37 @@ function changeWidth(inputElement) {
     let charContent = inputContent.match(/[\s\w]/g);
     let charContentLength = charContent ? charContent.length : 0;
     let nonCharContentLength = inputContent.length - charContentLength;
-    inputElement.style.width = `${
-        charContentLength * 8 + nonCharContentLength * 15
-    }px`;
+    inputElement.style.width = `${charContentLength * 8 + nonCharContentLength * 15
+        }px`;
 }
 
 export default class PixcrawlComponent extends Component {
+    /**
+     * item example:
+     * 
+     * {
+     * 
+            type: 'uid',
+
+            value: '',
+
+            index: this.keywords.length,
+
+            dropdown: [
+
+                { tag: 'UID', desc: 'User ID' },
+
+                { tag: 'PID', desc: 'Picture ID' },
+
+                { tag: 'TAG', desc: 'Tag' },
+
+                { tag: 'UNAME', desc: 'User Name' },
+
+            ],
+
+        }
+        
+     */
     @tracked
     keywords = [];
 
@@ -129,9 +154,6 @@ export default class PixcrawlComponent extends Component {
         let inputContent = inputElement.value;
         this.keywords[index].value = inputContent;
         changeWidth(inputElement);
-        changeWidth(
-            document.querySelectorAll('.search .tag-item input')[index]
-        );
     }
 
     @action
@@ -146,8 +168,9 @@ export default class PixcrawlComponent extends Component {
         for (; i < dropdown.length; i++) {
             if (dropdown[i].tag == tag) break;
         }
-        let currentTag = dropdown.splice(i, 1);
+        let currentTag = dropdown.splice(i, 1)[0];
         dropdown.unshift(currentTag);
+        console.log(dropdown);
         // for the auto-refresh mechanism, style.display is not needed
         this.keywords = copy(this.keywords);
     }
@@ -180,10 +203,80 @@ export default class PixcrawlComponent extends Component {
     }
 
     @action goToSearch() {
+        if (!this.checkKeywords()) return;
         this.showStep(2);
         // manually refresh search component loading
         this.keywords = copy(this.keywords);
         // send keyword requests, using ws
         this.pixcrawlWS.search(this.keywords);
+    }
+
+    checkKeywords() {
+        let errorIndex = [];
+        let errorType = {
+            null: false,
+            empty: false,
+            nonnumber: false,
+        };
+        let result = true;
+        // not null
+        if (!this.keywords.length) {
+            result = false;
+            errorType.null = true;
+        }
+        for (let i = 0; i < this.keywords.length; i++) {
+            let keyword = this.keywords[i];
+            // not empty
+            if (keyword.value == '') {
+                errorIndex.push(i);
+                errorType.empty = true;
+                result = false;
+            }
+            // pure number
+            else if (keyword.type == 'uid' || keyword.type == 'pid') {
+                let value = keyword.value;
+                if (!value.match(/[0-9]/g) || value.match(/[0-9]/g).length != value.length) {
+                    errorIndex.push(i);
+                    errorType.nonnumber = true;
+                    result = false;
+                }
+            }
+        }
+        // shows debug info
+        let info = [];
+        if (errorType.null) info.push('No keywords specified.');
+        if (errorType.empty) info.push('At least one keyword is empty.');
+        if (errorType.nonnumber) info.push('At least one PID or UID is not pure number.');
+        if (info.length) {
+            let hint = document.querySelector('.hint');
+            hint.style.display = 'block';
+            let hintContent = document.querySelector('.hint .content');
+            hintContent.innerHTML = info.join(' ');
+        }
+        // highlights error tags
+        let tags = document.querySelectorAll('.keyword .main .tag-item')
+        for(let i = 0; i < errorIndex.length; i++) {
+            let index = errorIndex[i];
+            let tag = tags[index];
+            // refreshes animation
+            tag.style.animation = 'tagitem-highlight 0.2s ease-out forwards, tagitem-dim 0.2s 5.2s ease-out forwards';
+        }
+        return result;
+    }
+
+    @action
+    hideHint() {
+        let hint = document.querySelector('.hint');
+        hint.style.display = 'none';
+    }
+
+    @action
+    cancelTagHighlight(index, event) {
+        // proved to be useful!
+        // console.log(event, index);
+        if (event.animationName == 'tagitem-dim') {
+            let tag = document.querySelectorAll('.keyword .main .tag-item')[index];
+            tag.style.animation = 'none';
+        }
     }
 }
