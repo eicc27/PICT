@@ -1,5 +1,7 @@
 import Account from './account';
 import Browser from './browser';
+import createHttpsProxyAgent = require('https-proxy-agent');
+
 
 export default class ENV {
 
@@ -16,4 +18,6 @@ export default class ENV {
     static BROWSER = new Browser();
 
     static ACCOUNT = new Account();
+
+    static AGENT = createHttpsProxyAgent('http://127.0.0.1:32345');
 }

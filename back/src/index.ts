@@ -55,7 +55,7 @@ const socket = new websocket.Server({ port: 3001 });
 socket.on('connection', (ws) => {
     ws.onmessage = (msg) => {
         const data = JSON.parse(msg.data.toLocaleString());
-        const handler = new PixcrawlWSHandler(data);
+        const handler = new PixcrawlWSHandler(data, ws);
         ws.send(handler.handle());
     };
 });
