@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
+    "dev": "nodemon -x node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "tsc && node dist/index.js",
     "serve": "nodemon --watch src/**/* -e ts,tsx --exec ts-node ./src/index.ts"
@@ -14,7 +16,9 @@
   "dependencies": {
     "@types/ws": "^8.5.3",
     "axios": "^0.27.2",
+    "get-proxy-settings": "^0.1.13",
     "https-proxy-agent": "^5.0.1",
+    "jsdom": "^20.0.0",
     "koa": "^2.13.4",
     "koa-body": "^5.0.0",
     "koa-router": "^10.1.1",
@@ -23,6 +27,7 @@
   },
   "devDependencies": {
     "@types/async": "^3.2.13",
+    "@types/jsdom": "^20.0.0",
     "@types/koa": "^2.13.4",
     "@types/koa-router": "^7.4.4",
     "@typescript-eslint/eslint-plugin": "^5.27.1",

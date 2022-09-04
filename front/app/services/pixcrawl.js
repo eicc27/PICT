@@ -8,7 +8,7 @@ export default class PixcrawlService extends Service {
         console.log('Socket successfully opened.');
         this.socket.send(JSON.stringify({ value: keywords, type: 'search' }));
         this.socket.onmessage = (msg) => {
-            console.log(msg.data);
+            this.handle(JSON.parse(msg.data));
         };
     }
 
@@ -19,5 +19,9 @@ export default class PixcrawlService extends Service {
             this.socket.onopen = () => {
                 this.sendSearchKwds(keywords);
             };
+    }
+
+    handle(msg) {
+        console.log(msg);
     }
 }

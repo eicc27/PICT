@@ -78,28 +78,57 @@
             <div class="bar-content">
                 <div class="bar-bg" />
                 <div class="bar" />
-                <div class="percent">100%</div>
+                <div class="percent">0%</div>
             </div>
             <div class="abstract">
                 {{!-- xxx tags, xxx user names, xxx picture ids... --}}
-                <span>10</span> tags.
+                {{!-- <span>10</span> tags. --}}
             </div>
             <div class="abstract-progress">
-                <span class="completed">10</span> completed. <span class="failed">10</span> failed.
+                <span class="completed">0</span> completed. <span class="failed">0</span> failed.
             </div>
         </div>
         <ul class="contents">
-            {{#each this.keywords as |kwd|}}
+            {{#each this.searchResults as |res|}}
             <li>
-                <div class="content-keyword">
-                    <span>{{kwd.value}}</span>
-                    <span>{{kwd.type}}</span>
+                <div class="search-keyword">
+                    <div class="value">{{res.kwd.value}}</div>
+                    <div class="type">{{res.kwd.type}}</div>
                 </div>
-                <Pixcrawl::Arrow /> {{!-- displays only when search starts --}}
-                <span>waiting...</span> {{!-- displays only when search awaits --}}
-                <div class="content-result">
-                    <span>type</span>
-                    <span>value</span>
+                <button type="button" {{on "click" (fn this.toggleDetailedSearchResult res.index)}}>
+                    <Icons::TriangleRight />
+                </button>
+                <div class="search-result">
+                    {{#if (eq res.kwd.type "uid")}}
+                    <div class="result-abstract">
+                        <img alt="avatar" src={{res.result.avatar}} />
+                        <div class="value">{{res.result.name}}</div>
+                        <div class="type">{{res.type}}</div>
+                    </div>
+                    <div class="result-extended">
+                        <div class="previews">
+                            <h3>Previews</h3>
+                            <div class="preview-imgs">
+                                {{#each res.extended.pictures as |picture|}}
+                                <img alt={{picture.title}} title={{picture.title}} src={{picture.content}} />
+                                {{/each}}
+                            </div>
+                        </div>
+                        <div class="tags">
+                            <h3>Featured Tags</h3>
+                            <div class="tag-contents">
+                                {{#each res.extended.tags as |tag|}}
+                                {{#if (inSearchTags this.searchResults tag)}}
+                                <span class="tag-included">#{{tag}}<span>√</span></span>
+                                {{else}}
+                                <button type="button" class="tag-new" {{on "click" (fn this.addSearchTag
+                                    tag)}}>#{{tag}}<span>+</span></button>
+                                {{/if}}
+                                {{/each}}
+                            </div>
+                        </div>
+                    </div>
+                    {{/if}}
                 </div>
             </li>
             {{/each}}

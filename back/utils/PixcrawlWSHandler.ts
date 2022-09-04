@@ -1,10 +1,11 @@
-import axios from 'axios';
-import WebSocket = require('ws');
-import ENV from '../config/environment';
+import { WebSocket } from 'ws';
+import AsyncPool from './AsyncPool';
+import SearchUIDHandler from './SearchHandler/SearchUIDHandler';
 
 export default class PixcrawlWSHandler {
-    private data;
+    private data: any;
     private ws: WebSocket;
+    private searchCnt = 0;
 
     constructor(msg: any, ws: WebSocket) {
         this.data = msg;
@@ -16,25 +17,33 @@ export default class PixcrawlWSHandler {
             return this.search();
     }
 
-    private search() {
-        this.data.value.forEach((kwd: any) => {
+    private async search() {
+        // http://127.0.0.1/32345
+        // let settings = await getProxySettings(); 
+        // this.ws.send(`proxy settings: ${settings.https}`);
+        this.searchCnt = 0;
+        let pool = new AsyncPool(4);
+        let kwds = this.data.value;
+        for (let i = 0; i < kwds.length; i++) {
+            let kwd = kwds[i];
             switch (kwd.type) {
                 case 'uid':
-                    this.searchForUid(kwd.value);
+                    await pool.submit(this.searchForUid(kwd.value, i));
+                    break;
+                case 'pid':
+                    break;
             }
-        });
+        }
+        await pool.close();
     }
 
-    private searchForUid(value: string) {
-        axios.get(`https://www.pixiv.net/users/${value}`, { httpsAgent: ENV.AGENT })
-            .then((resp) => {
-                //console.log(resp.status);
-                let html: string = resp.data;
-                let title = html.slice(html.indexOf('<title>') + '<title>'.length, html.indexOf('</title>') - ' - pixiv'.length);
-                this.ws.send(`Matching result found: ${value} - ${title}`);
-            }, (error) => {
-                console.log(error);
-                this.ws.send(`No matching results for ${value}.`);
-            });
+    private async searchForUid(value: string, index: number) {
+        let handler = new SearchUIDHandler(value);
+        let search = await handler.search();
+        search.index = index;
+        search.searchCnt = ++this.searchCnt;
+        this.ws.send(JSON.stringify(search));
+        let extendedSearch = await handler.extendedSearch();
+        this.ws.send(JSON.stringify(extendedSearch));
     }
 }

@@ -1,23 +1,81 @@
-import Account from './account';
-import Browser from './browser';
-import createHttpsProxyAgent = require('https-proxy-agent');
+import httpsProxyAgent from 'https-proxy-agent';
+import axios from 'axios';
+import { getProxySettings } from 'get-proxy-settings';
 
+/**
+ * Uses a specific AJAX template to get the first page details of user
+ * @param uid Pixiv User ID
+ * @returns A concatenated template URL ready to query
+ */
+function getUserTopPage(uid: string) {
+    return `https://www.pixiv.net/ajax/user/${uid}/profile/top?lang=zh`;
+}
 
-export default class ENV {
+/**
+ * Uses a specific AJAX template to get the all page overview of user
+ * @param uid Pixiv User ID
+ * @returns A concatenated template URL ready to query
+ */
+function getUserAllPage(uid: string) {
+    return `https://www.pixiv.net/ajax/user/${uid}/profile/all?lang=zh`;
+}
+
+async function getPictureInBase64(url: string): Promise<string> {
+    return new Promise((resolve) => {
+        axios.get(url,
+            { httpsAgent: ENV.PROXY_AGENT, headers: ENV.HEADER, responseType: 'arraybuffer' })
+            .then((resp) => {
+                let buffer = Buffer.from(resp.data, 'binary');
+                resolve(ENV.BASE64_PREFIX + buffer.toString('base64'));
+            });
+    });
+}
+
+/**
+ * Reflects results of network request
+ */
+enum RESULT { SUCCESS, FAILED };
+
+const ENV = {
+
+    BASE64_PREFIX: 'data:img/png;base64, ',
 
     /**
-     * Used to test Internet connection in web interface `/check-network`.
+     * Pixiv template websites
      */
-    static TEST_WEBSITE = 'https://www.pixiv.net';
+    PIXIV: {
+        ROOT: 'https://www.pixiv.net',
+        SETTINGS: 'https://www.pixiv.net/setting_user.php',
+        USER: {
+            URL: 'https://www.pixiv.net/users/',
+            TOP: getUserTopPage,
+            ALL: getUserAllPage,
+        },
+        PICTURE_GETTER: getPictureInBase64,
+    },
 
-    static PIXIV = {
-        root: 'https://www.pixiv.net',
-        user: 'https://www.pixiv.net/setting_user.php',
-    };
+    /**
+     * Basic settings controlled by user
+     */
+    SETTINGS: {
+        MAX_THUMBNAIL_NUM: 3,
 
-    static BROWSER = new Browser();
+    },
 
-    static ACCOUNT = new Account();
+    /**
+     * An example header to fool Pixiv
+     */
+    HEADER: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.102 Safari/537.36 Edg/104.0.1293.70',
+        'Referer': 'https://www.pixiv.net/'
+    },
 
-    static AGENT = createHttpsProxyAgent('http://127.0.0.1:32345');
+    /**
+     * Automatically gets system proxy settings(only available when system proxy is used, instead of http proxy).
+     *
+     * This gracefully solves the core problem using NodeJS as back-end.
+     */
+    PROXY_AGENT: httpsProxyAgent((await getProxySettings()).https)
 }
+
+export { ENV, RESULT };

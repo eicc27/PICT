@@ -2,6 +2,7 @@
 /back/node_modules/
 /back/.vscode/
 /back/.eslintrc.js
+/back/tests
 
 # front-end
 

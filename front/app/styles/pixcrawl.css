@@ -363,15 +363,15 @@
 }
 
 .pixcrawl .arrow .angle-right:nth-child(1) {
-    animation: blink-angle 1.5s linear infinite; 
+    animation: blink-angle 1.5s linear infinite;
 }
 
 .pixcrawl .arrow .angle-right:nth-child(2) {
-    animation: blink-angle 1.5s 0.5s linear infinite; 
+    animation: blink-angle 1.5s 0.5s linear infinite;
 }
 
 .pixcrawl .arrow .angle-right:nth-child(3) {
-    animation: blink-angle 1.5s 1s linear infinite; 
+    animation: blink-angle 1.5s 1s linear infinite;
 }
 
 @keyframes blink-angle {
@@ -388,72 +388,12 @@
     }
 }
 
-.pixcrawl .search li,
-.pixcrawl .search li .content-keyword,
-.pixcrawl .search li .content-result {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+.pixcrawl .search ul {
+    margin: 50px 0;
 }
 
-/* value */
-.pixcrawl .search li .content-keyword span:first-child {
-    font-size: 1.5rem;
-}
-
-.pixcrawl .search li .content-keyword span:last-child {
-    font-size: 0.8rem;
-    align-self: baseline;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: white;
-    background: royalblue;
-    padding: 0 1px;
-    margin-left: 2px;
-    text-align: center;
-    vertical-align: middle;
-    border-radius: 2px;
-}
-
-.pixcrawl .search li > span {
-    font-size: 1.5rem;
-    display: none; 
-    margin: 0 50px;
-}
-
-.pixcrawl .search li .content-result span:first-child {
-    background: rosybrown;
-    color: white;
-    border-radius: 2px;
-    margin-right: 5px;
-    padding: 0 2px;
-}
-
-.pixcrawl .search li .content-result span:last-child {
-    font-size: 1.5rem;
-}
-
-.pixcrawl .search .progress {
-    display: flex;
-    flex-direction: column;
-    width: 60vw;
-    /* border: 1px solid hsl(0, 0%, 50%); */
-    background:hsl(0, 0%, 90%);
-    padding: 20px;
-}
-
-.pixcrawl .search .progress h2 {
-    font-size: 1.2rem;
-    font-weight: normal;
-    margin: 0;
-    margin-bottom: 5px;
-}
-
-.pixcrawl .search .progress .search-target {
-    color:hsl(0, 0%, 50%);
-}
-
-.pixcrawl .search .progress .search-target span {
-    font-style: italic;
+.pixcrawl .search li {
+    padding: 10px 0;
 }
 
 .pixcrawl .search .progress .bar-content {
@@ -470,9 +410,10 @@
 }
 
 .pixcrawl .search .progress .bar {
-    width: 300px;
+    width: 0px;
     background: royalblue;
     position: absolute;
+    transition: all 20ms ease-out;
 }
 
 .pixcrawl .search .progress .bar-bg {
@@ -488,6 +429,7 @@
 .pixcrawl .search .progress .abstract-progress {
     font-size: 1.5rem;
 }
+
 .pixcrawl .search .progress .abstract span,
 .pixcrawl .search .progress .abstract-progress span {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -506,3 +448,161 @@
     color: #C44F6F;
 }
 
+.pixcrawl .search li {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.pixcrawl .search .search-keyword {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.pixcrawl .search .search-keyword .value,
+.pixcrawl .search .result-abstract .value {
+    font-size: 1.3rem;
+    font-style: italic;
+}
+
+.pixcrawl .search .search-keyword .type,
+.pixcrawl .search .result-abstract .type {
+    position: relative;
+    bottom: 5px;
+    font-size: 0.6rem;
+    background: royalblue;
+    padding: 0 2px;
+    margin-left: 5px;
+    color: white;
+    border-radius: 2px;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.triangle-right {
+    width: 20px;
+    height: 20px;
+    fill: rosybrown;
+    margin: 0 20px;
+    transform: rotate(-30deg);
+    cursor: pointer;
+    transition: all 0.2s ease-out;
+}
+
+.pixcrawl .search .search-result,
+.pixcrawl .search .result-extended,
+.pixcrawl .search .result-extended .previews,
+.pixcrawl .search .result-extended .tags {
+    display: flex;
+    flex-direction: column;
+}
+
+.pixcrawl .search .search-result {
+    position: relative;
+    border-radius: 5px 5px 0 0;
+    background: transparent;
+    transition: all 0.2s ease-out;
+}
+
+.pixcrawl .search .result-extended {
+    position: absolute;
+    top: 74px;
+    border-radius: 0 0 5px 5px;
+    background: hsl(0, 0%, 90%);
+    z-index: -1;
+    width: 600px;
+    padding-left: 20px;
+    display: none;
+}
+
+.pixcrawl .search .result-extended.result-extended-show {
+    display: flex;
+    animation: result-ext-show 0.2s ease-out forwards;
+}
+
+@keyframes result-ext-show {
+    0% {
+        background: transparent;
+        clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+    }
+
+    100% {
+        background: rgba(0, 0, 0, 0.1);
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+}
+
+.pixcrawl .search .result-abstract,
+.pixcrawl .search .result-extended .preview-imgs,
+.pixcrawl .search .result-extended .tag-contents {
+    display: flex;
+    flex-direction: row;
+}
+
+.pixcrawl .search .result-abstract {
+    align-items: center;
+    padding-left: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    width: 610px;
+}
+
+.pixcrawl .search .result-abstract img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50px;
+    border: 2px solid gray;
+    margin-right: 10px;
+}
+
+.pixcrawl .search .search-result h3 {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    padding: 0;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+.pixcrawl .search .result-extended .preview-imgs img {
+    width: 125px;
+    height: 125px;
+    margin-right: 10px;
+    border-radius: 5px;
+}
+
+.pixcrawl .search .result-extended .tag-included>span,
+.pixcrawl .search .result-extended .tag-new>span {
+    display: none;
+    font-size: 0.8rem;
+    text-decoration: none;
+}
+
+
+.pixcrawl .search .result-extended .tag-included {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: flex-start;
+    margin-right: 8px;
+    color: #00C9A7;
+}
+
+.pixcrawl .search .result-extended .tag-included:hover,
+.pixcrawl .search .result-extended .tag-new:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.pixcrawl .search .result-extended .tag-included:hover>span,
+.pixcrawl .search .result-extended .tag-new:hover>span {
+    display: block;
+}
+
+.pixcrawl .search .result-extended .tag-new {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: flex-start;
+    margin-right: 8px;
+    color: royalblue;
+}

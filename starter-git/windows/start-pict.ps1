@@ -18,5 +18,5 @@ Write-Colored "|---- Building ./front/**..." "DarkBlue"
 # start a puppy windows terminal
 wt.exe -w 0 -d (Resolve-Path .\front).Path powershell -c ember serve
 Write-Colored "|---- Building ./back/**..." "DarkBlue"
-wt.exe -w 0 -d (Resolve-Path .\back).Path powershell -c npm run serve
+wt.exe -w 0 -d (Resolve-Path .\back).Path powershell -c npm run dev
 exit 0

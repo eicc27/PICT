@@ -1,11 +1,8 @@
-import * as Koa from 'koa';
-import * as Router from 'koa-router';
-import * as websocket from 'ws';
-import ENV from '../config/environment';
+import Koa from 'koa';
+import Router from 'koa-router';
+import websocket from 'ws';
 import BrowserChecker from '../utils/BrowserChecker';
-import NetworkChecker from '../utils/NetworkChecker';
 import PixcrawlWSHandler from '../utils/PixcrawlWSHandler';
-// import Test from '../utils/Test';
 
 const app = new Koa();
 const router = new Router();
@@ -20,23 +17,6 @@ router.get('/check-browser', async (ctx) => {
 
 router.get('/download', async(ctx) => {
     ctx.body = 'success';
-});
-
-router.get('/browser-info', (ctx) => {
-    ctx.body = {
-        name: ENV.BROWSER.getName(),
-        profile: ENV.BROWSER.getProfileName()
-    };
-});
-
-const networkChecker = new NetworkChecker();
-
-router.get('/check-network', async (ctx) => {
-    ctx.body = await networkChecker.checkNetworkStaus();
-});
-
-router.get('/check-account', async (ctx) => {
-    ctx.body = await networkChecker.checkLoginStatus();
 });
 
 app.use(async (ctx, next) => {
@@ -56,6 +36,6 @@ socket.on('connection', (ws) => {
     ws.onmessage = (msg) => {
         const data = JSON.parse(msg.data.toLocaleString());
         const handler = new PixcrawlWSHandler(data, ws);
-        ws.send(handler.handle());
+        handler.handle();     
     };
 });
