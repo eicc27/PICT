@@ -16,7 +16,7 @@ Import-Module -Name .\starter-git\windows\cstr.psm1
     foreach ($port in $ports) {
         $query = Get-NetTCPConnection | Where-Object LocalPort -eq $port
         if ($query) {
-            Write-Colored "Local port $port in use." "DarkRed"
+            Write-Colored "Local port $port is in use." "DarkRed"
             $free = $false
         }
     }

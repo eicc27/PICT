@@ -1,0 +1,36 @@
+WARNING: Node v18.8.0 is not tested against Ember CLI on your platform. We recommend that you use the most-recent "Active LTS" version of Node.js. See https://git.io/v7S5n for details.
+- building... 
+- cleaning up
+cleaning up...
+- cleaning up
+Build Canceled
+
+
+Stack Trace and Error Report: /tmp/error.dump.30e06dde1baf32a0bf72cdaf06abb798.log
+WARNING: Node v18.8.0 is not tested against Ember CLI on your platform. We recommend that you use the most-recent "Active LTS" version of Node.js. See https://git.io/v7S5n for details.
+- building... 
+
+Build successful (2854ms) – Serving on http://localhost:4200/
+
+Slowest Nodes (totalTime >= 5%) | Total (avg)
+-+-
+ember-auto-import-webpack (1) | 1117ms
+BroccoliRollup (6) | 614ms (102 ms)
+Package /assets/vendor.js (1) | 217ms
+ember-auto-import-analyzer (4) | 211ms (52 ms)
+
+WARNING: Node v18.8.0 is not tested against Ember CLI on your platform. We recommend that you use the most-recent "Active LTS" version of Node.js. See https://git.io/v7S5n for details.
+Port 4200 is already in use.
+
+WARNING: Node v18.8.0 is not tested against Ember CLI on your platform. We recommend that you use the most-recent "Active LTS" version of Node.js. See https://git.io/v7S5n for details.
+Port 4200 is already in use.
+
+WARNING: Node v18.8.0 is not tested against Ember CLI on your platform. We recommend that you use the most-recent "Active LTS" version of Node.js. See https://git.io/v7S5n for details.
+Port 4200 is already in use.
+
+WARNING: Node v18.8.0 is not tested against Ember CLI on your platform. We recommend that you use the most-recent "Active LTS" version of Node.js. See https://git.io/v7S5n for details.
+Port 4200 is already in use.
+
+WARNING: Node v18.8.0 is not tested against Ember CLI on your platform. We recommend that you use the most-recent "Active LTS" version of Node.js. See https://git.io/v7S5n for details.
+Port 4200 is already in use.
+

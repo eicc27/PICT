@@ -1,0 +1,181 @@
+
+> back@1.0.0 dev
+> nodemon -x node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts
+
+[33m[nodemon] 2.0.19[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: ts,json[39m
+[32m[nodemon] starting `node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts`[39m
+node:events:491
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: EBADF: bad file descriptor, read
+Emitted 'error' event on ReadStream instance at:
+    at emitErrorNT (node:internal/streams/destroy:151:8)
+    at errorOrDestroy (node:internal/streams/destroy:214:7)
+    at node:internal/fs/streams:258:9
+    at FSReqCallback.wrapper [as oncomplete] (node:fs:680:5) {
+  errno: -9,
+  code: 'EBADF',
+  syscall: 'read'
+}
+
+Node.js v18.8.0
+
+> back@1.0.0 dev
+> nodemon -x node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts
+
+[33m[nodemon] 2.0.19[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: ts,json[39m
+[32m[nodemon] starting `node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts`[39m
+/home/chan/Documents/Code/PICT/back/node_modules/ts-node/src/index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+utils/SearchHandler/SearchUIDHandler.ts(1,19): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
+utils/SearchHandler/SearchUIDHandler.ts(3,23): error TS2307: Cannot find module 'jsdom' or its corresponding type declarations.
+utils/SearchHandler/SearchUIDHandler.ts(45,30): error TS7006: Parameter 'resp' implicitly has an 'any' type.
+utils/SearchHandler/SearchUIDHandler.ts(74,30): error TS7006: Parameter 'resp' implicitly has an 'any' type.
+
+    at createTSError (/home/chan/Documents/Code/PICT/back/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/home/chan/Documents/Code/PICT/back/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/home/chan/Documents/Code/PICT/back/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/home/chan/Documents/Code/PICT/back/node_modules/ts-node/src/index.ts:1433:41)
+    at transformSource (/home/chan/Documents/Code/PICT/back/node_modules/ts-node/src/esm.ts:400:37)
+    at /home/chan/Documents/Code/PICT/back/node_modules/ts-node/src/esm.ts:278:53
+    at async addShortCircuitFlag (/home/chan/Documents/Code/PICT/back/node_modules/ts-node/src/esm.ts:409:15)
+    at async nextLoad (node:internal/modules/esm/loader:164:22)
+    at async ESMLoader.load (node:internal/modules/esm/loader:603:20)
+    at async ESMLoader.moduleProvider (node:internal/modules/esm/loader:459:11) {
+  diagnosticCodes: [ 2307, 2307, 7006, 7006 ]
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+
+> back@1.0.0 dev
+> nodemon -x node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts
+
+[33m[nodemon] 2.0.19[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: ts,json[39m
+[32m[nodemon] starting `node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts`[39m
+node:events:491
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: EBADF: bad file descriptor, read
+Emitted 'error' event on ReadStream instance at:
+    at emitErrorNT (node:internal/streams/destroy:151:8)
+    at errorOrDestroy (node:internal/streams/destroy:214:7)
+    at node:internal/fs/streams:258:9
+    at FSReqCallback.wrapper [as oncomplete] (node:fs:680:5) {
+  errno: -9,
+  code: 'EBADF',
+  syscall: 'read'
+}
+
+Node.js v18.8.0
+
+> back@1.0.0 dev
+> nodemon -x node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts
+
+[33m[nodemon] 2.0.19[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: ts,json[39m
+[32m[nodemon] starting `node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts`[39m
+node:events:491
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: EBADF: bad file descriptor, read
+Emitted 'error' event on ReadStream instance at:
+    at emitErrorNT (node:internal/streams/destroy:151:8)
+    at errorOrDestroy (node:internal/streams/destroy:214:7)
+    at node:internal/fs/streams:258:9
+    at FSReqCallback.wrapper [as oncomplete] (node:fs:680:5) {
+  errno: -9,
+  code: 'EBADF',
+  syscall: 'read'
+}
+
+Node.js v18.8.0
+
+> back@1.0.0 dev
+> nodemon -x node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts
+
+[33m[nodemon] 2.0.19[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: ts,json[39m
+[32m[nodemon] starting `node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts`[39m
+node:events:491
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: EBADF: bad file descriptor, read
+Emitted 'error' event on ReadStream instance at:
+    at emitErrorNT (node:internal/streams/destroy:151:8)
+    at errorOrDestroy (node:internal/streams/destroy:214:7)
+    at node:internal/fs/streams:258:9
+    at FSReqCallback.wrapper [as oncomplete] (node:fs:680:5) {
+  errno: -9,
+  code: 'EBADF',
+  syscall: 'read'
+}
+
+Node.js v18.8.0
+
+> back@1.0.0 dev
+> nodemon -x node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts
+
+[33m[nodemon] 2.0.19[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: ts,json[39m
+[32m[nodemon] starting `node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts`[39m
+node:events:491
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: EBADF: bad file descriptor, read
+Emitted 'error' event on ReadStream instance at:
+    at emitErrorNT (node:internal/streams/destroy:151:8)
+    at errorOrDestroy (node:internal/streams/destroy:214:7)
+    at node:internal/fs/streams:258:9
+    at FSReqCallback.wrapper [as oncomplete] (node:fs:680:5) {
+  errno: -9,
+  code: 'EBADF',
+  syscall: 'read'
+}
+
+Node.js v18.8.0
+
+> back@1.0.0 dev
+> nodemon -x node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts
+
+[33m[nodemon] 2.0.19[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: ts,json[39m
+[32m[nodemon] starting `node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts`[39m
+node:events:491
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: EBADF: bad file descriptor, read
+Emitted 'error' event on ReadStream instance at:
+    at emitErrorNT (node:internal/streams/destroy:151:8)
+    at errorOrDestroy (node:internal/streams/destroy:214:7)
+    at node:internal/fs/streams:258:9
+    at FSReqCallback.wrapper [as oncomplete] (node:fs:680:5) {
+  errno: -9,
+  code: 'EBADF',
+  syscall: 'read'
+}
+
+Node.js v18.8.0

@@ -1,13 +1,20 @@
 #!/bin/sh
-echo "fetching remote update..."
-(git pull https://github.com/eicc27/PICT.git) || (echo "git command not found. Have you installed git?" && exit 1)
-echo "update complete."
 
-cd front || (echo "front folder does not exist. Maybe it's due to a corrupted installation" && exit 1)
-npm update || (echo "npm command not found. Have you installed NodeJS or npm?" && exit 1)
-nohup ember serve &
-echo "front started."
-(cd .. && cd back ) || (echo "front folder does not exist. Maybe it's due to a corrupted installation" && exit 1)
-npm update || (echo "npm command not found. Have you installed NodeJS or npm?" && exit 1)
-nohup npm run serve & 
-echo "back started."
+. "./starter-git/linux/cstr.sh"
+. "./starter-git/linux/detect-ports.sh"
+
+echo "Using Linux shell.";
+cstr "Trying to build from scratch..." "$fyellow";
+cstr "Warning: On Linux there is no fixed graphic-interface shell that explicitly \
+shows how the program is running. All outputs will be redirected to nohup.out." "$fyellow";
+detect_ports 4200 3000 3001;
+ret=$?;
+if [ "$ret" ]; then
+    exit 1;
+fi
+cstr "|---- Building ./front/**..." "$fblue";
+cd front || exit 1;
+nohup ember serve;
+cstr "|---- Building ./back/**..." "$fblue";
+cd ../back || exit 1;
+nohup npm run dev;
