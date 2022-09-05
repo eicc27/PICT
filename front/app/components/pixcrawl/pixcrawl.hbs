@@ -1,3 +1,4 @@
+
 <div class="pixcrawl" {{did-insert this.setVisibility}}>
 
     {{!-- steps topbar --}}
@@ -117,6 +118,20 @@
                             <div class="tag-contents">
                             </div>
                         </div>
+                    </div>
+                    {{else if (eq kwd.type "uname")}}
+                    {{!-- Exceptionally, the results will be searched once. No extra extended searches. --}}
+                    <div class="reult-abstract">
+                        <img alt="avatar" />
+                        <div class="value"></div>
+                        <div class="type">uname</div>
+                        <div class="value-uid"></div>
+                        <button type="button" {{}}><Icons::CrossX /></button>
+                        {{!-- add or tick button... --}}
+                        <button class="more" type="button">...</button>
+                    </div>
+                    <div class="result-extended">
+                        {{!-- template: ref on result-abstract --}}
                     </div>
                     {{/if}}
                 </div>

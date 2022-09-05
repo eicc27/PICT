@@ -27,6 +27,9 @@ class ExtendedUIDSearchResult {
     index?: number;
 }
 
+/**
+ * TODO: Add retrial.
+ */
 export default class SearchUIDHandler implements ISearchHandler {
 
     public keyword: string;
@@ -57,7 +60,8 @@ export default class SearchUIDHandler implements ISearchHandler {
                         value: userName,
                         avatar: avatarBase64
                     });
-                }, () => { // on error
+                }, (error) => { // on error
+                    console.log(error);
                     resolve({
                         result: RESULT.FAILED
                     });
@@ -105,7 +109,8 @@ export default class SearchUIDHandler implements ISearchHandler {
                     }
                     await pool.close();
                     resolve(retVal);
-                }, () => {
+                }, (error) => {
+                    console.log(error);
                     resolve({
                         result: RESULT.FAILED
                     });
