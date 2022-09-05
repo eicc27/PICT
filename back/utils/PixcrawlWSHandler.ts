@@ -1,9 +1,10 @@
 import { WebSocket } from 'ws';
 import AsyncPool from './AsyncPool';
 import SearchUIDHandler from './SearchHandler/SearchUIDHandler';
+import { RequestType, REQUEST_TYPE, KeywordType, KEYWORD_TYPE } from '../types/Types';
 
 export default class PixcrawlWSHandler {
-    private data: any;
+    private data: RequestType;
     private ws: WebSocket;
     private searchCnt = 0;
 
@@ -12,9 +13,13 @@ export default class PixcrawlWSHandler {
         this.ws = ws;
     }
 
-    public handle() {
-        if (this.data.type == 'search')
-            return this.search();
+    public async handle() {
+        switch (this.data.type) {
+            case REQUEST_TYPE.search:
+                return await this.search();
+            case REQUEST_TYPE.extendedSearch:
+                return await this.extendedSearch();
+        }
     }
 
     private async search() {
@@ -27,14 +32,22 @@ export default class PixcrawlWSHandler {
         for (let i = 0; i < kwds.length; i++) {
             let kwd = kwds[i];
             switch (kwd.type) {
-                case 'uid':
-                    await pool.submit(this.searchForUid(kwd.value, i));
+                case KEYWORD_TYPE.UID:
+                    await pool.submit(this.searchForUid(kwd.value, kwd.index));
                     break;
-                case 'pid':
+                case KEYWORD_TYPE.PID:
                     break;
             }
         }
         await pool.close();
+    }
+
+    private async extendedSearch() {
+        let kwd: any = this.data.value;
+        switch (kwd.type) {
+            case KEYWORD_TYPE.UID:
+                return await this.searchForUidExt(kwd.value, kwd.index);
+        }
     }
 
     private async searchForUid(value: string, index: number) {
@@ -42,8 +55,15 @@ export default class PixcrawlWSHandler {
         let search = await handler.search();
         search.index = index;
         search.searchCnt = ++this.searchCnt;
-        this.ws.send(JSON.stringify(search));
-        let extendedSearch = await handler.extendedSearch();
-        this.ws.send(JSON.stringify(extendedSearch));
+        // console.log(search);
+        this.ws.send(JSON.stringify({ value: search, type: 'search-uid' }));
+    }
+
+    private async searchForUidExt(value: string, index: number) {
+        let handler = new SearchUIDHandler(value);
+        let searchExt = await handler.extendedSearch();
+        searchExt.index = index;
+        // console.log(searchExt);
+        this.ws.send(JSON.stringify({value: searchExt, type: 'search-uid'}))
     }
 }

@@ -38,6 +38,8 @@ enum RESULT { SUCCESS, FAILED };
 
 const ENV = {
 
+    MAX_PREVIEW_NUM: 3,
+
     BASE64_PREFIX: 'data:img/png;base64, ',
 
     /**

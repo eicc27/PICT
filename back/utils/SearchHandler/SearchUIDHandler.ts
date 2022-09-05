@@ -2,22 +2,27 @@ import axios from "axios";
 import { ENV, RESULT } from "../../config/environment";
 import { JSDOM } from 'jsdom';
 import ISearchHandler from "./ISearchHandler";
+import AsyncPool from "../AsyncPool";
 
 /**
  * When result is not `RESULT.SUCCESS`, the rest of the attributes are not provided.
  */
 class UIDSearchResult {
+    extended?: boolean = false;
     result: RESULT;
-    uname?: string;
+    value?: string;
     avatar?: string;
     index?: number;
     searchCnt?: number = 0;
 }
 
 class ExtendedUIDSearchResult {
+    extended?: boolean = true;
     result: RESULT;
-    titles?: string[];
-    pictures?: string[];
+    pictures?: {
+        title: string
+        content: string,
+    }[];
     tags?: string[];
     index?: number;
 }
@@ -47,8 +52,9 @@ export default class SearchUIDHandler implements ISearchHandler {
                     let avatarUrl = userInfo.image;
                     let avatarBase64 = await ENV.PIXIV.PICTURE_GETTER(avatarUrl);
                     resolve({
+                        extended: false,
                         result: RESULT.SUCCESS,
-                        uname: userName,
+                        value: userName,
                         avatar: avatarBase64
                     });
                 }, () => { // on error
@@ -67,24 +73,37 @@ export default class SearchUIDHandler implements ISearchHandler {
             axios.get(ENV.PIXIV.USER.TOP(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
                 .then(async (resp) => {
                     let retVal: ExtendedUIDSearchResult = {
+                        extended: true,
                         result: RESULT.SUCCESS,
-                        titles: [],
                         pictures: [],
+                        tags: []
                     };
                     // the data passed through is already JSON.
                     // Gets TOP ${MAXNUM} numbers of thumbnails
                     let pictureData: any[] = Object.values(resp.data
                         .body.illusts);
-                    for (let i = 0; i < pictureData.length; i++) {
-                        let thumbnailTitle = pictureData[i].title;
-                        let thumbnailUrl = pictureData[i].url;
-                        let thumbnailBase64 = await ENV.PIXIV.PICTURE_GETTER(thumbnailUrl);
-                        retVal.titles.push(thumbnailTitle);
-                        retVal.pictures.push(thumbnailBase64);
-                        if (i > 3) break;
+                    let pool = new AsyncPool(3);
+                    for (let i = 0; i < Math.min(pictureData.length, ENV.MAX_PREVIEW_NUM); i++) {
+                        await pool.submit((async (retVal: ExtendedUIDSearchResult) => {
+                            let thumbnailTitle = pictureData[i].title;
+                            let thumbnailUrl = pictureData[i].url;
+                            let thumbnailBase64 = await ENV.PIXIV.PICTURE_GETTER(thumbnailUrl);
+                            retVal.pictures.push(
+                                {
+                                    title: thumbnailTitle,
+                                    content: thumbnailBase64,
+                                }
+                            );
+                            // Gets tags in featured pictures
+                            let tags = pictureData[i].tags;
+                            for (let i = 0; i < tags.length; i++) {
+                                let tag = tags[i];
+                                if (retVal.tags.includes(tag)) continue;
+                                retVal.tags.push(tag);
+                            }
+                        })(retVal));
                     }
-                    // Gets tags in featured pictures
-                    retVal.tags = await this.getTags();
+                    await pool.close();
                     resolve(retVal);
                 }, () => {
                     resolve({
@@ -93,26 +112,5 @@ export default class SearchUIDHandler implements ISearchHandler {
                 }
                 );
         })
-    }
-
-    private getTags(): Promise<string[]> {
-        return new Promise((resolve) => {
-            axios.get(ENV.PIXIV.USER.ALL(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
-                .then((resp) => {
-                    let tags: string[] = [];
-                    let pickupData: any[] = resp.data.body.pickup;
-                    if (pickupData) {
-                        for (const pickup of pickupData) {
-                            if (!("id" in pickup)) continue;
-                            let pickupTags = pickup.tags;
-                            for (const tag of pickupTags) {
-                                if (tags.includes(tag)) continue;
-                                tags.push(tag);
-                            }
-                        }
-                    }
-                    resolve(tags);
-                });
-        });
     }
 }

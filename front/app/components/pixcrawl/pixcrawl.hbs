@@ -73,7 +73,7 @@
         <div class="progress">
             <h2>Total Progress</h2>
             <div class="search-target">
-                Searching <span>test</span>...
+                Starting...
             </div>
             <div class="bar-content">
                 <div class="bar-bg" />
@@ -89,42 +89,32 @@
             </div>
         </div>
         <ul class="contents">
-            {{#each this.searchResults as |res|}}
+            {{#each this.keywords as |kwd|}}
             <li>
                 <div class="search-keyword">
-                    <div class="value">{{res.kwd.value}}</div>
-                    <div class="type">{{res.kwd.type}}</div>
+                    <div class="value">{{kwd.value}}</div>
+                    <div class="type">{{kwd.type}}</div>
                 </div>
-                <button type="button" {{on "click" (fn this.toggleDetailedSearchResult res.index)}}>
+                <button type="button" {{on "click" (fn this.toggleDetailedSearchResult kwd.index)}}>
                     <Icons::TriangleRight />
                 </button>
+                <Icons::Hourglass />
                 <div class="search-result">
-                    {{#if (eq res.kwd.type "uid")}}
+                    {{#if (eq kwd.type "uid")}}
                     <div class="result-abstract">
-                        <img alt="avatar" src={{res.result.avatar}} />
-                        <div class="value">{{res.result.name}}</div>
-                        <div class="type">{{res.type}}</div>
+                        <img alt="avatar" />
+                        <div class="value"></div>
+                        <div class="type">uname</div>
                     </div>
                     <div class="result-extended">
                         <div class="previews">
                             <h3>Previews</h3>
                             <div class="preview-imgs">
-                                {{#each res.extended.pictures as |picture|}}
-                                <img alt={{picture.title}} title={{picture.title}} src={{picture.content}} />
-                                {{/each}}
                             </div>
                         </div>
                         <div class="tags">
                             <h3>Featured Tags</h3>
                             <div class="tag-contents">
-                                {{#each res.extended.tags as |tag|}}
-                                {{#if (inSearchTags this.searchResults tag)}}
-                                <span class="tag-included">#{{tag}}<span>√</span></span>
-                                {{else}}
-                                <button type="button" class="tag-new" {{on "click" (fn this.addSearchTag
-                                    tag)}}>#{{tag}}<span>+</span></button>
-                                {{/if}}
-                                {{/each}}
                             </div>
                         </div>
                     </div>
