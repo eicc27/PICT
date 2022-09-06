@@ -549,6 +549,7 @@
 .pixcrawl .search .result-extended.result-extended-show {
     display: flex;
     animation: result-ext-show 0.2s ease-out forwards;
+    background: rgba(0, 0, 0, 0.1);
 }
 
 @keyframes result-ext-show {

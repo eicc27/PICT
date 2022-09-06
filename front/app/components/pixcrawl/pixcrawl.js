@@ -12,8 +12,9 @@ function changeWidth(inputElement) {
     let charContent = inputContent.match(/[\s\w]/g);
     let charContentLength = charContent ? charContent.length : 0;
     let nonCharContentLength = inputContent.length - charContentLength;
-    inputElement.style.width = `${charContentLength * 8 + nonCharContentLength * 15
-        }px`;
+    inputElement.style.width = `${
+        charContentLength * 8 + nonCharContentLength * 15
+    }px`;
 }
 
 export default class PixcrawlComponent extends Component {
@@ -46,11 +47,72 @@ export default class PixcrawlComponent extends Component {
     @tracked
     keywords = [];
 
+    /**
+     * `type` indeicates the search type. `value` depends on back end.
+     */
+    @tracked
+    searchResults = [];
+
     @tracked
     crawlResults = [];
 
     @service('pixcrawl')
     pixcrawlWS;
+
+    send(keywords) {
+        if (this.pixcrawlWS.socket.readyState == WebSocket.OPEN) {
+            this.sendKwds(keywords);
+        } else
+            this.pixcrawlWS.socket.onopen = () => {
+                this.sendKwds(keywords);
+            };
+    }
+
+    sendKwds(keywords) {
+        // console.log('Socket successfully opened.');
+        this.pixcrawlWS.socket.send(JSON.stringify(keywords));
+        this.pixcrawlWS.socket.onmessage = (msg) => {
+            // console.log(msg.data);
+            this.handle(msg.data);
+        };
+    }
+
+    handle(msg) {
+        let resp = JSON.parse(msg);
+        switch (resp.type) {
+            case 'search-uid':
+                this.fillUid(resp.value);
+                // this.updateProgress(resp.value);
+                break;
+        }
+    }
+
+    fillUid(value) {
+        let index = value.index;
+        let result = this.searchResults[index];
+        if (!value.extended) {
+            result.uname = value.value;
+            result.avatar = value.avatar;
+            let resultElement = document.querySelectorAll('.search li')[index];
+            resultElement.style.display = 'flex';
+            this.searchResults = copy(this.searchResults);
+            // console.log(this.searchResults);
+            return;
+        }
+        // the rest of the thing is done by clicking the triangle button.
+        result.pictures = value.pictures;
+        result.tags = value.tags;
+
+        this.searchResults = copy(this.searchResults);
+        let triangle = document.querySelectorAll('.search li>button')[index];
+        let hourglass = document.querySelectorAll('.search .hourglass')[index];
+        hourglass.style.display = 'none';
+        triangle.style.display = 'block';
+        let resultExtendedElement =
+            document.querySelectorAll('.result-extended')[index];
+        resultExtendedElement.classList.add('result-extended-show');
+        triangle.children[0].style.transform = 'rotate(180deg)';
+    }
 
     toggleAddTagsHintVisibility() {
         // controls the hint visibility
@@ -59,11 +121,36 @@ export default class PixcrawlComponent extends Component {
     }
 
     @action
-    setVisibility() {
-        let pixcrawlElement = document.getElementsByClassName('pixcrawl')[0];
-        if (window.location.href.includes('pixcrawl'))
-            pixcrawlElement.style.display = 'flex';
-        else pixcrawlElement.style.display = 'none';
+    toggleDetailedSearchResult(index) {
+        let resultExtendedElement =
+            document.querySelectorAll('.result-extended')[index];
+        // shrink function
+        let showClassName = 'result-extended-show';
+        let triangle = document.querySelectorAll('.search li>button')[index];
+        if (resultExtendedElement.classList.contains(showClassName)) {
+            triangle.children[0].style.transform = 'rotate(-30deg)';
+            resultExtendedElement.classList.remove(showClassName);
+            return;
+        }
+        // expand function
+        let searchedClassName = 'result-extended-searched';
+        if (!resultExtendedElement.classList.contains(searchedClassName)) {
+            let hourglass =
+                document.querySelectorAll('.search .hourglass')[index];
+            resultExtendedElement.classList.add(searchedClassName);
+            // shows the hourglass
+            triangle.style.display = 'none';
+            hourglass.style.display = 'block';
+            this.sendExtendedSearchRequest(index);
+            return;
+        }
+        triangle.children[0].style.transform = 'rotate(180deg)';
+        resultExtendedElement.classList.add(showClassName);
+    }
+
+    sendExtendedSearchRequest(index) {
+        let request = this.keywords[index];
+        this.send({ value: request, type: 'extendedSearch' });
     }
 
     @action
@@ -211,23 +298,39 @@ export default class PixcrawlComponent extends Component {
             uid: 0,
             uname: 0,
             tag: 0,
-            pid: 0
-        }
+            pid: 0,
+        };
         for (let i = 0; i < this.keywords.length; i++) {
             cnt[this.keywords[i].type]++;
         }
         let sentences = [];
-        if (cnt.uid)
-            sentences.push(`<span>${cnt.uid}</span> user ids`);
-        if (cnt.uname)
-            sentences.push(`<span>${cnt.uname}</span> user names`);
-        if (cnt.tag)
-            sentences.push(`<span>${cnt.tag}</span> tags`);
-        if (cnt.pid)
-            sentences.push(`<span>${cnt.pid}</span> picture ids`);
+        if (cnt.uid) sentences.push(`<span>${cnt.uid}</span> user ids`);
+        if (cnt.uname) sentences.push(`<span>${cnt.uname}</span> user names`);
+        if (cnt.tag) sentences.push(`<span>${cnt.tag}</span> tags`);
+        if (cnt.pid) sentences.push(`<span>${cnt.pid}</span> picture ids`);
         abstract.innerHTML = sentences.join(', ') + '.';
         // send keyword requests, using ws
-        this.pixcrawlWS.send({ value: this.keywords, type: 'search' });
+        this.send({ value: this.keywords, type: 'search' });
+        // reset progress
+        // this.resetProgress();
+        // setup search results types
+        this.setupSearchResults();
+    }
+
+    setupSearchResults() {
+        for (let i = 0; i < this.keywords.length; i++) {
+            let keyword = this.keywords[i];
+            switch (keyword.type) {
+                case 'uid':
+                    this.searchResults.push({
+                        avatar: '',
+                        uname: '',
+                        pictures: [],
+                        tags: [],
+                    });
+                    break;
+            }
+        }
     }
 
     checkKeywords() {
@@ -256,7 +359,10 @@ export default class PixcrawlComponent extends Component {
             // pure number
             else if (keyword.type == 'uid' || keyword.type == 'pid') {
                 let value = keyword.value;
-                if (!value.match(/[0-9]/g) || value.match(/[0-9]/g).length != value.length) {
+                if (
+                    !value.match(/[0-9]/g) ||
+                    value.match(/[0-9]/g).length != value.length
+                ) {
                     errorIndex.push(i);
                     errorType.nonnumber = true;
                     result = false;
@@ -267,7 +373,8 @@ export default class PixcrawlComponent extends Component {
         let info = [];
         if (errorType.null) info.push('No keywords specified.');
         if (errorType.empty) info.push('At least one keyword is empty.');
-        if (errorType.nonnumber) info.push('At least one PID or UID is not pure number.');
+        if (errorType.nonnumber)
+            info.push('At least one PID or UID is not pure number.');
         if (info.length) {
             let hint = document.querySelector('.hint');
             hint.style.display = 'block';
@@ -275,12 +382,13 @@ export default class PixcrawlComponent extends Component {
             hintContent.innerHTML = info.join(' ');
         }
         // highlights error tags
-        let tags = document.querySelectorAll('.keyword .main .tag-item')
+        let tags = document.querySelectorAll('.keyword .main .tag-item');
         for (let i = 0; i < errorIndex.length; i++) {
             let index = errorIndex[i];
             let tag = tags[index];
             // refreshes animation
-            tag.style.animation = 'tagitem-highlight 0.2s ease-out forwards, tagitem-dim 0.2s 5.2s ease-out forwards';
+            tag.style.animation =
+                'tagitem-highlight 0.2s ease-out forwards, tagitem-dim 0.2s 5.2s ease-out forwards';
         }
         return result;
     }
@@ -296,45 +404,13 @@ export default class PixcrawlComponent extends Component {
         // proved to be useful!
         // console.log(event, index);
         if (event.animationName == 'tagitem-dim') {
-            let tag = document.querySelectorAll('.keyword .main .tag-item')[index];
+            let tag = document.querySelectorAll('.keyword .main .tag-item')[
+                index
+            ];
             tag.style.animation = 'none';
         }
     }
 
     @action
-    toggleDetailedSearchResult(index) {
-        console.log(index);
-        // if triangle has class 'triangle-disabled', the function is totally disabled.
-        let triangle = document.querySelectorAll('.search .triangle-right')[index];
-        if (triangle.classList.contains('triangle-disabled')) return;
-        // if class 'result-extended' has no affliating classes, it is hidden.
-        let searchResultExt = document.querySelectorAll('.search .result-extended')[index];
-        let searchResult = document.querySelectorAll('.search .search-result')[index];
-        if (!searchResultExt.classList.contains('result-extended-show')) {
-            triangle.style.transform = 'rotate(-60deg)';
-            searchResult.style.background = 'rgba(0, 0, 0, 0.1)';
-            searchResultExt.classList.add('result-extended-show');
-            if (searchResultExt.classList.contains('result-extended-searched')) return;
-            // if it is the first time that the extended info is requested, toggle the hourglass icon
-            this.sendExtendedSearchRequest(index);
-            let hourglass = document.querySelectorAll('.search .hourglass')[index];
-            triangle.style.display = 'none';
-            hourglass.style.display = 'block';
-        } else { // else if it has 'result-extended-show' class, it is visible.
-            triangle.style.transform = 'rotate(-30deg)';
-            searchResult.style.background = 'rgba(0, 0, 0, 0)';
-            searchResultExt.classList.remove('result-extended-show');
-        }
-    }
-
-    sendExtendedSearchRequest(index) {
-        let request = this.keywords[index];
-        this.pixcrawlWS.send({ value: request, type: 'extendedSearch' });
-    }
-
-    @action
-    addSearchTag(tag) {
-
-    }
-
+    addNewTagInSearch(tag) {}
 }

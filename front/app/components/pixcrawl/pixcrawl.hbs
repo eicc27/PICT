@@ -1,6 +1,4 @@
-
-<div class="pixcrawl" {{did-insert this.setVisibility}}>
-
+<div class="pixcrawl">
     {{!-- steps topbar --}}
     <div class="steps">
         <button type="button" class="step step-current" {{on "mouseenter" (fn this.highlightDiamond 0)}}
@@ -91,6 +89,7 @@
         </div>
         <ul class="contents">
             {{#each this.keywords as |kwd|}}
+            {{#let (get this.searchResults kwd.index) as |result|}}
             <li>
                 <div class="search-keyword">
                     <div class="value">{{kwd.value}}</div>
@@ -103,30 +102,47 @@
                 <div class="search-result">
                     {{#if (eq kwd.type "uid")}}
                     <div class="result-abstract">
-                        <img alt="avatar" />
-                        <div class="value"></div>
+                        <img alt="avatar" src={{result.avatar}} />
+                        <div class="value">{{result.uname}}</div>
                         <div class="type">uname</div>
+                        <button class="cancel" type="button">
+                            <Icons::CrossX />
+                        </button>
                     </div>
                     <div class="result-extended">
                         <div class="previews">
                             <h3>Previews</h3>
                             <div class="preview-imgs">
+                                {{#each result.pictures as |picture|}}
+                                <img alt={{picture.title}} title={{picture.title}} src={{picture.content}} />
+                                {{/each}}
                             </div>
                         </div>
                         <div class="tags">
                             <h3>Featured Tags</h3>
                             <div class="tag-contents">
+                                {{#each result.tags as |tag|}}
+                                {{#if (inSearchTags tag)}}
+                                <span class="tag-included">#{{tag}}<span>√</span></span>
+                                {{else}}
+                                <button class="tag-new" type="button"
+                                {{on "click" (fn this.addNewTagInSearch tag)}}>#{{tag}}<span>+</span>
+                                </button>
+                                {{/if}}
+                                {{/each}}
                             </div>
                         </div>
                     </div>
                     {{else if (eq kwd.type "uname")}}
                     {{!-- Exceptionally, the results will be searched once. No extra extended searches. --}}
-                    <div class="reult-abstract">
+                    <div class="result-abstract">
                         <img alt="avatar" />
                         <div class="value"></div>
                         <div class="type">uname</div>
                         <div class="value-uid"></div>
-                        <button type="button" {{}}><Icons::CrossX /></button>
+                        <button type="button">
+                            <Icons::CrossX />
+                        </button>
                         {{!-- add or tick button... --}}
                         <button class="more" type="button">...</button>
                     </div>
@@ -136,6 +152,7 @@
                     {{/if}}
                 </div>
             </li>
+            {{/let}}
             {{/each}}
         </ul>
     </div>
