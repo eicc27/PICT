@@ -88,28 +88,36 @@
             </div>
         </div>
         <ul class="contents">
-            {{#each this.keywords as |kwd|}}
-            {{#let (get this.searchResults kwd.index) as |result|}}
-            {{#if result.display}}
+            {{#each this.keywords as |kwd idx|}}
+            {{#let (get this.searchResults idx) as |result|}}
+            {{#if result.elementState.display}}
             <li>
                 <div class="search-keyword">
                     <div class="value">{{kwd.value}}</div>
                     <div class="type">{{kwd.type}}</div>
                 </div>
-                <button type="button" {{on "click" (fn this.toggleDetailedSearchResult kwd.index)}}>
-                    <Icons::TriangleRight />
-                </button>
+                {{#if result.elementState.searching}}
                 <Icons::Hourglass />
+                {{else}}
+                <button type="button" {{on "click" (fn this.toggleDetailedSearchResult idx)}}>
+                    {{#if result.elementState.expand}}
+                    <Icons::TriangleRight class="triangle-down" />
+                    {{else}}
+                    <Icons::TriangleRight />
+                    {{/if}}
+                </button>
+                {{/if}}
                 <div class="search-result">
                     {{#if (eq kwd.type "uid")}}
                     <div class="result-abstract">
                         <img alt="avatar" src={{result.avatar}} />
                         <div class="value">{{result.uname}}</div>
                         <div class="type">uname</div>
-                        <button class="delete" type="button" {{on "click" (fn this.deleteSearchOption kwd.index)}}>
+                        <button class="delete" type="button" {{on "click" (fn this.deleteSearchOption idx)}}>
                             <Icons::CrossX />
                         </button>
                     </div>
+                    {{#if result.elementState.expand}}
                     <div class="result-extended">
                         <div class="previews">
                             <h3>Previews</h3>
@@ -123,8 +131,8 @@
                             <h3>Featured Tags</h3>
                             <div class="tag-contents">
                                 {{#each result.tags as |tag|}}
-                                {{#if (inSearchTags tag)}}
-                                <span class="tag-included">#{{tag}}<span>√</span></span>
+                                {{#if (inSearchTags this.searchResults tag)}}
+                                <span class="tag-included">#{{tag}}<span>✓</span></span>
                                 {{else}}
                                 <button class="tag-new" type="button" {{on "click" (fn this.addNewTagInSearch
                                     tag)}}>#{{tag}}<span>+</span>
@@ -134,6 +142,7 @@
                             </div>
                         </div>
                     </div>
+                    {{/if}} {{!-- End of if result.expand --}}
                     {{else if (eq kwd.type "uname")}}
                     {{!-- Exceptionally, the results will be searched once. No extra extended searches. --}}
                     {{#if (not (get result "extended"))}}
@@ -141,36 +150,36 @@
                     <div class="result-abstract">
                         <img alt="avatar" src={{head.avatar}} />
                         <div class="value">{{head.uname}}</div>
-                        <div class="type">uname</div>
+                        <div class="type">uname
+                            <span>{{if (inSearchUids this.keywords this.searchResults head.uid idx) "✓"}}</span>
+                        </div>
                         <div class="value-uid">{{head.uid}}</div>
-                        <button class="delete" type="button" {{on "click" (fn this.deleteSearchOption kwd.index)}}>
+                        <button class="delete" type="button" {{on "click" (fn this.deleteSearchOption idx)}}>
                             <Icons::CrossX />
                         </button>
                         {{!-- add or tick button... --}}
                         {{#if (moreThanOne result.value.length)}}
-                        <button class="more" type="button" {{on "click" (fn this.toggleDetailedUserInfo kwd.index 0)}}>
+                        <button class="more" type="button" {{on "click" (fn this.toggleDetailedUserInfo idx 0)}}>
                             <Icons::AnglesRight />
                         </button>
                         {{/if}}
                     </div>
+                    {{#if result.elementState.expand}}
                     <div class="result-extended">
                         {{!-- template: ref on result-abstract --}}
                         {{#each result.value as |tail tailIndex|}}
                         {{#if (neq tailIndex 0)}}
                         <div class="candidate">
+                            <div class="result-itembg"></div>
                             <img alt="avatar" src={{tail.avatar}} />
-                            <div class="value">{{tail.uname}}</div>
+                            <button type="button" class="value" {{on "click" (fn this.selectCandidate idx tailIndex)}}>{{tail.uname}}</button>
                             <div class="type">uname</div>
                             <div class="value-uid">{{tail.uid}}</div>
-                            {{!-- add or tick button... --}}
-                            <button class="more" type="button" {{on "click" (fn this.toggleDetailedUserInfo kwd.index
-                                tailIndex)}}>
-                                <Icons::AnglesRight />
-                            </button>
                         </div>
                         {{/if}}
                         {{/each}}
                     </div>
+                    {{/if}} {{!-- End of if result.expand --}}
                     {{/let}}
                     {{else}}
                     {{#let (get result.value result.extendIndex) as |extendedResult|}}
@@ -179,14 +188,15 @@
                         <div class="value">{{extendedResult.uname}}</div>
                         <div class="type">uname</div>
                         <div class="value-uid">{{extendedResult.uid}}</div>
-                        <button class="delete" type="button" {{on "click" (fn this.deleteSearchOption kwd.index)}}>
+                        <button class="delete" type="button" {{on "click" (fn this.deleteSearchOption idx)}}>
                             <Icons::CrossX />
                         </button>
-                        <button class="back" type="button" {{on "click" (fn this.toggleDetailedUserInfo kwd.index
+                        <button class="back" type="button" {{on "click" (fn this.toggleDetailedUserInfo idx
                             result.extendIndex)}}>
                             <Icons::AnglesLeft />
                         </button>
                     </div>
+                    {{#if result.elementState.expand}}
                     <div class="result-extended">
                         <div class="previews">
                             <h3>Previews</h3>
@@ -211,6 +221,7 @@
                             </div>
                         </div>
                     </div>
+                    {{/if}} {{!-- End of if result.expand --}}
                     {{/let}}
                     {{/if}} {{!-- End of result.extended == false --}}
                     {{/if}} {{!-- End of kwd.type == ... --}}

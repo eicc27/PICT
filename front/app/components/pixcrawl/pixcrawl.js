@@ -3,6 +3,95 @@ import { tracked } from '@glimmer/tracking';
 import { service } from '@ember/service';
 import { action } from '@ember/object';
 
+class SearchUIDResult {
+    elementState = {
+        expand: false,
+        searching: false,
+        display: false,
+    };
+    extended = false;
+    avatar = '';
+    uname = '';
+    pictures = [''];
+    tags = [''];
+}
+
+class SearchUIDResponse {
+    extended = false;
+    result = 'success';
+    value = '';
+    avatar = '';
+    index = 0;
+    searchCnt = 0;
+}
+
+class SearchUIDExtendedResponse {
+    extended = true;
+    result = 'success';
+    pictures = [
+        {
+            title: '',
+            content: '',
+        },
+    ];
+    tags = [''];
+    index = 0;
+}
+
+class SearchUNameResult {
+    elementState = {
+        expand: false,
+        searching: false,
+        display: false,
+    };
+    extended = false;
+    extendIndex = 0;
+    value = [
+        {
+            extended: false,
+            avatar: '',
+            uname: '',
+            uid: '',
+            pictures: [''],
+            tags: [''],
+        },
+    ];
+}
+
+class SearchUNameResponse {
+    extended = false;
+    result = 'success';
+    index = 0;
+    searchCnt = 0;
+    value = [
+        {
+            uname: '',
+            uid: '',
+            avatar: '',
+        },
+    ];
+}
+
+class KeywordType {
+    type = '';
+    value = '';
+    index = 0;
+    dropdown = [
+        {
+            tag: '',
+            desc: '',
+        },
+    ];
+}
+
+class SearchRequestType {
+    /** @type {KeywordType | KeywordType[]} value */
+    value;
+
+    /** @type {string} type */
+    type;
+}
+
 function copy(jsonLike) {
     return JSON.parse(JSON.stringify(jsonLike));
 }
@@ -18,38 +107,11 @@ function changeWidth(inputElement) {
 }
 
 export default class PixcrawlComponent extends Component {
-    /**
-     * item example:
-     * 
-     * {
-     * 
-            type: 'uid',
-
-            value: '',
-
-            index: this.keywords.length,
-
-            dropdown: [
-
-                { tag: 'UID', desc: 'User ID' },
-
-                { tag: 'PID', desc: 'Picture ID' },
-
-                { tag: 'TAG', desc: 'Tag' },
-
-                { tag: 'UNAME', desc: 'User Name' },
-
-            ],
-
-        }
-        
-     */
+    /** @type {KeywordType[]} */
     @tracked
     keywords = [];
 
-    /**
-     * `type` indicates the search type. `value` depends on back end.
-     */
+    /** @type {SearchUIDResult[] | SearchUNameResult[]} */
     @tracked
     searchResults = [];
 
@@ -59,6 +121,7 @@ export default class PixcrawlComponent extends Component {
     @service('pixcrawl')
     pixcrawlWS;
 
+    /** @param {SearchRequestType} keywords */
     send(keywords) {
         if (this.pixcrawlWS.socket.readyState == WebSocket.OPEN) {
             this.sendKwds(keywords);
@@ -68,6 +131,7 @@ export default class PixcrawlComponent extends Component {
             };
     }
 
+    /** @param {KeywordType[] | KeywordType} keywords */
     sendKwds(keywords) {
         // console.log('Socket successfully opened.');
         this.pixcrawlWS.socket.send(JSON.stringify(keywords));
@@ -90,166 +154,9 @@ export default class PixcrawlComponent extends Component {
         }
     }
 
-    fillUid(value) {
-        let index = value.index;
-        let result = this.searchResults[index];
-        if (!value.extended) {
-            result.uname = value.value;
-            result.avatar = value.avatar;
-            result.extended = false;
-            result.display = true;
-            this.searchResults = copy(this.searchResults);
-            // console.log(this.searchResults);
-            return;
-        }
-        // else value.extended
-        // the rest of the thing is done by clicking the triangle button.
-        switch (this.keywords[index].type) {
-            case 'uid':
-                result.pictures = value.pictures;
-                result.tags = value.tags;
-                break;
-            case 'uname':
-                result.value[result.extendIndex].pictures = value.pictures;
-                result.value[result.extendIndex].tags = value.tags;
-        }
-        this.searchResults = copy(this.searchResults);
-        let triangle = document.querySelectorAll('.search li>button')[index];
-        let hourglass = document.querySelectorAll('.search .hourglass')[index];
-        let abstractResult = document.querySelectorAll(
-            '.search .result-abstract'
-        )[index];
-        hourglass.style.display = 'none';
-        triangle.style.display = 'block';
-        abstractResult.style.background = 'rgba(0, 0, 0, 0.1)';
-        let resultExtendedElement =
-            document.querySelectorAll('.result-extended')[index];
-        resultExtendedElement.classList.add('result-extended-show');
-        triangle.children[0].style.transform = 'rotate(180deg)';
-    }
-
-    fillUname(value) {
-        let index = value.index;
-        if (!value.extended) {
-            this.searchResults[index] = {
-                extended: false,
-                extendIndex: null,
-                display: true,
-                value: value.value,
-            };
-            for (let i = 0; i < this.searchResults[index].value.length; i++) {
-                this.searchResults[index].value[i].extended = false;
-                this.searchResults[index].value[i].pictures = [];
-                this.searchResults[index].value[i].tags = [];
-            }
-        }
-        this.searchResults = copy(this.searchResults);
-        console.log(this.searchResults);
-        let resultElement = document.querySelectorAll('.search li')[index];
-        resultElement.style.display = 'flex';
-    }
-
-    deleteSearchOption = (index) => {
-        // deletes keyword as well
-        this.searchResults.splice(index, 1);
-        this.searchResults = copy(this.searchResults);
-        // 1, 2, 3 [delete index 2] -> 1, 3 [adjust index] -> 1, 2
-        this.keywords.splice(index, 1);
-        for (let i = index; i < this.keywords.length; i++) {
-            this.keywords[i].index--;
-        }
-        this.keywords = copy(this.keywords);
-        // console.log(this.searchResults);
-        // the default display of the list items is hidden.
-
-        this.toggleAddTagsHintVisibility();
-    };
-
     toggleAddTagsHintVisibility() {
-        // controls the hint visibility
-        let hint = document.querySelector('.keyword .add-tags span');
-        hint.style.display = this.keywords.length ? 'none' : 'block';
-    }
-
-    @action
-    toggleDetailedSearchResult(index) {
-        let resultExtendedElement =
-            document.querySelectorAll('.result-extended')[index];
-        let abstractResultElement = document.querySelectorAll(
-            '.search .result-abstract'
-        )[index];
-        // shrink function
-        let showClassName = 'result-extended-show';
-        let triangle = document.querySelectorAll('.search li>button')[index];
-        if (resultExtendedElement.classList.contains(showClassName)) {
-            triangle.children[0].style.transform = 'rotate(-30deg)';
-            resultExtendedElement.classList.remove(showClassName);
-            abstractResultElement.style.background = 'transparent';
-            return;
-        }
-        // expand function
-        let searchedClassName = 'result-extended-searched';
-        let hourglass = document.querySelectorAll('.search .hourglass')[index];
-        triangle.children[0].style.transform = 'rotate(180deg)';
-        abstractResultElement.style.background = 'rgba(0, 0, 0, 0.1)';
-        resultExtendedElement.classList.add(showClassName);
-        switch (this.keywords[index].type) {
-            case 'uid':
-                if (
-                    !resultExtendedElement.classList.contains(searchedClassName)
-                ) {
-                    resultExtendedElement.classList.add(searchedClassName);
-                    // shows the hourglass
-                    triangle.style.display = 'none';
-                    hourglass.style.display = 'block';
-                    this.sendExtendedSearchRequest(index);
-                }
-                break;
-            case 'uname':
-                break;
-        }
-    }
-
-    @action toggleDetailedUserInfo(kwdIndex, resultIndex) {
-        let result = this.searchResults[kwdIndex];
-        let triangle = document.querySelectorAll('.search li>button')[kwdIndex];
-        if (!result.extended) {
-            // ready for visual state change
-            result.extended = true;
-            result.extendIndex = resultIndex;
-            this.searchResults = copy(this.searchResults);
-            // console.log(this.searchResults);
-            // gets keyword and send to backend
-            let uid = result.value[resultIndex].uid;
-            if (!result.value[resultIndex].extended) {
-                // sets flag to 'already searched'
-                this.searchResults[kwdIndex].value[resultIndex].extended = true;
-                console.log(this.searchResults);
-                this.send({
-                    value: {
-                        value: uid,
-                        type: 'uid',
-                        index: kwdIndex,
-                    },
-                    type: 'extendedSearch',
-                });
-                // visual state change for displaying hourglass
-                let hourglass =
-                    document.querySelectorAll('.search .hourglass')[kwdIndex];
-                hourglass.style.display = 'block';
-                triangle.style.display = 'none';
-            }
-            return;
-        }
-        // else result.extended
-        result.extended = false;
-        this.searchResults = copy(this.searchResults);
-        triangle.children[0].style.transform = 'rotate(-30deg)';
-    }
-
-    sendExtendedSearchRequest(index) {
-        let request = this.keywords[index];
-        this.send({ value: request, type: 'extendedSearch' });
+        let hintElement = document.querySelector('.keyword .add-tags>span');
+        hintElement.style.display = this.keywords.length ? 'none' : 'flex';
     }
 
     @action
@@ -421,20 +328,11 @@ export default class PixcrawlComponent extends Component {
             let keyword = this.keywords[i];
             switch (keyword.type) {
                 case 'uid':
-                    this.searchResults.push({
-                        display: false,
-                        avatar: '',
-                        uname: '',
-                        pictures: [],
-                        tags: [],
-                    });
+                    this.searchResults.push(new SearchUIDResult());
                     break;
                 case 'uname':
-                    this.searchResults.push({
-                        value: [],
-                        extended: false,
-                        display: false,
-                    });
+                    this.searchResults.push(new SearchUNameResult());
+                    break;
             }
         }
     }
@@ -515,6 +413,131 @@ export default class PixcrawlComponent extends Component {
             ];
             tag.style.animation = 'none';
         }
+    }
+
+    /** @param {SearchUIDResponse | SearchUIDExtendedResponse} value */
+    fillUid(value) {
+        let result = this.searchResults[value.index];
+        if (!value.extended) {
+            result.avatar = value.avatar;
+            result.uname = value.value;
+            result.elementState.display = true;
+            this.searchResults = copy(this.searchResults);
+            return;
+        }
+        console.log(result);
+        result.elementState.searching = false;
+        result.elementState.expand = true;
+        result.extended = true;
+        switch (this.keywords[value.index].type) {
+            case 'uid':
+                result.pictures = value.pictures;
+                result.tags = value.tags;
+                break;
+            case 'uname':
+                result.value[result.extendIndex].extended = true;
+                result.value[result.extendIndex].pictures = value.pictures;
+                result.value[result.extendIndex].tags = value.tags;
+        }
+        this.searchResults = copy(this.searchResults);
+    }
+
+    /** @param {SearchUNameResponse | SearchUIDExtendedResponse} value */
+    fillUname(value) {
+        let result = this.searchResults[value.index];
+        if (!value.extended) {
+            result.value = [];
+            for (let i = 0; i < value.value.length; i++) {
+                let v = value.value[i];
+                v.extended = false;
+                v.pictures = [];
+                v.tags = [];
+                result.value.push(v);
+            }
+            result.elementState.display = true;
+            this.searchResults = copy(this.searchResults);
+            return;
+        }
+        result.value[result.extendIndex].pictures = value.pictures;
+        result.value[result.extendIndex].tags = value.tags;
+        result.vlaue[result.extendIndex].extended = true;
+        result.elementState.searching = false;
+        result.elementState.expand = true;
+        this.searchResults = copy(this.searchResults);
+    }
+
+    /** @param {number} idx */
+    @action toggleDetailedSearchResult(idx) {
+        let result = this.searchResults[idx];
+        if (!result.elementState.expand) {
+            switch (this.keywords[idx].type) {
+                case 'uid':
+                    if (!result.extended) {
+                        result.elementState.searching = true;
+                        result.elementState.expand = false;
+                        this.send({
+                            type: 'extendedSearch',
+                            value: this.keywords[idx],
+                        });
+                    } else {
+                        result.elementState.expand = true;
+                    }
+                    break;
+                case 'uname':
+                    result.elementState.expand = true;
+                    break;
+            }
+            this.searchResults = copy(this.searchResults);
+            return;
+        }
+        result.elementState.expand = false;
+        this.searchResults = copy(this.searchResults);
+    }
+
+    @action toggleDetailedUserInfo(kwdIdx, resultIdx) {
+        let result = this.searchResults[kwdIdx];
+        if (!result.extended) {
+            if (!result.value[resultIdx].extended) {
+                // result.value[result.extendIndex].extended = true;
+                result.elementState.searching = true;
+                result.elementState.expand = false;
+                result.extendIndex = resultIdx;
+                this.send({
+                    type: 'extendedSearch',
+                    value: {
+                        type: 'uid',
+                        value: result.value[resultIdx].uid,
+                        index: kwdIdx,
+                    },
+                });
+            } else {
+                result.extended = true;
+                result.elementState.expand = true;
+            }
+            this.searchResults = copy(this.searchResults);
+            return;
+        }
+        result.extended = false;
+        result.elementState.expand = true;
+        this.searchResults = copy(this.searchResults);
+    }
+
+    /** @param {number} idx */
+    @action deleteSearchOption(idx) {
+        this.keywords.splice(idx, 1);
+        this.searchResults.splice(idx, 1);
+        for (let i = idx; i < this.keywords.length; i++) {
+            this.keywords[i].index--;
+        }
+        this.keywords = copy(this.keywords);
+        this.searchResults = copy(this.searchResults);
+    }
+
+    @action selectCandidate(kwdIdx, resultIdx) {
+        let result = this.searchResults[kwdIdx];
+        let candidate = result.value.splice(resultIdx, 1)[0];
+        result.value.unshift(candidate);
+        this.searchResults = copy(this.searchResults);
     }
 
     @action
