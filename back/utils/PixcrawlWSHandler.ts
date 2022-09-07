@@ -2,7 +2,15 @@ import { WebSocket } from 'ws';
 import AsyncPool from './AsyncPool';
 import SearchUIDHandler from './SearchHandler/SearchUIDHandler';
 import { RequestType, REQUEST_TYPE, KeywordType, KEYWORD_TYPE } from '../types/Types';
+import SearchUnameHandler from './SearchHandler/SearchUnameHandler';
 
+/**
+ * Handles WebSocket requests from front-end.
+ * 
+ * 
+ * Asynchronously searches keywords. For keywords that needs browser automation,
+ * they're searched synchronously(like `uname`).
+ */
 export default class PixcrawlWSHandler {
     private data: RequestType;
     private ws: WebSocket;
@@ -35,7 +43,8 @@ export default class PixcrawlWSHandler {
                 case KEYWORD_TYPE.UID:
                     await pool.submit(this.searchForUid(kwd.value, kwd.index));
                     break;
-                case KEYWORD_TYPE.PID:
+                case KEYWORD_TYPE.UNAME:
+                    await this.searchForUname(kwd.value, kwd.index);
                     break;
             }
         }
@@ -47,6 +56,8 @@ export default class PixcrawlWSHandler {
         switch (kwd.type) {
             case KEYWORD_TYPE.UID:
                 return await this.searchForUidExt(kwd.value, kwd.index);
+            case KEYWORD_TYPE.UNAME:
+                return await this.searchForUnameExt(kwd.value, kwd.index);
         }
     }
 
@@ -64,6 +75,21 @@ export default class PixcrawlWSHandler {
         let searchExt = await handler.extendedSearch();
         searchExt.index = index;
         // console.log(searchExt);
-        this.ws.send(JSON.stringify({value: searchExt, type: 'search-uid'}))
+        this.ws.send(JSON.stringify({ value: searchExt, type: 'search-uid' }))
+    }
+
+    private async searchForUname(value: string, index: number) {
+        let handler = new SearchUnameHandler(value);
+        let search = await handler.search();
+        search.index = index;
+        search.searchCnt = ++this.searchCnt;
+        this.ws.send(JSON.stringify({ value: search, type: 'search-uname' }));
+    }
+
+    private async searchForUnameExt(value: string, index: number) {
+        let handler = new SearchUnameHandler(value);
+        let searchExt = await handler.extendedSearch();
+        searchExt.index = index;
+        this.ws.send(JSON.stringify({ value: searchExt, type: 'search-uname' }));
     }
 }

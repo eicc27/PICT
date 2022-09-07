@@ -105,7 +105,7 @@
                         <img alt="avatar" src={{result.avatar}} />
                         <div class="value">{{result.uname}}</div>
                         <div class="type">uname</div>
-                        <button class="cancel" type="button">
+                        <button class="delete" type="button" {{on "click" (fn this.deleteSearchOption kwd.index)}}>
                             <Icons::CrossX />
                         </button>
                     </div>
@@ -125,8 +125,8 @@
                                 {{#if (inSearchTags tag)}}
                                 <span class="tag-included">#{{tag}}<span>√</span></span>
                                 {{else}}
-                                <button class="tag-new" type="button"
-                                {{on "click" (fn this.addNewTagInSearch tag)}}>#{{tag}}<span>+</span>
+                                <button class="tag-new" type="button" {{on "click" (fn this.addNewTagInSearch
+                                    tag)}}>#{{tag}}<span>+</span>
                                 </button>
                                 {{/if}}
                                 {{/each}}
@@ -135,24 +135,87 @@
                     </div>
                     {{else if (eq kwd.type "uname")}}
                     {{!-- Exceptionally, the results will be searched once. No extra extended searches. --}}
+                    {{#if (not (get result "extended"))}}
+                    {{#let (get result.value 0) as |head|}}
                     <div class="result-abstract">
-                        <img alt="avatar" />
-                        <div class="value"></div>
+                        <img alt="avatar" src={{head.avatar}} />
+                        <div class="value">{{head.uname}}</div>
                         <div class="type">uname</div>
-                        <div class="value-uid"></div>
-                        <button type="button">
+                        <div class="value-uid">{{head.uid}}</div>
+                        <button class="delete" type="button" {{on "click" (fn this.deleteSearchOption kwd.index)}}>
                             <Icons::CrossX />
                         </button>
                         {{!-- add or tick button... --}}
-                        <button class="more" type="button">...</button>
+                        {{#if (moreThanOne result.value.length)}}
+                        <button class="more" type="button" {{on "click" (fn this.toggleDetailedUserInfo kwd.index 0)}}>
+                            <Icons::AnglesRight />
+                        </button>
+                        {{/if}}
                     </div>
                     <div class="result-extended">
                         {{!-- template: ref on result-abstract --}}
+                        {{#each result.value as |tail tailIndex|}}
+                        {{#if (neq tailIndex 0)}}
+                        <div class="candidate">
+                            <img alt="avatar" src={{tail.avatar}} />
+                            <div class="value">{{tail.uname}}</div>
+                            <div class="type">uname</div>
+                            <div class="value-uid">{{tail.uid}}</div>
+                            {{!-- add or tick button... --}}
+                            <button class="more" type="button" {{on "click" (fn this.toggleDetailedUserInfo kwd.index
+                                tailIndex)}}>
+                                <Icons::AnglesRight />
+                            </button>
+                        </div>
+                        {{/if}}
+                        {{/each}}
                     </div>
-                    {{/if}}
+                    {{/let}}
+                    {{else}}
+                    {{#let (get result.value result.extendIndex) as |extendedResult|}}
+                    <div class="result-abstract">
+                        <img alt="avatar" src={{extendedResult.avatar}} />
+                        <div class="value">{{extendedResult.uname}}</div>
+                        <div class="type">uname</div>
+                        <div class="value-uid">{{extendedResult.uid}}</div>
+                        <button class="delete" type="button" {{on "click" (fn this.deleteSearchOption kwd.index)}}>
+                            <Icons::CrossX />
+                        </button>
+                        <button class="back" type="button" {{on "click" (fn this.toggleDetailedUserInfo kwd.index
+                            result.extendIndex)}}>
+                            <Icons::AnglesLeft />
+                        </button>
+                    </div>
+                    <div class="result-extended">
+                        <div class="previews">
+                            <h3>Previews</h3>
+                            <div class="preview-imgs">
+                                {{#each extendedResult.pictures as |picture|}}
+                                <img alt={{picture.title}} title={{picture.title}} src={{picture.content}} />
+                                {{/each}}
+                            </div>
+                        </div>
+                        <div class="tags">
+                            <h3>Featured Tags</h3>
+                            <div class="tag-contents">
+                                {{#each extendedResult.tags as |tag|}}
+                                {{#if (inSearchTags tag)}}
+                                <span class="tag-included">#{{tag}}<span>√</span></span>
+                                {{else}}
+                                <button class="tag-new" type="button" {{on "click" (fn this.addNewTagInSearch
+                                    tag)}}>#{{tag}}<span>+</span>
+                                </button>
+                                {{/if}}
+                                {{/each}}
+                            </div>
+                        </div>
+                    </div>
+                    {{/let}}
+                    {{/if}} {{!-- End of result.extended == false --}}
+                    {{/if}} {{!-- End of kwd.type == ... --}}
                 </div>
             </li>
-            {{/let}}
+            {{/let}} {{!-- End of let result = searchResults[i] --}}
             {{/each}}
         </ul>
     </div>

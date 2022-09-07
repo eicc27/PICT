@@ -16,7 +16,7 @@ class UIDSearchResult {
     searchCnt?: number = 0;
 }
 
-class ExtendedUIDSearchResult {
+export class ExtendedUIDSearchResult {
     extended?: boolean = true;
     result: RESULT;
     pictures?: {
@@ -29,6 +29,10 @@ class ExtendedUIDSearchResult {
 
 /**
  * TODO: Add retrial.
+ * 
+ * Handler for User ID search. Does not need browser.
+ * 
+ * The preview pictures are automatically donwloaded asynchonously.
  */
 export default class SearchUIDHandler implements ISearchHandler {
 

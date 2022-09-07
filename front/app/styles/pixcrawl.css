@@ -478,13 +478,16 @@
 }
 
 .pixcrawl .search .search-keyword .value,
-.pixcrawl .search .result-abstract .value {
+.pixcrawl .search .result-abstract .value,
+.pixcrawl .search .result-extended .value {
     font-size: 1.3rem;
     font-style: italic;
+    width: max-content;
 }
 
 .pixcrawl .search .search-keyword .type,
-.pixcrawl .search .result-abstract .type {
+.pixcrawl .search .result-abstract .type,
+.pixcrawl .search .result-extended .type {
     position: relative;
     bottom: 5px;
     font-size: 0.6rem;
@@ -496,8 +499,15 @@
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
+.pixcrawl .search .result-abstract .value-uid,
+.pixcrawl .search .result-extended .value-uid {
+    color: hsl(0, 0%, 50%);
+    margin-left: 10px;
+    font-size: 0.8rem;
+    align-self: center;
+}
+
 .triangle-right,
-.hourglass,
 .triangle-disabled {
     position: relative;
     top: 25px;
@@ -577,7 +587,8 @@
     width: 610px;
 }
 
-.pixcrawl .search .result-abstract img {
+.pixcrawl .search .result-abstract img[alt="avatar"],
+.pixcrawl .search .result-extended img[alt="avatar"] {
     width: 50px;
     height: 50px;
     border-radius: 50px;
@@ -641,6 +652,8 @@
 }
 
 .hourglass {
+    position: relative;
+    top: 25px;
     width: 20px;
     height: 20px;
     margin: 0 20px;
@@ -668,4 +681,52 @@
     100% {
         transform: rotate(360deg);
     }
+}
+
+.pixcrawl .result-extended .candidate {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pixcrawl .search .cross-x {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    transform: all 0.2s ease-out;
+}
+
+.pixcrawl .search .cross-x:hover {
+    fill: #C44F6F;
+    transform: scale(1.1);
+}
+
+.pixcrawl .result-abstract .cross-x,
+.pixcrawl .result-extended .cross-x {
+    position: absolute;
+    right: 20px;
+    top: 40px;
+}
+
+.pixcrawl .search .more .angles-right,
+.pixcrawl .search .result-abstract .back .angles-left {
+    position: absolute;
+    cursor: pointer;
+    right: 20px;
+    width: 20px;
+    height: 20px;
+    transition: all 0.2s ease-out;
+}
+
+.pixcrawl .search .more .angles-right:hover,
+.pixcrawl .search .result-abstract .back .angles-left:hover {
+    fill: royalblue;
+    right: 18px;
+}
+
+.pixcrawl .search .result-abstract .more .angles-right,
+.pixcrawl .search .result-abstract .back .angles-left {
+    top: 15px;
 }

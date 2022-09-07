@@ -38,3 +38,8 @@
 
 # broccoli-debug
 /front/DEBUG/
+
+# tmp & out
+/tmp/
+/front/nohup.out
+/back/nohup.out

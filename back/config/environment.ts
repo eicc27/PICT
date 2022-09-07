@@ -20,6 +20,15 @@ function getUserAllPage(uid: string) {
     return `https://www.pixiv.net/ajax/user/${uid}/profile/all?lang=zh`;
 }
 
+function searchUserPage(uname: string) {
+    return `https://www.pixiv.net/search_user.php?nick=${uname}&s_mode=s_usr`;
+}
+
+/**
+ * Gets picture on Pixiv. Auto-sets referer & proxy agent. 
+ * @param url the pixiv picture url
+ * @returns base64-encoded picture if success, empty string if failed
+ */
 async function getPictureInBase64(url: string): Promise<string> {
     return new Promise((resolve) => {
         axios.get(url,
@@ -27,6 +36,10 @@ async function getPictureInBase64(url: string): Promise<string> {
             .then((resp) => {
                 let buffer = Buffer.from(resp.data, 'binary');
                 resolve(ENV.BASE64_PREFIX + buffer.toString('base64'));
+            }, (error) => {
+                console.log(`${url}: download error.`);
+                console.log(error);
+                resolve('');
             });
     });
 }
@@ -52,6 +65,7 @@ const ENV = {
             URL: 'https://www.pixiv.net/users/',
             TOP: getUserTopPage,
             ALL: getUserAllPage,
+            UNAME: searchUserPage,
         },
         PICTURE_GETTER: getPictureInBase64,
     },
@@ -77,7 +91,14 @@ const ENV = {
      *
      * This gracefully solves the core problem using NodeJS as back-end.
      */
-    PROXY_AGENT: httpsProxyAgent((await getProxySettings()).https)
+    PROXY_AGENT: httpsProxyAgent((await getProxySettings()).https),
+
+    /**
+     * Stores browser-related info. Now supports only firefox.
+     */
+    BROWSER: {
+        USER_PROFILE: 'C:\\Users\\13917\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\zestuc5g.default-default'
+    }
 }
 
 export { ENV, RESULT };

@@ -48,7 +48,7 @@ export default class PixcrawlComponent extends Component {
     keywords = [];
 
     /**
-     * `type` indeicates the search type. `value` depends on back end.
+     * `type` indicates the search type. `value` depends on back end.
      */
     @tracked
     searchResults = [];
@@ -84,6 +84,9 @@ export default class PixcrawlComponent extends Component {
                 this.fillUid(resp.value);
                 // this.updateProgress(resp.value);
                 break;
+            case 'search-uname':
+                this.fillUname(resp.value);
+                break;
         }
     }
 
@@ -93,26 +96,70 @@ export default class PixcrawlComponent extends Component {
         if (!value.extended) {
             result.uname = value.value;
             result.avatar = value.avatar;
+            result.extended = false;
             let resultElement = document.querySelectorAll('.search li')[index];
             resultElement.style.display = 'flex';
             this.searchResults = copy(this.searchResults);
             // console.log(this.searchResults);
             return;
         }
+        // else value.extended
         // the rest of the thing is done by clicking the triangle button.
-        result.pictures = value.pictures;
-        result.tags = value.tags;
-
+        switch (this.keywords[index].type) {
+            case 'uid':
+                result.pictures = value.pictures;
+                result.tags = value.tags;
+                break;
+            case 'uname':
+                result.value[result.extendIndex].pictures = value.pictures;
+                result.value[result.extendIndex].tags = value.tags;
+        }
         this.searchResults = copy(this.searchResults);
         let triangle = document.querySelectorAll('.search li>button')[index];
         let hourglass = document.querySelectorAll('.search .hourglass')[index];
+        let abstractResult = document.querySelectorAll(
+            '.search .result-abstract'
+        )[index];
         hourglass.style.display = 'none';
         triangle.style.display = 'block';
+        abstractResult.style.background = 'rgba(0, 0, 0, 0.1)';
         let resultExtendedElement =
             document.querySelectorAll('.result-extended')[index];
         resultExtendedElement.classList.add('result-extended-show');
         triangle.children[0].style.transform = 'rotate(180deg)';
     }
+
+    fillUname(value) {
+        let index = value.index;
+        if (!value.extended) {
+            this.searchResults[index] = {
+                extended: false,
+                extendIndex: null,
+                value: value.value,
+            };
+            for (let i = 0; i < this.searchResults[index].value.length; i++) {
+                this.searchResults[index].value[i].extended = false;
+                this.searchResults[index].value[i].pictures = [];
+                this.searchResults[index].value[i].tags = [];
+            }
+        }
+        this.searchResults = copy(this.searchResults);
+        console.log(this.searchResults);
+        let resultElement = document.querySelectorAll('.search li')[index];
+        resultElement.style.display = 'flex';
+    }
+
+    deleteSearchOption = (index) => {
+        // deletes keyword as well
+        this.searchResults.splice(index, 1);
+        this.searchResults = [...this.searchResults];
+        this.keywords.splice(index, 1);
+        for (let i = index + 1; i < this.keywords.length; i++) {
+            this.keywords[i].index--;
+        }
+        this.keywords = [...this.keywords];
+        this.toggleAddTagsHintVisibility();
+    };
 
     toggleAddTagsHintVisibility() {
         // controls the hint visibility
@@ -124,28 +171,76 @@ export default class PixcrawlComponent extends Component {
     toggleDetailedSearchResult(index) {
         let resultExtendedElement =
             document.querySelectorAll('.result-extended')[index];
+        let abstractResultElement = document.querySelectorAll(
+            '.search .result-abstract'
+        )[index];
         // shrink function
         let showClassName = 'result-extended-show';
         let triangle = document.querySelectorAll('.search li>button')[index];
         if (resultExtendedElement.classList.contains(showClassName)) {
             triangle.children[0].style.transform = 'rotate(-30deg)';
             resultExtendedElement.classList.remove(showClassName);
+            abstractResultElement.style.background = 'transparent';
             return;
         }
         // expand function
         let searchedClassName = 'result-extended-searched';
-        if (!resultExtendedElement.classList.contains(searchedClassName)) {
-            let hourglass =
-                document.querySelectorAll('.search .hourglass')[index];
-            resultExtendedElement.classList.add(searchedClassName);
-            // shows the hourglass
-            triangle.style.display = 'none';
-            hourglass.style.display = 'block';
-            this.sendExtendedSearchRequest(index);
+        let hourglass = document.querySelectorAll('.search .hourglass')[index];
+        triangle.children[0].style.transform = 'rotate(180deg)';
+        abstractResultElement.style.background = 'rgba(0, 0, 0, 0.1)';
+        resultExtendedElement.classList.add(showClassName);
+        switch (this.keywords[index].type) {
+            case 'uid':
+                if (
+                    !resultExtendedElement.classList.contains(searchedClassName)
+                ) {
+                    resultExtendedElement.classList.add(searchedClassName);
+                    // shows the hourglass
+                    triangle.style.display = 'none';
+                    hourglass.style.display = 'block';
+                    this.sendExtendedSearchRequest(index);
+                }
+                break;
+            case 'uname':
+                break;
+        }
+    }
+
+    @action toggleDetailedUserInfo(kwdIndex, resultIndex) {
+        let result = this.searchResults[kwdIndex];
+        let triangle = document.querySelectorAll('.search li>button')[kwdIndex];
+        if (!result.extended) {
+            // ready for visual state change
+            result.extended = true;
+            result.extendIndex = resultIndex;
+            this.searchResults = copy(this.searchResults);
+            // console.log(this.searchResults);
+            // gets keyword and send to backend
+            let uid = result.value[resultIndex].uid;
+            if (!result.value[resultIndex].extended) {
+                // sets flag to 'already searched'
+                this.searchResults[kwdIndex].value[resultIndex].extended = true;
+                console.log(this.searchResults);
+                this.send({
+                    value: {
+                        value: uid,
+                        type: 'uid',
+                        index: kwdIndex,
+                    },
+                    type: 'extendedSearch',
+                });
+                // visual state change for displaying hourglass
+                let hourglass =
+                    document.querySelectorAll('.search .hourglass')[kwdIndex];
+                hourglass.style.display = 'block';
+                triangle.style.display = 'none';
+            }
             return;
         }
-        triangle.children[0].style.transform = 'rotate(180deg)';
-        resultExtendedElement.classList.add(showClassName);
+        // else result.extended
+        result.extended = false;
+        this.searchResults = copy(this.searchResults);
+        triangle.children[0].style.transform = 'rotate(-30deg)';
     }
 
     sendExtendedSearchRequest(index) {
@@ -329,6 +424,15 @@ export default class PixcrawlComponent extends Component {
                         tags: [],
                     });
                     break;
+                case 'uname':
+                    this.searchResults.push([
+                        // {
+                        //     avatar: '',
+                        //     uname: '',
+                        //     pictures: [],
+                        //     tags: [],
+                        // },
+                    ]);
             }
         }
     }
