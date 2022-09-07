@@ -97,8 +97,7 @@ export default class PixcrawlComponent extends Component {
             result.uname = value.value;
             result.avatar = value.avatar;
             result.extended = false;
-            let resultElement = document.querySelectorAll('.search li')[index];
-            resultElement.style.display = 'flex';
+            result.display = true;
             this.searchResults = copy(this.searchResults);
             // console.log(this.searchResults);
             return;
@@ -135,6 +134,7 @@ export default class PixcrawlComponent extends Component {
             this.searchResults[index] = {
                 extended: false,
                 extendIndex: null,
+                display: true,
                 value: value.value,
             };
             for (let i = 0; i < this.searchResults[index].value.length; i++) {
@@ -152,12 +152,16 @@ export default class PixcrawlComponent extends Component {
     deleteSearchOption = (index) => {
         // deletes keyword as well
         this.searchResults.splice(index, 1);
-        this.searchResults = [...this.searchResults];
+        this.searchResults = copy(this.searchResults);
+        // 1, 2, 3 [delete index 2] -> 1, 3 [adjust index] -> 1, 2
         this.keywords.splice(index, 1);
-        for (let i = index + 1; i < this.keywords.length; i++) {
+        for (let i = index; i < this.keywords.length; i++) {
             this.keywords[i].index--;
         }
-        this.keywords = [...this.keywords];
+        this.keywords = copy(this.keywords);
+        // console.log(this.searchResults);
+        // the default display of the list items is hidden.
+
         this.toggleAddTagsHintVisibility();
     };
 
@@ -418,6 +422,7 @@ export default class PixcrawlComponent extends Component {
             switch (keyword.type) {
                 case 'uid':
                     this.searchResults.push({
+                        display: false,
                         avatar: '',
                         uname: '',
                         pictures: [],
@@ -425,14 +430,11 @@ export default class PixcrawlComponent extends Component {
                     });
                     break;
                 case 'uname':
-                    this.searchResults.push([
-                        // {
-                        //     avatar: '',
-                        //     uname: '',
-                        //     pictures: [],
-                        //     tags: [],
-                        // },
-                    ]);
+                    this.searchResults.push({
+                        value: [],
+                        extended: false,
+                        display: false,
+                    });
             }
         }
     }

@@ -393,7 +393,7 @@
 }
 
 .pixcrawl .search li {
-    display: none;
+    /* display: none; */
     animation: search-item-show 0.5s ease-out forwards;
     padding: 10px 0;
     flex-direction: row;

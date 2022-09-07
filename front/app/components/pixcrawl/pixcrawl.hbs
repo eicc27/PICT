@@ -90,6 +90,7 @@
         <ul class="contents">
             {{#each this.keywords as |kwd|}}
             {{#let (get this.searchResults kwd.index) as |result|}}
+            {{#if result.display}}
             <li>
                 <div class="search-keyword">
                     <div class="value">{{kwd.value}}</div>
@@ -215,6 +216,7 @@
                     {{/if}} {{!-- End of kwd.type == ... --}}
                 </div>
             </li>
+            {{/if}} {{!-- End of if result.display --}}
             {{/let}} {{!-- End of let result = searchResults[i] --}}
             {{/each}}
         </ul>
