@@ -18,7 +18,7 @@ class SearchUIDResult {
 
 class SearchUIDResponse {
     extended = false;
-    result = 'success';
+    result = 0;
     value = '';
     avatar = '';
     index = 0;
@@ -27,7 +27,7 @@ class SearchUIDResponse {
 
 class SearchUIDExtendedResponse {
     extended = true;
-    result = 'success';
+    result = 0;
     pictures = [
         {
             title: '',
@@ -60,7 +60,7 @@ class SearchUNameResult {
 
 class SearchUNameResponse {
     extended = false;
-    result = 'success';
+    result = 0;
     index = 0;
     searchCnt = 0;
     value = [
@@ -70,6 +70,42 @@ class SearchUNameResponse {
             avatar: '',
         },
     ];
+}
+
+class SearchTagResult {
+    elementState = {
+        expand: false,
+        searching: false,
+        display: false,
+    };
+    extendIndex = 0;
+    value = [
+        {
+            extended: false,
+            tag: '',
+            translate: '',
+            avatar: '',
+        },
+    ];
+}
+
+class SearchTagResponse {
+    result = 0;
+    index = 0;
+    searchCnt = 0;
+    value = [
+        {
+            tag: '',
+            translation: '',
+            avatar: '',
+        },
+    ];
+}
+
+class SearchTagExtendedResponse {
+    result = 0;
+    index = 0;
+    avatar = '';
 }
 
 class KeywordType {
@@ -101,9 +137,8 @@ function changeWidth(inputElement) {
     let charContent = inputContent.match(/[\s\w]/g);
     let charContentLength = charContent ? charContent.length : 0;
     let nonCharContentLength = inputContent.length - charContentLength;
-    inputElement.style.width = `${
-        charContentLength * 8 + nonCharContentLength * 15
-    }px`;
+    inputElement.style.width = `${charContentLength * 8 + nonCharContentLength * 15
+        }px`;
 }
 
 export default class PixcrawlComponent extends Component {
@@ -111,7 +146,7 @@ export default class PixcrawlComponent extends Component {
     @tracked
     keywords = [];
 
-    /** @type {SearchUIDResult[] | SearchUNameResult[]} */
+    /** @type {SearchUIDResult[] | SearchUNameResult[] | SearchTagResult[]} */
     @tracked
     searchResults = [];
 
@@ -151,6 +186,8 @@ export default class PixcrawlComponent extends Component {
             case 'search-uname':
                 this.fillUname(resp.value);
                 break;
+            case 'search-tag':
+                this.fillTag(resp.value);
         }
     }
 
@@ -333,6 +370,8 @@ export default class PixcrawlComponent extends Component {
                 case 'uname':
                     this.searchResults.push(new SearchUNameResult());
                     break;
+                case 'tag':
+                    this.searchResults.push(new SearchTagResult());
             }
         }
     }
@@ -466,6 +505,29 @@ export default class PixcrawlComponent extends Component {
         this.searchResults = copy(this.searchResults);
     }
 
+    /** @param {SearchTagResponse | SearchTagExtendedResponse} value */
+    fillTag(value) {
+        let result = this.searchResults[value.index];
+        if (!value.extended) {
+            result.value = [];
+            console.log(value.value);
+            for (let i = 0; i < value.value.length; i++) {
+                let v = value.value[i];
+                v.extended = false;
+                result.value.push(v);
+            }
+            result.value[0].extended = true;
+            result.elementState.display = true;
+            // console.log(result);
+            this.searchResults = copy(this.searchResults);
+            return;
+        }
+        result.value[0].extended = true;
+        result.value[0].avatar = value.avatar;
+        result.elementState.searching = false;
+        this.searchResults = copy(this.searchResults);
+    }
+
     /** @param {number} idx */
     @action toggleDetailedSearchResult(idx) {
         let result = this.searchResults[idx];
@@ -484,6 +546,9 @@ export default class PixcrawlComponent extends Component {
                     }
                     break;
                 case 'uname':
+                    result.elementState.expand = true;
+                    break;
+                case 'tag':
                     result.elementState.expand = true;
                     break;
             }
@@ -533,13 +598,25 @@ export default class PixcrawlComponent extends Component {
         this.searchResults = copy(this.searchResults);
     }
 
+    /** @param {number} kwdIdx
+     *  @param {number} resultIdx
+     */
     @action selectCandidate(kwdIdx, resultIdx) {
         let result = this.searchResults[kwdIdx];
         let candidate = result.value.splice(resultIdx, 1)[0];
         result.value.unshift(candidate);
+        // if tag selected, a new request to get avatar is sent.
+        if (this.keywords[kwdIdx].type == 'tag') {
+            if (!result.value[0].extended) {
+                result.elementState.expand = false;
+                result.elementState.searching = true;
+                console.log(result);
+                this.send({ type: 'extendedSearch', value: { type: 'tag', value: result.value[0].tag, index: kwdIdx } });
+            }
+        }
         this.searchResults = copy(this.searchResults);
     }
 
     @action
-    addNewTagInSearch(tag) {}
+    addNewTagInSearch(tag) { }
 }

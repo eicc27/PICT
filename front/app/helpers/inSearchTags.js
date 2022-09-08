@@ -1,10 +1,13 @@
 import { helper } from '@ember/component/helper';
 
-function inSearchTags([searchResults, tag]) {
+function inSearchTags([keywords, searchResults, tag, idx]) {
     for (let i = 0; i < searchResults.length; ++i) {
+        if (i == idx) continue;
         let result = searchResults[i];
-        if (result.type != 'tag') continue;
-        if (tag == searchResults.result.name) return true;
+        let keyword = keywords[i];
+        if (keyword.type == 'tag') {
+            if (result.value[0].tag == tag) return true;
+        }
     }
     return false;
 }

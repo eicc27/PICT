@@ -495,8 +495,8 @@
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
-.pixcrawl .search .result-abstract .value-uid,
-.pixcrawl .search .result-extended .value-uid {
+.pixcrawl .search .result-abstract .value-alt,
+.pixcrawl .search .result-extended .value-alt {
     color: hsl(0, 0%, 50%);
     margin-left: 10px;
     font-size: 0.8rem;
@@ -764,4 +764,21 @@
 .pixcrawl .search .result-abstract .type>span {
     color: #2ee9ca;
     font-weight: bolder;
+}
+
+.pixcrawl .search .result-extended .tag-contents-tags {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-right: 10px;
+}
+
+.pixcrawl .search .result-extended .tag-contents-tags .tag-new,
+.pixcrawl .search .result-extended .tag-contents-tags .tag-included {
+    margin-right: 0px;
+}
+
+.pixcrawl .search .result-extended .tag-contents-tags .value-alt {
+    margin-right: 20px;
+    margin-left: 5px;
 }

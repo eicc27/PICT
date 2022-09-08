@@ -8,9 +8,7 @@ function inSearchUids([keywords, searchResults, uid, idx]) {
         if (keyword.type == 'uid') {
             if (keyword.value == uid) return true;
         } else if (keyword.type == 'uname') {
-            for (let i = 0; i < result.value.length; i++) {
-                if (result.value[i].uid == uid) return true;
-            }
+            if (result.value[0].uid == uid) return true;
         }
     }
     return false;

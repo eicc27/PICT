@@ -153,16 +153,14 @@
                         <div class="type">uname
                             <span>{{if (inSearchUids this.keywords this.searchResults head.uid idx) "✓"}}</span>
                         </div>
-                        <div class="value-uid">{{head.uid}}</div>
+                        <div class="value-alt">{{head.uid}}</div>
                         <button class="delete" type="button" {{on "click" (fn this.deleteSearchOption idx)}}>
                             <Icons::CrossX />
                         </button>
                         {{!-- add or tick button... --}}
-                        {{#if (moreThanOne result.value.length)}}
                         <button class="more" type="button" {{on "click" (fn this.toggleDetailedUserInfo idx 0)}}>
                             <Icons::AnglesRight />
                         </button>
-                        {{/if}}
                     </div>
                     {{#if result.elementState.expand}}
                     <div class="result-extended">
@@ -172,9 +170,10 @@
                         <div class="candidate">
                             <div class="result-itembg"></div>
                             <img alt="avatar" src={{tail.avatar}} />
-                            <button type="button" class="value" {{on "click" (fn this.selectCandidate idx tailIndex)}}>{{tail.uname}}</button>
+                            <button type="button" class="value" {{on "click" (fn this.selectCandidate idx
+                                tailIndex)}}>{{tail.uname}}</button>
                             <div class="type">uname</div>
-                            <div class="value-uid">{{tail.uid}}</div>
+                            <div class="value-alt">{{tail.uid}}</div>
                         </div>
                         {{/if}}
                         {{/each}}
@@ -187,7 +186,7 @@
                         <img alt="avatar" src={{extendedResult.avatar}} />
                         <div class="value">{{extendedResult.uname}}</div>
                         <div class="type">uname</div>
-                        <div class="value-uid">{{extendedResult.uid}}</div>
+                        <div class="value-alt">{{extendedResult.uid}}</div>
                         <button class="delete" type="button" {{on "click" (fn this.deleteSearchOption idx)}}>
                             <Icons::CrossX />
                         </button>
@@ -224,6 +223,39 @@
                     {{/if}} {{!-- End of if result.expand --}}
                     {{/let}}
                     {{/if}} {{!-- End of result.extended == false --}}
+                    {{else if (eq kwd.type "tag")}}
+                    <div class="result-abstract">
+                        {{#let (get result.value result.extendIndex) as |head|}}
+                        {{#if result.elementState.searching}} {{else}}
+                        <img alt="avatar" src={{head.avatar}} />
+                        {{/if}}
+                        <div class="value">#{{head.tag}}</div>
+                        <div class="type">tag
+                            <span>{{if (inSearchTags this.keywords this.searchResults head.tag idx) "✓"}}</span>
+                        </div>
+                        <div class="value-alt">#{{head.translation}}</div>
+                        {{/let}} {{!-- End of let head = result.value[0] --}}
+                    </div>
+                    {{#if result.elementState.expand}}
+                    <div class="result-extended">
+                        <div class="tags">
+                            <h3>Related Tags</h3>
+                            <div class="tag-contents-tags">
+                                {{#each result.value as |tag tagIdx|}}
+                                {{#if (neq tagIdx 0)}}
+                                {{#if (inSearchTags this.keywords this.searchResults tag.tag idx)}}
+                                <span class="tag-included">#{{tag.tag}}<span>✓</span></span>
+                                {{else}}
+                                <button class="tag-new" type="button" {{on "click" (fn this.selectCandidate idx tagIdx)}}>#{{tag.tag}}<span>+</span>
+                                </button>
+                                {{/if}}
+                                <div class="value-alt">#{{tag.translation}}</div>
+                                {{/if}} {{!-- End of tagIdx != 0 --}}
+                                {{/each}}
+                            </div>
+                        </div>
+                    </div>
+                    {{/if}}
                     {{/if}} {{!-- End of kwd.type == ... --}}
                 </div>
             </li>

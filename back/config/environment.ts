@@ -24,6 +24,14 @@ function searchUserPage(uname: string) {
     return `https://www.pixiv.net/search_user.php?nick=${uname}&s_mode=s_usr`;
 }
 
+function searchTagPage(tag: string) {
+    return encodeURI(`https://www.pixiv.net/ajax/search/artworks/${tag}?word=${tag}&order=date_d&mode=all&p=1&s_mode=s_tag&type=all&lang=zh`);
+}
+
+function searchTagAvatar(tag: string) {
+    return encodeURI(`https://www.pixiv.net/ajax/search/tags/${tag}?lang=zh`);
+}
+
 /**
  * Gets picture on Pixiv. Auto-sets referer & proxy agent. 
  * @param url the pixiv picture url
@@ -66,6 +74,8 @@ const ENV = {
             TOP: getUserTopPage,
             ALL: getUserAllPage,
             UNAME: searchUserPage,
+            TAG: searchTagPage,
+            TAG_PICTURE: searchTagAvatar,
         },
         PICTURE_GETTER: getPictureInBase64,
     },

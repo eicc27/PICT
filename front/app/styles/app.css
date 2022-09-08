@@ -67,6 +67,10 @@ input {
     outline: none;
 }
 
+img {
+    object-fit: cover;
+}
+
 .nav {
     position: fixed;
     left: 10vw;
