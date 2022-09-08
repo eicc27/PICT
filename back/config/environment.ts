@@ -32,6 +32,10 @@ function searchTagAvatar(tag: string) {
     return encodeURI(`https://www.pixiv.net/ajax/search/tags/${tag}?lang=zh`);
 }
 
+function searchPidPage(pid: string) {
+    return `https://www.pixiv.net/artworks/${pid}`;
+}
+
 /**
  * Gets picture on Pixiv. Auto-sets referer & proxy agent. 
  * @param url the pixiv picture url
@@ -76,6 +80,7 @@ const ENV = {
             UNAME: searchUserPage,
             TAG: searchTagPage,
             TAG_PICTURE: searchTagAvatar,
+            PID: searchPidPage,
         },
         PICTURE_GETTER: getPictureInBase64,
     },

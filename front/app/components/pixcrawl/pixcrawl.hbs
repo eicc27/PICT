@@ -131,7 +131,7 @@
                             <h3>Featured Tags</h3>
                             <div class="tag-contents">
                                 {{#each result.tags as |tag|}}
-                                {{#if (inSearchTags this.searchResults tag)}}
+                                {{#if (inSearchTags this.keywords this.searchResults tag idx)}}
                                 <span class="tag-included">#{{tag}}<span>✓</span></span>
                                 {{else}}
                                 <button class="tag-new" type="button" {{on "click" (fn this.addNewTagInSearch
@@ -209,7 +209,7 @@
                             <h3>Featured Tags</h3>
                             <div class="tag-contents">
                                 {{#each extendedResult.tags as |tag|}}
-                                {{#if (inSearchTags tag)}}
+                                {{#if (inSearchTags this.keywords this.searchResults tag idx)}}
                                 <span class="tag-included">#{{tag}}<span>√</span></span>
                                 {{else}}
                                 <button class="tag-new" type="button" {{on "click" (fn this.addNewTagInSearch
@@ -246,11 +246,65 @@
                                 {{#if (inSearchTags this.keywords this.searchResults tag.tag idx)}}
                                 <span class="tag-included">#{{tag.tag}}<span>✓</span></span>
                                 {{else}}
-                                <button class="tag-new" type="button" {{on "click" (fn this.selectCandidate idx tagIdx)}}>#{{tag.tag}}<span>+</span>
+                                <button class="tag-new" type="button" {{on "click" (fn this.selectCandidate idx
+                                    tagIdx)}}>#{{tag.tag}}<span>+</span>
                                 </button>
                                 {{/if}}
                                 <div class="value-alt">#{{tag.translation}}</div>
                                 {{/if}} {{!-- End of tagIdx != 0 --}}
+                                {{/each}}
+                            </div>
+                        </div>
+                    </div>
+                    {{/if}}
+                    {{else if (eq kwd.type "pid")}}
+                    <div class="result-abstract">
+                        <img alt="avatar" title="click to see origin" src={{result.avatar}} role="button" {{on "click" (fn this.openOriginalPicture
+                            idx)}}>
+                        {{#if result.elementState.originalPicture}}
+                        <div class="floating-window">
+                            <img alt="original" src={{result.original}} title={{result.pname}} />
+                            <div class="value-pname">{{result.pname}}</div>
+                            <div class="value-userinfo">
+                                Created by: <span>{{result.author.uname}}</span>(uid:
+                                <span>{{result.author.uid}}</span>)
+                            </div>
+                            <button type="button" {{on "click" (fn this.closeOriginalPicture idx)}}>
+                                <Icons::CrossX />
+                            </button>
+                        </div>
+                        {{/if}}
+                        <div class="value">{{result.pname}}</div>
+                        <div class="type">pname</div>
+                        <button class="delete" type="button" {{on "click" (fn this.deleteSearchOption idx)}}>
+                            <Icons::CrossX />
+                        </button>
+                    </div>
+                    {{#if result.elementState.expand}}
+                    <div class="result-extended">
+                        <div class="author">
+                            <h3>Illustrator</h3>
+                            <div class="author-contents">
+                                <img alt="avatar" src={{result.author.avatar}} />
+                                <div class="value">{{result.author.uname}}</div>
+                                <div class="type">uname
+                                    <span>{{if (inSearchUids this.keywords this.searchResults result.author.uid idx)
+                                        "✓"}}</span>
+                                </div>
+                                <div class="value-alt">{{result.author.uid}}</div>
+                            </div>
+                        </div>
+                        <div class="tags">
+                            <h3>Tags</h3>
+                            <div class="tag-contents">
+                                {{#each result.tags as |tag|}}
+                                {{#if (inSearchTags this.keywords this.searchResults tag idx)}}
+                                <span class="tag-included">#{{tag}}<span>√</span></span>
+                                {{else}}
+                                <button class="tag-new" type="button" {{on "click" (fn this.addNewTagInSearch
+                                    tag)}}>#{{tag}}<span>+</span>
+                                </button>
+                                {{/if}}
                                 {{/each}}
                             </div>
                         </div>

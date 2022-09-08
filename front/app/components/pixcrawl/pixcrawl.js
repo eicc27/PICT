@@ -108,6 +108,47 @@ class SearchTagExtendedResponse {
     avatar = '';
 }
 
+class SearchPIDResult {
+    elementState = {
+        expand: false,
+        searching: false,
+        display: false,
+        originalPicture: false,
+    };
+    extended = false;
+    pname = '';
+    avatar = '';
+    original = '';
+    tags = [];
+    author = {
+        uname: '',
+        uid: '',
+        avatar: '',
+    };
+}
+
+class SearchPIDResponse {
+    extended = false;
+    result = 0;
+    avatar = '';
+    index = 0;
+    searchCnt = 0;
+    tags = [];
+    pname = '';
+    author = {
+        uname: '',
+        uid: '',
+        avatar: '',
+    };
+}
+
+class SearchPIDExtendedResponse {
+    index = 0;
+    extended = true;
+    result = 0;
+    picture = '';
+}
+
 class KeywordType {
     type = '';
     value = '';
@@ -146,7 +187,7 @@ export default class PixcrawlComponent extends Component {
     @tracked
     keywords = [];
 
-    /** @type {SearchUIDResult[] | SearchUNameResult[] | SearchTagResult[]} */
+    /** @type {SearchUIDResult[] | SearchUNameResult[] | SearchTagResult[] | SearchPIDResult[]} */
     @tracked
     searchResults = [];
 
@@ -178,6 +219,7 @@ export default class PixcrawlComponent extends Component {
 
     handle(msg) {
         let resp = JSON.parse(msg);
+        console.log(resp);
         switch (resp.type) {
             case 'search-uid':
                 this.fillUid(resp.value);
@@ -188,6 +230,10 @@ export default class PixcrawlComponent extends Component {
                 break;
             case 'search-tag':
                 this.fillTag(resp.value);
+                break;
+            case 'search-pid':
+                this.fillPid(resp.value);
+                break;
         }
     }
 
@@ -244,8 +290,7 @@ export default class PixcrawlComponent extends Component {
                 { tag: 'PID', desc: 'Picture ID' },
                 { tag: 'TAG', desc: 'Tag' },
                 { tag: 'UNAME', desc: 'User Name' },
-            ],
-            extended: false,
+            ]
         };
         this.keywords.push(defaultTag);
         this.keywords = copy(this.keywords);
@@ -298,7 +343,7 @@ export default class PixcrawlComponent extends Component {
         }
         let currentTag = dropdown.splice(i, 1)[0];
         dropdown.unshift(currentTag);
-        console.log(dropdown);
+        // console.log(dropdown);
         // for the auto-refresh mechanism, style.display is not needed
         this.keywords = copy(this.keywords);
     }
@@ -372,6 +417,10 @@ export default class PixcrawlComponent extends Component {
                     break;
                 case 'tag':
                     this.searchResults.push(new SearchTagResult());
+                    break;
+                case 'pid':
+                    this.searchResults.push(new SearchTagResult());
+                    break;
             }
         }
     }
@@ -464,7 +513,7 @@ export default class PixcrawlComponent extends Component {
             this.searchResults = copy(this.searchResults);
             return;
         }
-        console.log(result);
+        // console.log(result);
         result.elementState.searching = false;
         result.elementState.expand = true;
         result.extended = true;
@@ -510,7 +559,7 @@ export default class PixcrawlComponent extends Component {
         let result = this.searchResults[value.index];
         if (!value.extended) {
             result.value = [];
-            console.log(value.value);
+            // console.log(value.value);
             for (let i = 0; i < value.value.length; i++) {
                 let v = value.value[i];
                 v.extended = false;
@@ -525,6 +574,25 @@ export default class PixcrawlComponent extends Component {
         result.value[0].extended = true;
         result.value[0].avatar = value.avatar;
         result.elementState.searching = false;
+        this.searchResults = copy(this.searchResults);
+    }
+
+    /** @param {SearchPIDResponse | SearchPIDExtendedResponse} value */
+    fillPid(value) {
+        let result = this.searchResults[value.index];
+        if (!value.extended) {
+            result.pname = value.pname;
+            result.avatar = value.avatar;
+            result.tags = value.tags;
+            result.author = value.author;
+            result.elementState.display = true;
+            this.searchResults = copy(this.searchResults);
+            return;
+        }
+        result.original = value.picture;
+        result.elementState.searching = false;
+        result.elementState.originalPicture = true;
+        result.extended = true;
         this.searchResults = copy(this.searchResults);
     }
 
@@ -549,6 +617,9 @@ export default class PixcrawlComponent extends Component {
                     result.elementState.expand = true;
                     break;
                 case 'tag':
+                    result.elementState.expand = true;
+                    break;
+                case 'pid':
                     result.elementState.expand = true;
                     break;
             }
@@ -617,6 +688,42 @@ export default class PixcrawlComponent extends Component {
         this.searchResults = copy(this.searchResults);
     }
 
+    @action openOriginalPicture(index) {
+        let result = this.searchResults[index];
+        if (!result.extended) {
+            result.elementState.searching = true;
+            this.searchResults = copy(this.searchResults);
+            this.send({ type: 'extendedSearch', value: { type: 'pid', value: this.keywords[index].value, index: index } })
+        } else {
+            result.elementState.originalPicture = true;
+            this.searchResults = copy(this.searchResults);
+        }
+    }
+
+    @action closeOriginalPicture(index) {
+        let result = this.searchResults[index];
+        result.elementState.originalPicture = false;
+        this.searchResults = copy(this.searchResults);
+    }
+
     @action
-    addNewTagInSearch(tag) { }
+    addNewTagInSearch(tag) {
+        let kwd = {
+            type: 'tag',
+            value: tag,
+            index: this.keywords.length,
+            dropdown: [
+                { tag: 'TAG', desc: 'Tag' },
+                { tag: 'UID', desc: 'User ID' },
+                { tag: 'PID', desc: 'Picture ID' },
+                { tag: 'UNAME', desc: 'User Name' },
+            ]
+        };
+        this.keywords.push(kwd);
+        this.send({ type: 'search', value: [kwd] });
+        this.searchResults.push(new SearchTagResult());
+        this.keywords = copy(this.keywords);
+        this.searchResults = copy(this.searchResults);
+        // console.log(this.keywords);
+    }
 }

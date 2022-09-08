@@ -4,6 +4,7 @@ import SearchUIDHandler from './SearchHandler/SearchUIDHandler';
 import { RequestType, REQUEST_TYPE, KeywordType, KEYWORD_TYPE } from '../types/Types';
 import SearchUnameHandler from './SearchHandler/SearchUnameHandler';
 import SearchTagHandler from './SearchHandler/SearchTagHandler';
+import SearchPIDHandler from './SearchHandler/SearchPIDHandler';
 
 /**
  * Handles WebSocket requests from front-end.
@@ -50,6 +51,9 @@ export default class PixcrawlWSHandler {
                 case KEYWORD_TYPE.TAG:
                     await pool.submit(this.searchForTag(kwd.value, kwd.index));
                     break;
+                case KEYWORD_TYPE.PID:
+                    await pool.submit(this.searchForPid(kwd.value, kwd.index));
+                    break;
             }
         }
         await pool.close();
@@ -64,6 +68,8 @@ export default class PixcrawlWSHandler {
                 return await this.searchForUnameExt(kwd.value, kwd.index);
             case KEYWORD_TYPE.TAG:
                 return await this.searchForTagExt(kwd.value, kwd.index);
+            case KEYWORD_TYPE.PID:
+                return await this.searchForPidExt(kwd.value, kwd.index);
         }
     }
 
@@ -112,5 +118,20 @@ export default class PixcrawlWSHandler {
         let searchExt = await handler.extendedSearch();
         searchExt.index = index;
         this.ws.send(JSON.stringify({ value: searchExt, type: 'search-tag' }));
+    }
+
+    private async searchForPid(value: string, index: number) {
+        let handler = new SearchPIDHandler(value);
+        let search = await handler.search();
+        search.index = index;
+        search.searchCnt = ++this.searchCnt;
+        this.ws.send(JSON.stringify({ value: search, type: 'search-pid' }));
+    }
+
+    private async searchForPidExt(value: string, index: number) {
+        let handler = new SearchPIDHandler(value);
+        let searchExt = await handler.extendedSearch();
+        searchExt.index = index;
+        this.ws.send(JSON.stringify({ value: searchExt, type: 'search-pid' }));
     }
 }

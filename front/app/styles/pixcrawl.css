@@ -761,7 +761,8 @@
     color: #00C9A7;
 }
 
-.pixcrawl .search .result-abstract .type>span {
+.pixcrawl .search .result-abstract .type>span,
+.pixcrawl .search .result-extended .type>span {
     color: #2ee9ca;
     font-weight: bolder;
 }
@@ -781,4 +782,73 @@
 .pixcrawl .search .result-extended .tag-contents-tags .value-alt {
     margin-right: 20px;
     margin-left: 5px;
+}
+
+.pixcrawl .search .floating-window {
+    position: absolute;
+    left: 70px;
+    z-index: 100;
+    width: 300px;
+    background: hsl(0, 0%, 90%);
+    border: 2px solid lightgray;
+    display: flex;
+    flex-direction: column;
+}
+
+.pixcrawl .search .result-abstract>img[role="button"] {
+    cursor: pointer;
+}
+
+.pixcrawl .search .floating-window img {
+    max-width: 300px;
+    max-height: 300px;
+    align-self: center;
+    margin-bottom: 20px;
+}
+
+.pixcrawl .search .floating-window .value-pname {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    width: 250px;
+}
+
+.pixcrawl .search .floating-window .value-userinfo {
+    font-size: 0.8rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    width: 250px;
+}
+
+.pixcrawl .search .floating-window button {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 20px;
+    height: 20px;
+}
+
+.pixcrawl .search .floating-window button .cross-x {
+    position: absolute;
+    left: 0;
+    top: 0;
+    cursor: pointer;
+    transition: all 0.2s linear;
+}
+
+.pixcrawl .search .floating-window button .cross-x:hover {
+    fill: #C44F6F;
+}
+
+.pixcrawl .search .result-extended .author {
+    display: flex;
+    flex-direction: column;
+}
+
+.pixcrawl .search .result-extended .author-contents {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
