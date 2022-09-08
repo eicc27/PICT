@@ -4,6 +4,7 @@ import { service } from '@ember/service';
 import { action } from '@ember/object';
 
 class SearchUIDResult {
+    success = false;
     elementState = {
         expand: false,
         searching: false,
@@ -39,6 +40,7 @@ class SearchUIDExtendedResponse {
 }
 
 class SearchUNameResult {
+    success = false;
     elementState = {
         expand: false,
         searching: false,
@@ -73,6 +75,7 @@ class SearchUNameResponse {
 }
 
 class SearchTagResult {
+    success = false;
     elementState = {
         expand: false,
         searching: false,
@@ -109,6 +112,7 @@ class SearchTagExtendedResponse {
 }
 
 class SearchPIDResult {
+    success = false;
     elementState = {
         expand: false,
         searching: false,
@@ -433,6 +437,7 @@ export default class PixcrawlComponent extends Component {
             null: false,
             empty: false,
             nonnumber: false,
+            identical: false,
         };
         let result = true;
         // not null
@@ -460,6 +465,16 @@ export default class PixcrawlComponent extends Component {
                     result = false;
                 }
             }
+            // identical
+            for (let j = i + 1; j < this.keywords.length; j++) {
+                let keywordComparing = this.keywords[j];
+                if (keyword.type == keywordComparing.type && keyword.value == keywordComparing.value)
+                {
+                    errorIndex.push(i, j);
+                    errorType.identical = true;
+                    result = false;
+                }
+            }
         }
         // shows debug info
         let info = [];
@@ -467,6 +482,8 @@ export default class PixcrawlComponent extends Component {
         if (errorType.empty) info.push('At least one keyword is empty.');
         if (errorType.nonnumber)
             info.push('At least one PID or UID is not pure number.');
+        if (errorType.identical)
+            info.push('At least one pair of keywords are identical.')
         if (info.length) {
             let hint = document.querySelector('.hint');
             hint.style.display = 'block';
@@ -510,6 +527,7 @@ export default class PixcrawlComponent extends Component {
             result.avatar = value.avatar;
             result.uname = value.value;
             result.elementState.display = true;
+            result.success = !value.result;
             this.searchResults = copy(this.searchResults);
             return;
         }
@@ -543,6 +561,7 @@ export default class PixcrawlComponent extends Component {
                 result.value.push(v);
             }
             result.elementState.display = true;
+            result.success = !value.result;
             this.searchResults = copy(this.searchResults);
             return;
         }
@@ -568,6 +587,7 @@ export default class PixcrawlComponent extends Component {
             result.value[0].extended = true;
             result.elementState.display = true;
             // console.log(result);
+            result.success = !value.result;
             this.searchResults = copy(this.searchResults);
             return;
         }
@@ -586,6 +606,7 @@ export default class PixcrawlComponent extends Component {
             result.tags = value.tags;
             result.author = value.author;
             result.elementState.display = true;
+            result.success = !value.result;
             this.searchResults = copy(this.searchResults);
             return;
         }

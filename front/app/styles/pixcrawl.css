@@ -779,8 +779,11 @@
     margin-right: 0px;
 }
 
-.pixcrawl .search .result-extended .tag-contents-tags .value-alt {
-    margin-right: 20px;
+.pixcrawl .search .result-extended .tag-contents-tags .tag-contents-tag {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-right: 15px;
     margin-left: 5px;
 }
 

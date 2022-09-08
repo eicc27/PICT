@@ -38,6 +38,7 @@ export default class SearchPIDHandler implements ISearchHandler {
             (resolve) => {
                 axios.get(ENV.PIXIV.USER.PID(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
                     .then(async (resp) => {
+                        console.log(resp.data);
                         let retVal: PIDSearchResult = {
                             extended: false,
                             result: RESULT.SUCCESS,

@@ -7,7 +7,6 @@ function inSearchTags([keywords, searchResults, tag, idx]) {
         let keyword = keywords[i];
         if (keyword.type == 'tag') {
             if (result.value[0].tag == tag) return true;
-            if (keyword.value == tag) return true;
         }
     }
     return false;

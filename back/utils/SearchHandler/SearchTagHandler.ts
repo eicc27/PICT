@@ -91,7 +91,7 @@ export default class SearchTagHandler implements ISearchHandler {
                     let avatarUrl = resp.data.body.pixpedia.image;
                     let tagTranslation: any = Object.values(resp.data.body.tagTranslation)[0];
                     let translation: string;
-                    console.log(tagTranslation);
+                    // console.log(tagTranslation);
                     if (tagTranslation) {
                         if ("zh" in tagTranslation) { translation = tagTranslation.zh; }
                         else if ("en" in tagTranslation) { translation = tagTranslation.en; }

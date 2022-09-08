@@ -96,6 +96,7 @@
                     <div class="value">{{kwd.value}}</div>
                     <div class="type">{{kwd.type}}</div>
                 </div>
+                {{#if result.success}}
                 {{#if result.elementState.searching}}
                 <Icons::Hourglass />
                 {{else}}
@@ -106,8 +107,14 @@
                     <Icons::TriangleRight />
                     {{/if}}
                 </button>
-                {{/if}}
+                {{/if}} {{!-- End of if result.elementState.searching --}}
+                {{else}}
+                <button type="button">
+                    <Icons::TriangleRight />
+                </button>
+                {{/if}} {{!-- End of if result.success --}}
                 <div class="search-result">
+                    {{#if result.success}}
                     {{#if (eq kwd.type "uid")}}
                     <div class="result-abstract">
                         <img alt="avatar" src={{result.avatar}} />
@@ -227,13 +234,20 @@
                     <div class="result-abstract">
                         {{#let (get result.value result.extendIndex) as |head|}}
                         {{#if result.elementState.searching}} {{else}}
+                        {{#if head.avatar}}
                         <img alt="avatar" src={{head.avatar}} />
+                        {{/if}} {{!-- End of if head.avatar --}}
                         {{/if}}
                         <div class="value">#{{head.tag}}</div>
                         <div class="type">tag
                             <span>{{if (inSearchTags this.keywords this.searchResults head.tag idx) "✓"}}</span>
                         </div>
+                        {{#if head.translation}}
                         <div class="value-alt">#{{head.translation}}</div>
+                        {{/if}}
+                        <button class="delete" type="button" {{on "click" (fn this.deleteSearchOption idx)}}>
+                            <Icons::CrossX />
+                        </button>
                         {{/let}} {{!-- End of let head = result.value[0] --}}
                     </div>
                     {{#if result.elementState.expand}}
@@ -243,14 +257,18 @@
                             <div class="tag-contents-tags">
                                 {{#each result.value as |tag tagIdx|}}
                                 {{#if (neq tagIdx 0)}}
-                                {{#if (inSearchTags this.keywords this.searchResults tag.tag idx)}}
-                                <span class="tag-included">#{{tag.tag}}<span>✓</span></span>
-                                {{else}}
-                                <button class="tag-new" type="button" {{on "click" (fn this.selectCandidate idx
-                                    tagIdx)}}>#{{tag.tag}}<span>+</span>
-                                </button>
-                                {{/if}}
-                                <div class="value-alt">#{{tag.translation}}</div>
+                                <div class="tag-contents-tag">
+                                    {{#if (inSearchTags this.keywords this.searchResults tag.tag idx)}}
+                                    <span class="tag-included">#{{tag.tag}}<span>✓</span></span>
+                                    {{else}}
+                                    <button class="tag-new" type="button" {{on "click" (fn this.selectCandidate idx
+                                        tagIdx)}}>#{{tag.tag}}<span>+</span>
+                                    </button>
+                                    {{/if}}
+                                    {{#if tag.translation}}
+                                    <div class="value-alt">#{{tag.translation}}</div>
+                                    {{/if}}
+                                </div>
                                 {{/if}} {{!-- End of tagIdx != 0 --}}
                                 {{/each}}
                             </div>
@@ -259,8 +277,8 @@
                     {{/if}}
                     {{else if (eq kwd.type "pid")}}
                     <div class="result-abstract">
-                        <img alt="avatar" title="click to see origin" src={{result.avatar}} role="button" {{on "click" (fn this.openOriginalPicture
-                            idx)}}>
+                        <img alt="avatar" title="click to see origin" src={{result.avatar}} role="button" {{on "click"
+                            (fn this.openOriginalPicture idx)}}>
                         {{#if result.elementState.originalPicture}}
                         <div class="floating-window">
                             <img alt="original" src={{result.original}} title={{result.pname}} />
@@ -311,6 +329,11 @@
                     </div>
                     {{/if}}
                     {{/if}} {{!-- End of kwd.type == ... --}}
+                    {{else}}
+                    <div class="result-abstract">
+                        <div class="value">No result found</div>
+                    </div>
+                    {{/if}} {{!-- End of if !reuslt.success --}}
                 </div>
             </li>
             {{/if}} {{!-- End of if result.display --}}
