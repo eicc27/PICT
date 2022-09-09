@@ -1,10 +1,12 @@
 import { WebSocket } from 'ws';
 import AsyncPool from './AsyncPool';
 import SearchUIDHandler from './SearchHandler/SearchUIDHandler';
-import { RequestType, REQUEST_TYPE, KeywordType, KEYWORD_TYPE } from '../types/Types';
+import { RequestType, REQUEST_TYPE, KEYWORD_TYPE, ExtendedRequestType } from '../types/Types';
 import SearchUnameHandler from './SearchHandler/SearchUnameHandler';
 import SearchTagHandler from './SearchHandler/SearchTagHandler';
 import SearchPIDHandler from './SearchHandler/SearchPIDHandler';
+import Logger from './Logger';
+import chalk from 'chalk';
 
 /**
  * Handles WebSocket requests from front-end.
@@ -14,7 +16,7 @@ import SearchPIDHandler from './SearchHandler/SearchPIDHandler';
  * they're searched synchronously(like `uname`).
  */
 export default class PixcrawlWSHandler {
-    private data: RequestType;
+    private data: RequestType | ExtendedRequestType;
     private ws: WebSocket;
     private searchCnt = 0;
 
@@ -41,6 +43,7 @@ export default class PixcrawlWSHandler {
         let kwds = this.data.value;
         for (let i = 0; i < kwds.length; i++) {
             let kwd = kwds[i];
+            (new Logger(`Recieved: Search request of ${chalk.blueBright(`${kwd.type}: ${kwd.value}`)}`)).log();
             switch (kwd.type) {
                 case KEYWORD_TYPE.UID:
                     await pool.submit(this.searchForUid(kwd.value, kwd.index));
@@ -61,6 +64,7 @@ export default class PixcrawlWSHandler {
 
     private async extendedSearch() {
         let kwd: any = this.data.value;
+        (new Logger(`Recieved: Extended search request of ${chalk.blueBright(`${kwd.type}: ${kwd.value}`)}`)).log();
         switch (kwd.type) {
             case KEYWORD_TYPE.UID:
                 return await this.searchForUidExt(kwd.value, kwd.index);

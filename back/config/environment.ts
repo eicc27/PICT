@@ -1,6 +1,7 @@
-import httpsProxyAgent from 'https-proxy-agent';
 import axios from 'axios';
-import { getProxySettings } from 'get-proxy-settings';
+import httpsProxyAgent from 'https-proxy-agent';
+import { platform } from 'os';
+import { axiosErrorLogger, axiosResponseLogger } from '../utils/Logger';
 
 /**
  * Uses a specific AJAX template to get the first page details of user
@@ -46,11 +47,11 @@ async function getPictureInBase64(url: string): Promise<string> {
         axios.get(url,
             { httpsAgent: ENV.PROXY_AGENT, headers: ENV.HEADER, responseType: 'arraybuffer' })
             .then((resp) => {
+                axiosResponseLogger(url);
                 let buffer = Buffer.from(resp.data, 'binary');
                 resolve(ENV.BASE64_PREFIX + buffer.toString('base64'));
             }, (error) => {
-                console.log(`${url}: download error.`);
-                console.log(error);
+                axiosErrorLogger(error, url);
                 resolve('');
             });
     });
@@ -106,7 +107,9 @@ const ENV = {
      *
      * This gracefully solves the core problem using NodeJS as back-end.
      */
-    PROXY_AGENT: httpsProxyAgent((await getProxySettings()).https),
+    PROXY_AGENT: httpsProxyAgent(''),
+
+    PLATFORM: platform(),
 
     /**
      * Stores browser-related info. Now supports only firefox.

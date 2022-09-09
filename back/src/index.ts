@@ -3,12 +3,16 @@ import Router from 'koa-router';
 import websocket from 'ws';
 import BrowserChecker from '../utils/BrowserChecker';
 import PixcrawlWSHandler from '../utils/PixcrawlWSHandler';
+import ProxyListener from '../utils/ProxyListener';
+
+const proxyListener = new ProxyListener();
+proxyListener.listen();
 
 const app = new Koa();
 const router = new Router();
 router.get('/check-browser', async (ctx) => {
     const checker = new BrowserChecker();
-    console.log(await checker.getBrowsers());
+    // console.log(await checker.getBrowsers());
     ctx.body = {
         system: checker.getOS(),
         browsers: await checker.getBrowsers(),

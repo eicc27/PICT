@@ -72,19 +72,26 @@
         <div class="progress">
             <h2>Total Progress</h2>
             <div class="search-target">
+                {{!-- Changed by JS(while WebSocket recieves message) --}}
                 Starting...
             </div>
             <div class="bar-content">
                 <div class="bar-bg" />
                 <div class="bar" />
-                <div class="percent">0%</div>
+                <div class="percent">{{mul 100 (div this.searchProgress.searchCnt this.searchProgress.total)}}%</div>
             </div>
             <div class="abstract">
                 {{!-- xxx tags, xxx user names, xxx picture ids... --}}
                 {{!-- <span>10</span> tags. --}}
+                {{!-- Unknown Emberjs bugs for removing children, use traditional JS instead... --}}
             </div>
             <div class="abstract-progress">
-                <span class="completed">0</span> completed. <span class="failed">0</span> failed.
+                {{#if this.searchProgress.success}}
+                <span class="completed">{{this.searchProgress.success}}</span> completed.
+                {{/if}}
+                {{#if this.searchProgress.failure}}
+                <span class="failed">{{this.searchProgress.failure}}</span> failed.
+                {{/if}}
             </div>
         </div>
         <ul class="contents">

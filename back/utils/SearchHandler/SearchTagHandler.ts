@@ -1,5 +1,6 @@
 import axios from "axios";
 import { ENV, RESULT } from "../../config/environment";
+import Logger, { axiosErrorLogger, axiosResponseLogger, SigLevel } from "../Logger";
 import ISearchHandler from "./ISearchHandler";
 import SearchPIDHandler from "./SearchPIDHandler";
 
@@ -27,9 +28,6 @@ class ExtendedTagSearchResult {
 
 /**
  * WARNING: Now only supports `zh` searching.
- * 
- * TODO: add cross-x to tags
- * TODO: deal with situation where avatar or translation is missing.
  */
 export default class SearchTagHandler implements ISearchHandler {
     public keyword: string;
@@ -40,8 +38,14 @@ export default class SearchTagHandler implements ISearchHandler {
 
     public async search(): Promise<TagSearchResult> {
         return new Promise((resolve) => {
+            if (ENV.PLATFORM == 'win32' && !ENV.PROXY_AGENT) {
+                (new Logger('No system proxy settings detected on Windows!', SigLevel.error)).log();
+                resolve({ result: RESULT.FAILED });
+                return;
+            }
             axios.get(ENV.PIXIV.USER.TAG(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
                 .then(async (resp) => {
+                    axiosResponseLogger(ENV.PIXIV.USER.TAG(this.keyword));
                     let retVal: TagSearchResult = {
                         extended: false,
                         result: RESULT.SUCCESS,
@@ -77,7 +81,7 @@ export default class SearchTagHandler implements ISearchHandler {
                     }
                     resolve(retVal);
                 }, (error) => {
-                    console.log(error);
+                    axiosErrorLogger(error, ENV.PIXIV.USER.TAG(this.keyword));
                     resolve({ result: RESULT.FAILED });
                 });
         });
@@ -85,8 +89,14 @@ export default class SearchTagHandler implements ISearchHandler {
 
     public async extendedSearch(): Promise<ExtendedTagSearchResult> {
         return new Promise((resolve) => {
+            if (ENV.PLATFORM == 'win32' && !ENV.PROXY_AGENT) {
+                (new Logger('No system proxy settings detected on Windows!', SigLevel.error)).log();
+                resolve({ result: RESULT.FAILED });
+                return;
+            }
             axios.get(ENV.PIXIV.USER.TAG_PICTURE(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
                 .then(async (resp) => {
+                    axiosResponseLogger(ENV.PIXIV.USER.TAG_PICTURE(this.keyword));
                     let tag = resp.data.body.tag;
                     let avatarUrl = resp.data.body.pixpedia.image;
                     let tagTranslation: any = Object.values(resp.data.body.tagTranslation)[0];
@@ -111,7 +121,7 @@ export default class SearchTagHandler implements ISearchHandler {
                         tag: tag,
                     });
                 }, (error) => {
-                    console.log(error);
+                    axiosErrorLogger(error, ENV.PIXIV.USER.TAG_PICTURE(this.keyword));
                     resolve({ result: RESULT.FAILED });
                 });
         });

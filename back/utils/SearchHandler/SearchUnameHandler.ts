@@ -1,8 +1,9 @@
 import ISearchHandler from "./ISearchHandler";
-import { firefox } from 'playwright';
+import { BrowserContext, firefox } from 'playwright';
 import { ENV, RESULT } from "../../config/environment";
 import SearchUIDHandler, { ExtendedUIDSearchResult } from "./SearchUIDHandler";
 import AsyncPool from "../AsyncPool";
+import Logger, { axiosResponseLogger, SigLevel } from "../Logger";
 
 class UNameSearchResult {
     extended?: boolean = false;
@@ -37,9 +38,20 @@ export default class SearchUnameHandler implements ISearchHandler {
     }
 
     public async search(): Promise<UNameSearchResult> {
-        let browser = await firefox.launchPersistentContext(ENV.BROWSER.USER_PROFILE);
+        if (ENV.PLATFORM == 'win32' && !ENV.PROXY_AGENT) {
+            (new Logger('No system proxy settings detected on Windows!', SigLevel.error)).log();
+            return { result: RESULT.FAILED };
+        }
+        let browser: BrowserContext;
+        try {
+            browser = await firefox.launchPersistentContext(ENV.BROWSER.USER_PROFILE);
+        } catch (error) {
+            (new Logger(`While launching headless browser: ${error}`, SigLevel.error));
+            return { result: RESULT.FAILED };
+        }
         let page = await browser.newPage();
         await page.goto(ENV.PIXIV.USER.UNAME(this.keyword), { waitUntil: 'domcontentloaded' });
+        axiosResponseLogger(ENV.PIXIV.USER.UNAME(this.keyword));
         let users = await page.$$('ul[class="user-recommendation-items"]>li>a');
         let retVal: UNameSearchResult = {
             result: RESULT.SUCCESS,

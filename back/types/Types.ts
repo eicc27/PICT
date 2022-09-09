@@ -14,4 +14,9 @@ class RequestType {
     type: REQUEST_TYPE;
 }
 
-export { KEYWORD_TYPE, KeywordType, REQUEST_TYPE, RequestType };
+class ExtendedRequestType {
+    value: any;
+    type: REQUEST_TYPE;
+}
+
+export { KEYWORD_TYPE, KeywordType, REQUEST_TYPE, RequestType, ExtendedRequestType };

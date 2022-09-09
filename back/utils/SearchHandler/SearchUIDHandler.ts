@@ -3,6 +3,7 @@ import { ENV, RESULT } from "../../config/environment";
 import { JSDOM } from 'jsdom';
 import ISearchHandler from "./ISearchHandler";
 import AsyncPool from "../AsyncPool";
+import Logger, { axiosErrorLogger, axiosResponseLogger, SigLevel } from "../Logger";
 
 /**
  * When result is not `RESULT.SUCCESS`, the rest of the attributes are not provided.
@@ -47,9 +48,16 @@ export default class SearchUIDHandler implements ISearchHandler {
      */
     public async search(): Promise<UIDSearchResult> {
         return new Promise((resolve) => {
+            console.log(ENV.PROXY_AGENT);
+            if (ENV.PLATFORM == 'win32' && !ENV.PROXY_AGENT) {
+                (new Logger('No system proxy settings detected on Windows!', SigLevel.error)).log();
+                resolve({ result: RESULT.FAILED });
+                return;
+            }
             axios.get(`https://www.pixiv.net/users/${this.keyword}`,
                 { httpsAgent: ENV.PROXY_AGENT })
                 .then(async (resp) => { // on success
+                    axiosResponseLogger(`https://www.pixiv.net/users/${this.keyword}`);
                     let html = new JSDOM(resp.data).window.document;
                     // gets user name and user avatar through json-encoded string
                     let userInfo = JSON.parse(html.getElementById("meta-preload-data")
@@ -65,7 +73,7 @@ export default class SearchUIDHandler implements ISearchHandler {
                         avatar: avatarBase64
                     });
                 }, (error) => { // on error
-                    console.log(error);
+                    axiosErrorLogger(error, `https://www.pixiv.net/users/${this.keyword}`);
                     resolve({
                         result: RESULT.FAILED
                     });
@@ -78,8 +86,14 @@ export default class SearchUIDHandler implements ISearchHandler {
      */
     public async extendedSearch(): Promise<ExtendedUIDSearchResult> {
         return new Promise((resolve) => {
+            if (ENV.PLATFORM == 'win32' && !ENV.PROXY_AGENT) {
+                (new Logger('No system proxy settings detected on Windows!', SigLevel.error)).log();
+                resolve({ result: RESULT.FAILED });
+                return;
+            }
             axios.get(ENV.PIXIV.USER.TOP(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
                 .then(async (resp) => {
+                    axiosResponseLogger(ENV.PIXIV.USER.TOP(this.keyword));
                     let retVal: ExtendedUIDSearchResult = {
                         extended: true,
                         result: RESULT.SUCCESS,
@@ -114,7 +128,7 @@ export default class SearchUIDHandler implements ISearchHandler {
                     await pool.close();
                     resolve(retVal);
                 }, (error) => {
-                    console.log(error);
+                    axiosErrorLogger(error, ENV.PIXIV.USER.TOP(this.keyword));
                     resolve({
                         result: RESULT.FAILED
                     });

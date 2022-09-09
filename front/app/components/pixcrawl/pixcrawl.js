@@ -3,6 +3,19 @@ import { tracked } from '@glimmer/tracking';
 import { service } from '@ember/service';
 import { action } from '@ember/object';
 
+class SearchProgress {
+    nums = {
+        uid: 0,
+        uname: 0,
+        pid: 0,
+        tag: 0,
+    };
+    searchCnt = 0;
+    total = 0;
+    success = 0;
+    failure = 0;
+}
+
 class SearchUIDResult {
     success = false;
     elementState = {
@@ -198,6 +211,9 @@ export default class PixcrawlComponent extends Component {
     @tracked
     crawlResults = [];
 
+    @tracked
+    searchProgress = new SearchProgress();
+
     @service('pixcrawl')
     pixcrawlWS;
 
@@ -223,7 +239,15 @@ export default class PixcrawlComponent extends Component {
 
     handle(msg) {
         let resp = JSON.parse(msg);
-        console.log(resp);
+        // console.log(resp);
+        // handles searchProgress changes
+        ++this.searchProgress.searchCnt;
+        if (!resp.value.result) {
+            ++this.searchProgress.success;
+        } else {
+            ++this.searchProgress.failure;
+        }
+        this.searchProgress = copy(this.searchProgress);
         switch (resp.type) {
             case 'search-uid':
                 this.fillUid(resp.value);
@@ -405,28 +429,62 @@ export default class PixcrawlComponent extends Component {
         this.send({ value: this.keywords, type: 'search' });
         // reset progress
         // this.resetProgress();
-        // setup search results types
+        // setup search results types & resets total progress
         this.setupSearchResults();
     }
 
     setupSearchResults() {
+        this.searchProgress = new SearchProgress();
+        this.searchProgress.total = this.keywords.length;
         for (let i = 0; i < this.keywords.length; i++) {
             let keyword = this.keywords[i];
             switch (keyword.type) {
                 case 'uid':
                     this.searchResults.push(new SearchUIDResult());
+                    ++this.searchProgress.nums.uid;
                     break;
                 case 'uname':
                     this.searchResults.push(new SearchUNameResult());
+                    ++this.searchProgress.nums.uname;
                     break;
                 case 'tag':
                     this.searchResults.push(new SearchTagResult());
+                    ++this.searchProgress.nums.tag;
                     break;
                 case 'pid':
                     this.searchResults.push(new SearchTagResult());
+                    ++this.searchProgress.nums.pid;
                     break;
             }
         }
+        this.searchProgress = copy(this.searchProgress);
+        let abstractElement = document.querySelector('.search .progress .abstract');
+        let infoStrs = [];
+        // console.log(this.searchProgress);
+        this.setupSearchAbstract('uid', 'user id', infoStrs);
+        this.setupSearchAbstract('pid', 'picture id', infoStrs);
+        this.setupSearchAbstract('uname', 'user name', infoStrs);
+        this.setupSearchAbstract('tag', 'tag', infoStrs);
+        // console.log(infoStrs);
+        abstractElement.innerHTML = infoStrs.join(', ') + '.';
+    }
+
+    /** Sets up search abstract with xxx user ids, xxx tags, xxx user names, ...
+     * @param {string} tagName
+     * @param {string} tagDesc
+     * @param {string[]} infoStrs
+     */
+    setupSearchAbstract(tagName, tagDesc, infoStrs) {
+        let retVal = '';
+        if (this.searchProgress.nums[tagName]) {
+            if (this.searchProgress.nums[tagName] - 1) {
+                retVal = `<span>${this.searchProgress.nums[tagName]}</span> ${tagDesc}s`;
+            } else {
+                retVal = `<span>${this.searchProgress.nums[tagName]}</span> ${tagDesc}`;
+            }
+        }
+        if (retVal)
+            infoStrs.push(retVal);
     }
 
     checkKeywords() {
@@ -468,8 +526,7 @@ export default class PixcrawlComponent extends Component {
             // identical
             for (let j = i + 1; j < this.keywords.length; j++) {
                 let keywordComparing = this.keywords[j];
-                if (keyword.type == keywordComparing.type && keyword.value == keywordComparing.value)
-                {
+                if (keyword.type == keywordComparing.type && keyword.value == keywordComparing.value) {
                     errorIndex.push(i, j);
                     errorType.identical = true;
                     result = false;

@@ -2,6 +2,7 @@ import axios from "axios";
 import { ENV, RESULT } from "../../config/environment";
 import ISearchHandler from "./ISearchHandler";
 import { JSDOM } from 'jsdom';
+import Logger, { axiosErrorLogger, axiosResponseLogger, SigLevel } from "../Logger";
 
 class PIDSearchResult {
     extended?: boolean = false;
@@ -36,9 +37,14 @@ export default class SearchPIDHandler implements ISearchHandler {
     public async search(): Promise<PIDSearchResult> {
         return new Promise(
             (resolve) => {
+                if (ENV.PLATFORM == 'win32' && !ENV.PROXY_AGENT) {
+                    (new Logger('No system proxy settings detected on Windows!', SigLevel.error)).log();
+                    resolve({ result: RESULT.FAILED });
+                    return;
+                }
                 axios.get(ENV.PIXIV.USER.PID(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
                     .then(async (resp) => {
-                        console.log(resp.data);
+                        axiosResponseLogger(ENV.PIXIV.USER.PID(this.keyword));
                         let retVal: PIDSearchResult = {
                             extended: false,
                             result: RESULT.SUCCESS,
@@ -61,7 +67,7 @@ export default class SearchPIDHandler implements ISearchHandler {
                         };
                         resolve(retVal);
                     }, (error) => {
-                        console.log(error);
+                        axiosErrorLogger(error, ENV.PIXIV.USER.PID(this.keyword));
                         resolve({ result: RESULT.FAILED });
                     });
             }
@@ -71,8 +77,14 @@ export default class SearchPIDHandler implements ISearchHandler {
     /** Searches the original picture itself */
     public async extendedSearch(): Promise<ExtendedPIDSearchResult> {
         return new Promise((resolve) => {
+            if (ENV.PLATFORM == 'win32' && !ENV.PROXY_AGENT) {
+                (new Logger('No system proxy settings detected on Windows!', SigLevel.error)).log();
+                resolve({ result: RESULT.FAILED });
+                return;
+            }
             axios.get(ENV.PIXIV.USER.PID(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
                 .then(async (resp) => {
+                    axiosResponseLogger(ENV.PIXIV.USER.PID(this.keyword));
                     let html = resp.data;
                     let metaPreloadData = new JSDOM(html).window.document.getElementById('meta-preload-data');
                     let json = JSON.parse(metaPreloadData.getAttribute('content'));
@@ -86,7 +98,7 @@ export default class SearchPIDHandler implements ISearchHandler {
                         picture: picture,
                     });
                 }, (error) => {
-                    console.log(error);
+                    axiosErrorLogger(error, ENV.PIXIV.USER.PID(this.keyword));
                     resolve({ result: RESULT.FAILED });
                 }
                 );

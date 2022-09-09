@@ -1,6 +1,7 @@
 import { exec } from 'child_process';
 import { readdirSync } from 'fs';
 import Browsers from '../config/browsers';
+import Logger from './Logger';
 
 
 /**  Pre-checks browsers for playwright.
@@ -38,6 +39,7 @@ export default class BrowserChecker {
 
     public async getBrowsers() {
         const browsers = this.getPlaywrightBrowsers().concat(await this.getSystemBrowsers());
+        (new Logger(`${browsers.length} browsers found on the system.`)).log();
         return browsers;
     }
 
@@ -129,7 +131,6 @@ export default class BrowserChecker {
         const browsers: unknown[] = [];
         for (let i = 0; i < BrowserChecker.availableBrowsers.length; i++) {
             const browser = BrowserChecker.availableBrowsers[i];
-            console.log(`Checking ${browser}`);
             const result = await this.getBrowserForLinux(browser);
             if (result) {
                 browsers.push({
