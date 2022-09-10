@@ -620,10 +620,14 @@ export default class PixcrawlComponent extends Component {
     fillUid(value) {
         let result = this.searchResults[value.index];
         if (!value.extended) {
-            result.avatar = value.avatar;
-            result.uname = value.value;
             result.elementState.display = true;
             result.success = !value.result;
+            if (!result.success) {
+                this.searchResults = copy(this.searchResults);
+                return
+            };
+            result.avatar = value.avatar;
+            result.uname = value.value;
             this.searchResults = copy(this.searchResults);
             this.updateSearchProgressInfo(`Searched UID ${this.keywords[value.index].value}: UNAME ${result.uname}`);
             return;
@@ -649,6 +653,12 @@ export default class PixcrawlComponent extends Component {
     fillUname(value) {
         let result = this.searchResults[value.index];
         if (!value.extended) {
+            result.elementState.display = true;
+            result.success = !value.result;
+            if (!result.success) {
+                this.searchResults = copy(this.searchResults);
+                return
+            };
             result.value = [];
             for (let i = 0; i < value.value.length; i++) {
                 let v = value.value[i];
@@ -657,8 +667,6 @@ export default class PixcrawlComponent extends Component {
                 v.tags = [];
                 result.value.push(v);
             }
-            result.elementState.display = true;
-            result.success = !value.result;
             this.searchResults = copy(this.searchResults);
             this.updateSearchProgressInfo(`Searched UNAME ${this.keywords[value.index].value}`)
             return;
@@ -675,6 +683,12 @@ export default class PixcrawlComponent extends Component {
     fillTag(value) {
         let result = this.searchResults[value.index];
         if (!value.extended) {
+            result.elementState.display = true;
+            result.success = !value.result;
+            if (!result.success) {
+                this.searchResults = copy(this.searchResults);
+                return
+            };
             result.value = [];
             // console.log(value.value);
             for (let i = 0; i < value.value.length; i++) {
@@ -683,9 +697,7 @@ export default class PixcrawlComponent extends Component {
                 result.value.push(v);
             }
             result.value[0].extended = true;
-            result.elementState.display = true;
             // console.log(result);
-            result.success = !value.result;
             this.searchResults = copy(this.searchResults);
             this.updateSearchProgressInfo(`Searched TAG ${this.keywords[value.index].value}`)
             return;
@@ -700,12 +712,16 @@ export default class PixcrawlComponent extends Component {
     fillPid(value) {
         let result = this.searchResults[value.index];
         if (!value.extended) {
+            result.elementState.display = true;
+            result.success = !value.result;
+            if (!result.success) {
+                this.searchResults = copy(this.searchResults);
+                return
+            };
             result.pname = value.pname;
             result.avatar = value.avatar;
             result.tags = value.tags;
             result.author = value.author;
-            result.elementState.display = true;
-            result.success = !value.result;
             this.searchResults = copy(this.searchResults);
             this.updateSearchProgressInfo(`Searched PID ${this.keywords[value.index].value}: PNAME ${result.pname}`)
             return;
@@ -852,5 +868,10 @@ export default class PixcrawlComponent extends Component {
         ++this.searchProgress.nums.tag;
         this.updateSearchProgressAbstract();
         // console.log(this.keywords);
+    }
+
+    @action goToCrawl() {
+        // going to crawling does not require a recheck. collect successful results and go on!
+
     }
 }

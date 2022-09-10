@@ -45,6 +45,12 @@ export default class SearchTagHandler implements ISearchHandler {
             }
             axios.get(ENV.PIXIV.USER.TAG(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
                 .then(async (resp) => {
+                    // console.log(resp.data);
+                    // if the tag does not have any illusts related to it, it's empty
+                    if (!resp.data.body.illustManga.total) {
+                        resolve({ result: RESULT.FAILED });
+                        return;
+                    }
                     axiosResponseLogger(ENV.PIXIV.USER.TAG(this.keyword));
                     let retVal: TagSearchResult = {
                         extended: false,

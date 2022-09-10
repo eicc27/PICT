@@ -743,7 +743,7 @@
 
 .pixcrawl .search .result-abstract .back .angles-left:hover {
     fill: royalblue;
-    left: 18px;
+    right: 18px;
 }
 
 .pixcrawl .search .result-abstract .more .angles-right,
