@@ -53,6 +53,11 @@ export default class SearchUnameHandler implements ISearchHandler {
         await page.goto(ENV.PIXIV.USER.UNAME(this.keyword), { waitUntil: 'domcontentloaded' });
         axiosResponseLogger(ENV.PIXIV.USER.UNAME(this.keyword));
         let users = await page.$$('ul[class="user-recommendation-items"]>li>a');
+        (new Logger(`users list: ${users}`)).log();
+        // if the result does not contain any user, the search is failed
+        if (!users.length) {
+            return { result: RESULT.FAILED };
+        }
         let retVal: UNameSearchResult = {
             result: RESULT.SUCCESS,
             extended: false,

@@ -288,6 +288,7 @@ export default class PixcrawlComponent extends Component {
         let hint = document.querySelector('.hint');
         switch (index) {
             case 0:
+                if (document.querySelector('.keyword').style.display == 'flex') return;
                 if (this.searchProgress.searchCnt < this.keywords.length) {
                     hint.style.display = 'block';
                     let hintContent = document.querySelector('.hint .content');
@@ -304,13 +305,16 @@ export default class PixcrawlComponent extends Component {
                 this.toggleAddTagsHintVisibility();
                 break;
             case 1:
-                break;
+                this.steps.crawl = false;
+                this.steps.download = false;
+                return;
             case 2:
                 break;
             case 3:
                 break;
         }
         this.steps = copy(this.steps);
+        // console.log(this.steps);
     }
 
     @action
@@ -872,6 +876,30 @@ export default class PixcrawlComponent extends Component {
 
     @action goToCrawl() {
         // going to crawling does not require a recheck. collect successful results and go on!
+        if (!this.siftSearchResults()) return;
+        this.steps.crawl = true;
+        this.steps = copy(this.steps);
+    }
 
+    siftSearchResults() {
+        for (let i = 0; i < this.searchResults.length; i++) {
+            let result = this.searchResults[i];
+            if (!result.success) {
+                this.searchResults.splice(i, 1);
+                this.keywords.splice(i, 1);
+            }
+            this.keywords = copy(this.keywords);
+            this.searchResults = copy(this.searchResults);
+        }
+        // if no result is left after sifting, pilots the user back to keyword.
+        if (!this.searchResults.length) {
+            this.goBack(0);
+            let hint = document.querySelector('.hint');
+            hint.style.display = 'block';
+            let hintContent = document.querySelector('.hint .content');
+            hintContent.innerHTML = 'No available crawl targets left. Navigated back to keyword step.';
+            return false;
+        }
+        return true;
     }
 }
