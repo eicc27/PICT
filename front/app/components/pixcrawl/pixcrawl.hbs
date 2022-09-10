@@ -1,33 +1,29 @@
 <div class="pixcrawl">
     {{!-- steps topbar --}}
     <div class="steps">
-        <button type="button" class="step step-current" {{on "mouseenter" (fn this.highlightDiamond 0)}}
-            {{on "mouseleave" this.dimDiamond}} {{on "click" (fn this.showStep 1)}}>
+        <button type="button" class="step {{if this.steps.keyword " step-current"}}" {{on "click" (fn this.goBack 0)}}>
             <div class="title-up">Keyword</div>
-            <div class="diamond diamond-current" />
+            <div class="diamond" />
         </button>
         <div class="join" />
-        <button type="button" class="step" {{on "mouseenter" (fn this.highlightDiamond 1)}} {{on "mouseleave"
-            this.dimDiamond}} {{on "click" (fn this.showStep 2)}}>
+        <button type="button" class="step {{if this.steps.search " step-current"}}" {{on "click" (fn this.goBack 1)}}>
             <div class="diamond" />
             <div class="title-down">Search</div>
         </button>
         <div class="join" />
-        <button type="button" class="step" {{on "mouseenter" (fn this.highlightDiamond 2)}} {{on "mouseleave"
-            this.dimDiamond}} {{on "click" (fn this.showStep 3)}}>
+        <button type="button" class="step {{if this.steps.crawl " step-current"}}" {{on "click" (fn this.goBack 2)}}>
             <div class="title-up">Crawl</div>
             <div class="diamond" />
         </button>
         <div class="join" />
-        <button type="button" class="step" {{on "mouseenter" (fn this.highlightDiamond 3)}} {{on "mouseleave"
-            this.dimDiamond}}>
+        <button type="button" class="step {{if this.steps.download " step-current"}}" {{on "click" (fn this.goBack 3)}}>
             <div class="diamond" />
             <div class="title-down">Download</div>
         </button>
     </div>
 
     {{!-- keyword step --}}
-    <div class="keyword">
+    <div class="keyword" style={{html-safe (concat "display: " (if (ifStep this.steps "keyword" ) "flex" "none" ))}}>
         <div class="main">
             <h2>Keywords - </h2>
             {{#each this.keywords as |kwd|}}
@@ -68,7 +64,7 @@
     </div>
 
     {{!-- search step --}}
-    <div class="search">
+    <div class="search" style={{html-safe (concat "display: " (if (ifStep this.steps "search" ) "flex" "none" ))}}>
         <div class="progress">
             <h2>Total Progress</h2>
             <div class="search-target">
@@ -77,13 +73,15 @@
             </div>
             <div class="bar-content">
                 <div class="bar-bg" />
-                <div class="bar" />
-                <div class="percent">{{mul 100 (div this.searchProgress.searchCnt this.searchProgress.total)}}%</div>
+                <div class="bar" style={{html-safe (concat "width: " (mul 600 (div this.searchProgress.searchCnt (if
+                    this.searchResults.length this.searchResults.length 1))) "px" )}} />
+                <div class="percent">{{mul 100 (div this.searchProgress.searchCnt (if this.searchResults.length
+                    this.searchResults.length 1))}}%</div>
             </div>
             <div class="abstract">
                 {{!-- xxx tags, xxx user names, xxx picture ids... --}}
                 {{!-- <span>10</span> tags. --}}
-                {{!-- Unknown Emberjs bugs for removing children, use traditional JS instead... --}}
+                {{!-- Unknown Emberjs bugs for removing children, use traditional JS instead... --}}]
             </div>
             <div class="abstract-progress">
                 {{#if this.searchProgress.success}}
@@ -347,13 +345,29 @@
             {{/let}} {{!-- End of let result = searchResults[i] --}}
             {{/each}}
         </ul>
+        <div class="bottom-nav">
+            {{#if (eq this.searchProgress.searchCnt this.keywords.length)}}
+            <button type="button" {{on "click" (fn this.goBack 0)}}>
+                <Icons::AnglesLeft />
+                <span>Keyword</span>
+            </button>
+            <div class="seperator"></div>
+            <button type="button" {{on "click" this.gotoCrawl}}>
+                <span>Crawl</span>
+                <Icons::AnglesRight />
+            </button>
+            {{/if}}
+        </div>
     </div>
-    <div class="crawl">
+
+    <div class="crawl" style={{html-safe (concat "display: " (if (ifStep this.steps "crawl" ) "flex" "none" ))}}>
 
     </div>
-    <div class="download">
+
+    <div class="download" style={{html-safe (concat "display: " (if (ifStep this.steps "download" ) "flex" "none" ))}}>
 
     </div>
+
     <div class="hint">
         <div class="topbar"></div>
         <div class="content" {{on "animationend" this.hideHint}}>

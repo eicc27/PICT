@@ -11,7 +11,6 @@ class SearchProgress {
         tag: 0,
     };
     searchCnt = 0;
-    total = 0;
     success = 0;
     failure = 0;
 }
@@ -200,6 +199,15 @@ function changeWidth(inputElement) {
 }
 
 export default class PixcrawlComponent extends Component {
+
+    @tracked
+    steps = {
+        keyword: true,
+        search: false,
+        crawl: false,
+        download: false,
+    }
+
     /** @type {KeywordType[]} */
     @tracked
     keywords = [];
@@ -237,10 +245,8 @@ export default class PixcrawlComponent extends Component {
         };
     }
 
-    handle(msg) {
-        let resp = JSON.parse(msg);
-        // console.log(resp);
-        // handles searchProgress changes
+    /** Updates the search progress controller */
+    updateSearchProgress(resp) {
         ++this.searchProgress.searchCnt;
         if (!resp.value.result) {
             ++this.searchProgress.success;
@@ -248,6 +254,13 @@ export default class PixcrawlComponent extends Component {
             ++this.searchProgress.failure;
         }
         this.searchProgress = copy(this.searchProgress);
+    }
+
+    handle(msg) {
+        let resp = JSON.parse(msg);
+        if (!resp.value.extended) this.updateSearchProgress(resp);
+        // console.log(resp);
+        // handles searchProgress changes
         switch (resp.type) {
             case 'search-uid':
                 this.fillUid(resp.value);
@@ -270,19 +283,34 @@ export default class PixcrawlComponent extends Component {
         hintElement.style.display = this.keywords.length ? 'none' : 'flex';
     }
 
-    @action
-    highlightDiamond(index) {
-        let diamondElement = document.getElementsByClassName('diamond')[index];
-        diamondElement.classList.remove('diamond');
-        diamondElement.classList.add('diamond-focus');
-    }
-
-    @action
-    dimDiamond() {
-        let diamondElement =
-            document.getElementsByClassName('diamond-focus')[0];
-        diamondElement.classList.remove('diamond-focus');
-        diamondElement.classList.add('diamond');
+    /** @param {number} index */
+    @action goBack(index) {
+        let hint = document.querySelector('.hint');
+        switch (index) {
+            case 0:
+                if (this.searchProgress.searchCnt < this.keywords.length) {
+                    hint.style.display = 'block';
+                    let hintContent = document.querySelector('.hint .content');
+                    hintContent.innerHTML = "Please wait for the search to complete.";
+                    return;
+                }
+                this.steps.search = false;
+                this.steps.crawl = false;
+                this.steps.download = false;
+                this.searchProgress = new SearchProgress();
+                this.searchResults = [];
+                let infoElement = document.querySelector('.search .progress .search-target');
+                infoElement.innerHTML = 'Starting up';
+                this.toggleAddTagsHintVisibility();
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+        }
+        this.steps = copy(this.steps);
     }
 
     @action
@@ -405,26 +433,8 @@ export default class PixcrawlComponent extends Component {
 
     @action goToSearch() {
         if (!this.checkKeywords()) return;
-        this.showStep(2);
         // manually refresh search component loading
         this.keywords = copy(this.keywords);
-        // generates abstract
-        let abstract = document.querySelector('.pixcrawl .search .abstract');
-        let cnt = {
-            uid: 0,
-            uname: 0,
-            tag: 0,
-            pid: 0,
-        };
-        for (let i = 0; i < this.keywords.length; i++) {
-            cnt[this.keywords[i].type]++;
-        }
-        let sentences = [];
-        if (cnt.uid) sentences.push(`<span>${cnt.uid}</span> user ids`);
-        if (cnt.uname) sentences.push(`<span>${cnt.uname}</span> user names`);
-        if (cnt.tag) sentences.push(`<span>${cnt.tag}</span> tags`);
-        if (cnt.pid) sentences.push(`<span>${cnt.pid}</span> picture ids`);
-        abstract.innerHTML = sentences.join(', ') + '.';
         // send keyword requests, using ws
         this.send({ value: this.keywords, type: 'search' });
         // reset progress
@@ -435,7 +445,6 @@ export default class PixcrawlComponent extends Component {
 
     setupSearchResults() {
         this.searchProgress = new SearchProgress();
-        this.searchProgress.total = this.keywords.length;
         for (let i = 0; i < this.keywords.length; i++) {
             let keyword = this.keywords[i];
             switch (keyword.type) {
@@ -457,7 +466,23 @@ export default class PixcrawlComponent extends Component {
                     break;
             }
         }
+        // generates abstract
+        let cnt = this.searchProgress.nums;
+        let sentences = [];
+        if (cnt.uid) sentences.push(`<span>${cnt.uid}</span> user ids`);
+        if (cnt.uname) sentences.push(`<span>${cnt.uname}</span> user names`);
+        if (cnt.tag) sentences.push(`<span>${cnt.tag}</span> tags`);
+        if (cnt.pid) sentences.push(`<span>${cnt.pid}</span> picture ids`);
+        let abstract = document.querySelector('.pixcrawl .search .abstract');
+        abstract.innerHTML = sentences.join(', ') + '.';
         this.searchProgress = copy(this.searchProgress);
+        this.updateSearchProgressAbstract();
+        this.steps.search = true;
+        this.steps = copy(this.steps);
+    }
+
+    /** Updates search progress abstract */
+    updateSearchProgressAbstract() {
         let abstractElement = document.querySelector('.search .progress .abstract');
         let infoStrs = [];
         // console.log(this.searchProgress);
@@ -466,7 +491,10 @@ export default class PixcrawlComponent extends Component {
         this.setupSearchAbstract('uname', 'user name', infoStrs);
         this.setupSearchAbstract('tag', 'tag', infoStrs);
         // console.log(infoStrs);
-        abstractElement.innerHTML = infoStrs.join(', ') + '.';
+        if (infoStrs.length)
+            abstractElement.innerHTML = infoStrs.join(', ') + '.';
+        else
+            abstractElement.innerHTML = 'No keywords specified.';
     }
 
     /** Sets up search abstract with xxx user ids, xxx tags, xxx user names, ...
@@ -577,6 +605,17 @@ export default class PixcrawlComponent extends Component {
         }
     }
 
+    /** Updates the search progress info
+     * @param {string} info
+     */
+    updateSearchProgressInfo(info) {
+        let infoElement = document.querySelector('.search .progress .search-target');
+        if (this.searchProgress.searchCnt < this.keywords.length)
+            infoElement.innerHTML = info;
+        else
+            infoElement.innerHTML = 'Completed';
+    }
+
     /** @param {SearchUIDResponse | SearchUIDExtendedResponse} value */
     fillUid(value) {
         let result = this.searchResults[value.index];
@@ -586,6 +625,7 @@ export default class PixcrawlComponent extends Component {
             result.elementState.display = true;
             result.success = !value.result;
             this.searchResults = copy(this.searchResults);
+            this.updateSearchProgressInfo(`Searched UID ${this.keywords[value.index].value}: UNAME ${result.uname}`);
             return;
         }
         // console.log(result);
@@ -620,6 +660,7 @@ export default class PixcrawlComponent extends Component {
             result.elementState.display = true;
             result.success = !value.result;
             this.searchResults = copy(this.searchResults);
+            this.updateSearchProgressInfo(`Searched UNAME ${this.keywords[value.index].value}`)
             return;
         }
         result.value[result.extendIndex].pictures = value.pictures;
@@ -646,6 +687,7 @@ export default class PixcrawlComponent extends Component {
             // console.log(result);
             result.success = !value.result;
             this.searchResults = copy(this.searchResults);
+            this.updateSearchProgressInfo(`Searched TAG ${this.keywords[value.index].value}`)
             return;
         }
         result.value[0].extended = true;
@@ -665,6 +707,7 @@ export default class PixcrawlComponent extends Component {
             result.elementState.display = true;
             result.success = !value.result;
             this.searchResults = copy(this.searchResults);
+            this.updateSearchProgressInfo(`Searched PID ${this.keywords[value.index].value}: PNAME ${result.pname}`)
             return;
         }
         result.original = value.picture;
@@ -738,13 +781,16 @@ export default class PixcrawlComponent extends Component {
 
     /** @param {number} idx */
     @action deleteSearchOption(idx) {
-        this.keywords.splice(idx, 1);
+        let kwd = this.keywords.splice(idx, 1)[0];
         this.searchResults.splice(idx, 1);
         for (let i = idx; i < this.keywords.length; i++) {
             this.keywords[i].index--;
         }
         this.keywords = copy(this.keywords);
         this.searchResults = copy(this.searchResults);
+        --this.searchProgress.searchCnt;
+        --this.searchProgress.nums[kwd.type];
+        this.updateSearchProgressAbstract();
     }
 
     /** @param {number} kwdIdx
@@ -802,6 +848,9 @@ export default class PixcrawlComponent extends Component {
         this.searchResults.push(new SearchTagResult());
         this.keywords = copy(this.keywords);
         this.searchResults = copy(this.searchResults);
+        this.updateSearchProgressInfo(`Searching additional tag ${kwd.value}`);
+        ++this.searchProgress.nums.tag;
+        this.updateSearchProgressAbstract();
         // console.log(this.keywords);
     }
 }

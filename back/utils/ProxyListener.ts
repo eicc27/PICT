@@ -16,8 +16,10 @@ export default class ProxyListener {
             let settings = await getProxySettings();
             if (this.first) {
                 this.first = false;
-                if (settings)
-                    (new Logger(`Proxy port detected at ${this.proxy}`, SigLevel.ok)).log();
+                if (settings) {
+                    (new Logger(`Proxy port detected at ${settings.https}`, SigLevel.ok)).log();
+                    // this.proxy = settings.https;
+                }
                 else
                     (new Logger(`Proxy port closed!`, SigLevel.warn)).log();
             }

@@ -48,7 +48,7 @@ export default class SearchUIDHandler implements ISearchHandler {
      */
     public async search(): Promise<UIDSearchResult> {
         return new Promise((resolve) => {
-            console.log(ENV.PROXY_AGENT);
+            // console.log(ENV.PROXY_AGENT);
             if (ENV.PLATFORM == 'win32' && !ENV.PROXY_AGENT) {
                 (new Logger('No system proxy settings detected on Windows!', SigLevel.error)).log();
                 resolve({ result: RESULT.FAILED });

@@ -69,6 +69,7 @@
     "edition": "octane"
   },
   "dependencies": {
-    "axios": "^0.27.2"
+    "axios": "^0.27.2",
+    "ember-cli-string-helpers": "^6.1.0"
   }
 }

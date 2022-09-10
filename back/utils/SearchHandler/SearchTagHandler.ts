@@ -111,7 +111,8 @@ export default class SearchTagHandler implements ISearchHandler {
                         avatar = await ENV.PIXIV.PICTURE_GETTER(avatarUrl);
                     } else {
                         let avatarId = resp.data.body.pixpedia.id;
-                        avatar = (await (new SearchPIDHandler(avatarId)).search()).avatar;
+                        if (avatarId)
+                            avatar = (await (new SearchPIDHandler(avatarId)).search()).avatar;
                     }
                     resolve({
                         result: RESULT.SUCCESS,
