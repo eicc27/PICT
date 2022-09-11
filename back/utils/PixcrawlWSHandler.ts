@@ -7,6 +7,8 @@ import SearchTagHandler from './SearchHandler/SearchTagHandler';
 import SearchPIDHandler from './SearchHandler/SearchPIDHandler';
 import Logger from './Logger';
 import chalk from 'chalk';
+import CrawlUIDHandler from './CrawlHandler/CrawlUIDHandler';
+import CrawlTagHandler from './CrawlHandler/CrawlTagHandler';
 
 /**
  * Handles WebSocket requests from front-end.
@@ -31,6 +33,8 @@ export default class PixcrawlWSHandler {
                 return await this.search();
             case REQUEST_TYPE.extendedSearch:
                 return await this.extendedSearch();
+            case REQUEST_TYPE.crawl:
+                return await this.crawl();
         }
     }
 
@@ -137,5 +141,54 @@ export default class PixcrawlWSHandler {
         let searchExt = await handler.extendedSearch();
         searchExt.index = index;
         this.ws.send(JSON.stringify({ value: searchExt, type: 'search-pid' }));
+    }
+
+    private async crawl() {
+        // console.log('crawling...')
+        let searchResults = this.data.value.searchResults;
+        let keywords = this.data.value.keywords;
+        let kwd: string;
+        let uname: string;
+        let pool = new AsyncPool(4);
+        for (let i = 0; i < searchResults.length; i++) {
+            let searchResult = searchResults[i];
+            let keyword = keywords[i];
+            switch (keyword.type) {
+                case KEYWORD_TYPE.UID:
+                    kwd = keyword.value;
+                    uname = searchResult.uname;
+                    await pool.submit(this.crawlUID(kwd, uname, i));
+                    break;
+                case KEYWORD_TYPE.UNAME:
+                    kwd = searchResult.value[0].uid;
+                    uname = keyword.value;
+                    await pool.submit(this.crawlUID(kwd, uname, i));
+                    break;
+                case KEYWORD_TYPE.PID:
+                    kwd = searchResult.author.uid;
+                    uname = searchResult.author.uname;
+                    await pool.submit(this.crawlUID(kwd, uname, i));
+                    break;
+                case KEYWORD_TYPE.TAG:
+                    kwd = searchResult.value[0].tag;
+                    await pool.submit(this.crawlTag(kwd, i));
+                    break;
+            }
+        }
+        await pool.close();
+    }
+
+    private async crawlUID(kwd: string, uname: string, index: number) {
+        let crawlHandler = new CrawlUIDHandler(kwd, uname);
+        let crawl = await crawlHandler.crawl();
+        crawl.index = index;
+        this.ws.send(JSON.stringify({ value: crawl, type: 'crawl-uid' }));
+    }
+
+    private async crawlTag(kwd: string, index: number) {
+        let crawlHandler = new CrawlTagHandler(kwd);
+        let crawl = await crawlHandler.crawl();
+        crawl.index = index;
+        this.ws.send(JSON.stringify({ value: crawl, type: 'crawl-tag' }));
     }
 }

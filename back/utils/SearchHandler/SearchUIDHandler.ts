@@ -48,12 +48,6 @@ export default class SearchUIDHandler implements ISearchHandler {
      */
     public async search(): Promise<UIDSearchResult> {
         return new Promise((resolve) => {
-            // console.log(ENV.PROXY_AGENT);
-            if (ENV.PLATFORM == 'win32' && !ENV.PROXY_AGENT) {
-                (new Logger('No system proxy settings detected on Windows!', SigLevel.error)).log();
-                resolve({ result: RESULT.FAILED });
-                return;
-            }
             axios.get(`https://www.pixiv.net/users/${this.keyword}`,
                 { httpsAgent: ENV.PROXY_AGENT })
                 .then(async (resp) => { // on success
@@ -86,11 +80,6 @@ export default class SearchUIDHandler implements ISearchHandler {
      */
     public async extendedSearch(): Promise<ExtendedUIDSearchResult> {
         return new Promise((resolve) => {
-            if (ENV.PLATFORM == 'win32' && !ENV.PROXY_AGENT) {
-                (new Logger('No system proxy settings detected on Windows!', SigLevel.error)).log();
-                resolve({ result: RESULT.FAILED });
-                return;
-            }
             axios.get(ENV.PIXIV.USER.TOP(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
                 .then(async (resp) => {
                     axiosResponseLogger(ENV.PIXIV.USER.TOP(this.keyword));
@@ -135,5 +124,31 @@ export default class SearchUIDHandler implements ISearchHandler {
                 }
                 );
         })
+    }
+
+    public async searchWithoutAvatar(): Promise<UIDSearchResult> {
+        return new Promise((resolve) => {
+            axios.get(`https://www.pixiv.net/users/${this.keyword}`,
+                { httpsAgent: ENV.PROXY_AGENT })
+                .then(async (resp) => { // on success
+                    axiosResponseLogger(`https://www.pixiv.net/users/${this.keyword}`);
+                    let html = new JSDOM(resp.data).window.document;
+                    // gets user name and user avatar through json-encoded string
+                    let userInfo = JSON.parse(html.getElementById("meta-preload-data")
+                        .getAttribute('content'));
+                    userInfo = Object.values(userInfo.user)[0];
+                    let userName: string = userInfo.name;
+                    resolve({
+                        extended: false,
+                        result: RESULT.SUCCESS,
+                        value: userName,
+                    });
+                }, (error) => { // on error
+                    axiosErrorLogger(error, `https://www.pixiv.net/users/${this.keyword}`);
+                    resolve({
+                        result: RESULT.FAILED
+                    });
+                });
+        });
     }
 }

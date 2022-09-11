@@ -1,6 +1,8 @@
+import { RESULT } from "../config/environment";
+
 enum KEYWORD_TYPE { UID = 'uid', UNAME = 'uname', TAG = 'tag', PID = 'pid' };
 
-enum REQUEST_TYPE { search = 'search', extendedSearch = 'extendedSearch', download = 'download' };
+enum REQUEST_TYPE { search = 'search', extendedSearch = 'extendedSearch', crawl = 'crawl', download = 'download' };
 
 class KeywordType {
     type: KEYWORD_TYPE;
@@ -19,4 +21,20 @@ class ExtendedRequestType {
     type: REQUEST_TYPE;
 }
 
-export { KEYWORD_TYPE, KeywordType, REQUEST_TYPE, RequestType, ExtendedRequestType };
+class CrawlResult {
+    result: RESULT;
+    index?: number;
+    pics?: Picture[];
+}
+
+/** A picture is related to 4 tables. Pid<->Uid<->Pname, Pid<->Tag, Pid<->Url, Uid<->Uname  */
+class Picture {
+    pid: string;
+    pname: string;
+    uid: string;
+    uname: string;
+    tags: string[];
+    originalUrls: string[];
+}
+
+export { KEYWORD_TYPE, KeywordType, REQUEST_TYPE, RequestType, ExtendedRequestType, CrawlResult };

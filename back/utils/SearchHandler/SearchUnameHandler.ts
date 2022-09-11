@@ -38,10 +38,6 @@ export default class SearchUnameHandler implements ISearchHandler {
     }
 
     public async search(): Promise<UNameSearchResult> {
-        if (ENV.PLATFORM == 'win32' && !ENV.PROXY_AGENT) {
-            (new Logger('No system proxy settings detected on Windows!', SigLevel.error)).log();
-            return { result: RESULT.FAILED };
-        }
         let browser: BrowserContext;
         try {
             browser = await firefox.launchPersistentContext(ENV.BROWSER.USER_PROFILE);

@@ -1,0 +1,7 @@
+{
+    "maxUIDPics": 3,
+    "maxUNames": 3,
+    "picsCredibility": 0.8,
+    "tagsCredibility": 200,
+    "tagMode": "navirank"
+}

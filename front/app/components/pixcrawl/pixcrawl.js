@@ -258,7 +258,7 @@ export default class PixcrawlComponent extends Component {
 
     handle(msg) {
         let resp = JSON.parse(msg);
-        if (!resp.value.extended) this.updateSearchProgress(resp);
+        if ("extended" in resp.value && !resp.value.extended) this.updateSearchProgress(resp);
         // console.log(resp);
         // handles searchProgress changes
         switch (resp.type) {
@@ -274,6 +274,12 @@ export default class PixcrawlComponent extends Component {
                 break;
             case 'search-pid':
                 this.fillPid(resp.value);
+                break;
+            case 'crawl-uid':
+                this.fillCrawlUid(resp.value);
+                break;
+            case 'crawl-tag':
+                this.fillCrawlTag(resp.value);
                 break;
         }
     }
@@ -879,6 +885,13 @@ export default class PixcrawlComponent extends Component {
         if (!this.siftSearchResults()) return;
         this.steps.crawl = true;
         this.steps = copy(this.steps);
+        this.send({
+            type: 'crawl',
+            value: {
+                keywords: this.keywords,
+                searchResults: this.searchResults,
+            }
+        });
     }
 
     siftSearchResults() {
@@ -901,5 +914,13 @@ export default class PixcrawlComponent extends Component {
             return false;
         }
         return true;
+    }
+
+    fillCrawlUid(value) {
+        console.log(value);
+    }
+
+    fillCrawlTag(value) {
+        console.log(value);
     }
 }

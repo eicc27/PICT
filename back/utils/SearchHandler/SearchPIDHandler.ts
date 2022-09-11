@@ -15,7 +15,7 @@ class PIDSearchResult {
     author?: {
         uname: string,
         uid: string,
-        avatar: string,
+        avatar?: string,
     };
 }
 
@@ -37,11 +37,6 @@ export default class SearchPIDHandler implements ISearchHandler {
     public async search(): Promise<PIDSearchResult> {
         return new Promise(
             (resolve) => {
-                if (ENV.PLATFORM == 'win32' && !ENV.PROXY_AGENT) {
-                    (new Logger('No system proxy settings detected on Windows!', SigLevel.error)).log();
-                    resolve({ result: RESULT.FAILED });
-                    return;
-                }
                 axios.get(ENV.PIXIV.USER.PID(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
                     .then(async (resp) => {
                         axiosResponseLogger(ENV.PIXIV.USER.PID(this.keyword));
@@ -77,11 +72,6 @@ export default class SearchPIDHandler implements ISearchHandler {
     /** Searches the original picture itself */
     public async extendedSearch(): Promise<ExtendedPIDSearchResult> {
         return new Promise((resolve) => {
-            if (ENV.PLATFORM == 'win32' && !ENV.PROXY_AGENT) {
-                (new Logger('No system proxy settings detected on Windows!', SigLevel.error)).log();
-                resolve({ result: RESULT.FAILED });
-                return;
-            }
             axios.get(ENV.PIXIV.USER.PID(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
                 .then(async (resp) => {
                     axiosResponseLogger(ENV.PIXIV.USER.PID(this.keyword));
@@ -103,5 +93,37 @@ export default class SearchPIDHandler implements ISearchHandler {
                 }
                 );
         });
+    }
+
+    public async searchWithoutAvatar(): Promise<PIDSearchResult> {
+        return new Promise(
+            (resolve) => {
+                axios.get(ENV.PIXIV.USER.PID(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
+                    .then(async (resp) => {
+                        axiosResponseLogger(ENV.PIXIV.USER.PID(this.keyword));
+                        let retVal: PIDSearchResult = {
+                            extended: false,
+                            result: RESULT.SUCCESS,
+                        };
+                        let html = resp.data;
+                        let metaPreloadData = new JSDOM(html).window.document.getElementById('meta-preload-data');
+                        let json = JSON.parse(metaPreloadData.getAttribute('content'));
+                        let pictureInfo: any = Object.values(json.illust)[0];
+                        retVal.pname = pictureInfo.illustTitle;
+                        let tags = [];
+                        for (const tag of pictureInfo.tags.tags) tags.push(tag.tag);
+                        retVal.tags = tags;
+                        let userInfo: any = Object.values(json.user)[0];
+                        retVal.author = {
+                            uname: userInfo.name,
+                            uid: userInfo.userId,
+                        };
+                        resolve(retVal);
+                    }, (error) => {
+                        axiosErrorLogger(error, ENV.PIXIV.USER.PID(this.keyword));
+                        resolve({ result: RESULT.FAILED });
+                    });
+            }
+        );
     }
 }
