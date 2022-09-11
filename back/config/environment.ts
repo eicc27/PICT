@@ -174,6 +174,7 @@ const ENV = {
      */
     SETTINGS: {
         MAX_PREVIEW_NUM: 3,
+        MAX_RETRIAL: 3,
         PIC_CRED: 0.8,
         TAG_CRED: 100,
     },

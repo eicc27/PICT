@@ -26,7 +26,7 @@ export default class CrawlTagHandler implements ICrawlHander {
         }
     }
 
-    private async crawlWithNavirank(): Promise<CrawlResult> {
+    private async crawlWithNavirank(retrial: number = 0): Promise<CrawlResult> {
         return new Promise((resolve) => {
             axios.get(ENV.NAVIRANK.TAG(this.kwd), { httpsAgent: ENV.PROXY_AGENT })
                 .then(async (resp) => {
@@ -63,9 +63,13 @@ export default class CrawlTagHandler implements ICrawlHander {
                     (new Logger(`Tag crawling of ${chalk.yellowBright(this.kwd)} completed. Total: ${chalk.yellowBright(retVal.pics.length)}`,
                         SigLevel.ok)).log();
                     resolve(retVal);
-                }, (error) => {
-                    axiosErrorLogger(error, ENV.NAVIRANK.TAG(this.kwd));
-                    resolve({ result: RESULT.FAILED });
+                }, async(error) => {
+                    axiosErrorLogger(error, ENV.NAVIRANK.TAG(this.kwd), retrial);
+                    let isPageNotFound:boolean = error.response && error.response.status;
+                    if (!isPageNotFound && retrial < ENV.SETTINGS.MAX_RETRIAL)
+                        await this.crawlWithNavirank(++retrial);
+                    else
+                        resolve({ result: RESULT.FAILED });
                 });
         });
     }

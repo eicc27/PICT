@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { ENV } from "../config/environment";
 
 export enum SigLevel { info = 'info', warn = 'warn', error = 'error', ok = 'ok' };
 
@@ -52,15 +53,17 @@ export default class Logger {
     }
 }
 
-export function axiosErrorLogger(error: any, url: string) {
+export function axiosErrorLogger(error: any, url: string, retrial: number = 0) {
     let requestTargetString = `Requesting ${chalk.blueBright(url)}:`;
     if (error.response) {
-        (new Logger(`${requestTargetString} The server responded with ${chalk.yellow(error.response.status)}`, SigLevel.warn)).log();
+        (new Logger(`Retrial #${chalk.yellowBright(retrial)} failed: ${requestTargetString} The server responded with ${chalk.yellow(error.response.status)}`, SigLevel.warn)).log();
     } else if (error.request) {
-        (new Logger(`${requestTargetString} The server is not responding!`, SigLevel.error)).log();
+        (new Logger(`Retrial #${chalk.yellowBright(retrial)} failed: ${requestTargetString} The server is not responding!`, SigLevel.error)).log();
     } else {
-        (new Logger(`${requestTargetString} Problems occur while sending requests! Most probably a network problem.`, SigLevel.error)).log();
+        (new Logger(`Retrial #${chalk.yellowBright(retrial)} failed: ${requestTargetString} Problems occur while sending requests! Most probably a network problem.`, SigLevel.error)).log();
     }
+    if (retrial == ENV.SETTINGS.MAX_RETRIAL)
+        (new Logger(`Max retrial reached!`, SigLevel.error)).log();
 }
 
 export function axiosResponseLogger(url: string) {

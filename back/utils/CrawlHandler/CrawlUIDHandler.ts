@@ -16,7 +16,7 @@ export default class CrawlUIDHandler implements ICrawlHander {
         this.uname = uname;
     }
 
-    public async crawl(): Promise<CrawlResult> {
+    public async crawl(retrial: number = 0): Promise<CrawlResult> {
         return new Promise((resolve) => {
             axios.get(ENV.PIXIV.USER.ALL(this.kwd), { httpsAgent: ENV.PROXY_AGENT })
                 .then(async (resp) => {
@@ -48,11 +48,15 @@ export default class CrawlUIDHandler implements ICrawlHander {
                     }
                     await pool.close();
                     (new Logger(`UID crawling of ${chalk.yellowBright(this.kwd)} completed. Total: ${chalk.yellowBright(retVal.pics.length)}`,
-                    SigLevel.ok)).log();
+                        SigLevel.ok)).log();
                     resolve(retVal);
                 }, (error) => {
-                    axiosErrorLogger(error, ENV.PIXIV.USER.ALL(this.kwd));
-                    resolve({ result: RESULT.FAILED });
+                    axiosErrorLogger(error, ENV.PIXIV.USER.ALL(this.kwd), retrial);
+                    let isPageNotFound:boolean = error.response && error.response.status;
+                    if (!isPageNotFound && retrial < ENV.SETTINGS.MAX_RETRIAL)
+                        this.crawl(++retrial);
+                    else
+                        resolve({ result: RESULT.FAILED });
                 });
         });
     }
