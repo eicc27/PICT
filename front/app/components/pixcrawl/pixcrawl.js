@@ -3,6 +3,15 @@ import { tracked } from '@glimmer/tracking';
 import { service } from '@ember/service';
 import { action } from '@ember/object';
 
+class Picture {
+    pid = '';
+    pname = '';
+    uid = '';
+    uname = '';
+    tags = [];
+    originalUrls = [];
+}
+
 class SearchProgress {
     nums = {
         uid: 0,
@@ -98,7 +107,7 @@ class SearchTagResult {
         {
             extended: false,
             tag: '',
-            translate: '',
+            translation: '',
             avatar: '',
         },
     ];
@@ -185,6 +194,12 @@ class SearchRequestType {
     type;
 }
 
+class CrawlResult {
+    success = true;
+    display = false;
+    pics = [];
+}
+
 function copy(jsonLike) {
     return JSON.parse(JSON.stringify(jsonLike));
 }
@@ -216,6 +231,7 @@ export default class PixcrawlComponent extends Component {
     @tracked
     searchResults = [];
 
+    /** @type {CrawlResult[]} */
     @tracked
     crawlResults = [];
 
@@ -816,6 +832,15 @@ export default class PixcrawlComponent extends Component {
         this.searchResults = copy(this.searchResults);
         --this.searchProgress.searchCnt;
         --this.searchProgress.nums[kwd.type];
+        this.searchProgress = copy(this.searchProgress);
+        // if no result is left, navigate back
+        if (!this.searchProgress.searchCnt) {
+            this.goBack(0);
+            let hintElement = document.querySelector('.hint');
+            let hintContent = hintElement.querySelector('.content');
+            hintContent.innerHTML = "No search options left. Navigated back to keword step."
+            hintElement.style.display = 'block';
+        }
         this.updateSearchProgressAbstract();
     }
 
@@ -892,6 +917,39 @@ export default class PixcrawlComponent extends Component {
                 searchResults: this.searchResults,
             }
         });
+        for (let i = 0; i < this.searchResults.length; i++) {
+            this.crawlResults.push(new CrawlResult());
+        }
+    }
+
+    /** Auto adjusts index attribute of this.keywords
+     * @param {number} index
+     */
+    spliceKeywords(index) {
+        this.keywords.splice(index, 1);
+        for (let i = index; i < this.keywords.length; i++) {
+            --this.keywords[i].index;
+        }
+        // this.keywords = copy(this.keywords);
+    }
+
+    /**
+     * Gets UID for uname, uid & pid search type.
+     * @param {number} index 
+     */
+    getUidForSearchResult(index) {
+        let keyword = this.keywords[index];
+        let result = this.searchResults[index];
+        switch (keyword.type) {
+            case 'uid':
+                return keyword.value;
+            case 'pid':
+                return result.author.uid;
+            case 'uname':
+                return result.value[0].uid;
+            case 'tag':
+                return null;
+        }
     }
 
     siftSearchResults() {
@@ -899,11 +957,21 @@ export default class PixcrawlComponent extends Component {
             let result = this.searchResults[i];
             if (!result.success) {
                 this.searchResults.splice(i, 1);
-                this.keywords.splice(i, 1);
+                this.spliceKeywords(i);
             }
-            this.keywords = copy(this.keywords);
-            this.searchResults = copy(this.searchResults);
+            let uid = this.getUidForSearchResult(i);
+            if (uid) {
+                for (let j = i + 1; j < this.searchResults.length; j++) {
+                    let uidComparing = this.getUidForSearchResult(j);
+                    if (uidComparing && uid == uidComparing) {
+                        this.searchResults.splice(j, 1);
+                        this.spliceKeywords(j);
+                    }
+                }
+            }
         }
+        this.keywords = copy(this.keywords);
+        this.searchResults = copy(this.searchResults);
         // if no result is left after sifting, pilots the user back to keyword.
         if (!this.searchResults.length) {
             this.goBack(0);
@@ -913,14 +981,24 @@ export default class PixcrawlComponent extends Component {
             hintContent.innerHTML = 'No available crawl targets left. Navigated back to keyword step.';
             return false;
         }
+        console.log(this.keywords);
+        console.log(this.searchResults);
         return true;
     }
 
     fillCrawlUid(value) {
-        console.log(value);
+        // console.log(value);
+        let crawlResult = this.crawlResults[value.index];
+        crawlResult.pics = value.pics;
+        crawlResult.display = true;
+        this.crawlResults = copy(this.crawlResults);
     }
 
     fillCrawlTag(value) {
-        console.log(value);
+        // console.log(value);
+        let crawlResult = this.crawlResults[value.index];
+        crawlResult.pics = value.pics;
+        crawlResult.display = true;
+        this.crawlResults = copy(this.crawlResults);
     }
 }

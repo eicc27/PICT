@@ -1,0 +1,7 @@
+{
+    "theme": "light",
+    "r18": true,
+    "liteSearch": false,
+    "back": "node",
+    "db": "sqlite"
+}

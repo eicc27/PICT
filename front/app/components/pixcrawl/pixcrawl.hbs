@@ -361,7 +361,76 @@
     </div>
 
     <div class="crawl" style={{html-safe (concat "display: " (if (ifStep this.steps "crawl" ) "flex" "none" ))}}>
-
+        <div class="progress">
+            <h2>Total Progress</h2>
+            <div class="search-target">
+                {{!-- Changed by JS(while WebSocket recieves message) --}}
+                Starting...
+            </div>
+            <div class="bar-content">
+                <div class="bar-bg" />
+                <div class="bar" style={{html-safe (concat "width: " (mul 600 (div this.crawlProgress.crawlCnt (if
+                    this.searchResults.length this.searchResults.length 1))) "px" )}} />
+                <div class="percent">{{mul 100 (div this.crawlProgress.crawlCnt (if this.searchResults.length
+                    this.searchResults.length 1))}}%</div>
+            </div>
+            <div class="abstract">
+                {{!-- xxx tags, xxx user names, xxx picture ids... --}}
+                {{!-- <span>10</span> tags. --}}
+                {{!-- Unknown Emberjs bugs for removing children, use traditional JS instead... --}}
+            </div>
+            <div class="abstract-progress">
+                {{#if this.crawlProgress.success}}
+                <span class="completed">{{this.crawlProgress.success}}</span> completed.
+                {{/if}}
+                {{#if this.crawlProgress.failure}}
+                <span class="failed">{{this.crawlProgress.failure}}</span> failed.
+                {{/if}}
+            </div>
+        </div>
+        <ul>
+            {{#each this.crawlResults as |result index|}}
+            {{#if result.display}}
+            <li>
+                {{#let (get this.searchResults index) (get this.keywords index) as |result kwd|}}
+                <div class="result-abstract">
+                    {{#if (eq kwd.type "uid")}}
+                    <img alt="avatar" src={{result.avatar}} />
+                    <div class="value">{{result.uname}}</div>
+                    <div class="type">uname</div>
+                    <div class="value-alt">{{kwd.value}}</div>
+                    {{else if (eq kwd.type "uname")}}
+                    <img alt="avatar" src={{get (get result.value 0) "avatar" }} />
+                    <div class="value">{{get (get result.value 0) "uname"}}</div>
+                    <div class="type">uname</div>
+                    <div class="value-alt">{{get (get result.value 0) "uid"}}</div>
+                    {{else if (eq kwd.type "tag")}}
+                    {{#if (get (get result.value 0) "avatar")}}
+                    <img alt="avatar" src={{get (get result.value 0) "avatar" }} />
+                    {{/if}}
+                    <div class="value">{{get (get result.value 0) "tag"}}</div>
+                    <div class="type">tag</div>
+                    {{#if (get (get result.value 0) "translation")}}
+                    <div class="value-alt">#{{get (get result.value 0) "translation"}}</div>
+                    {{/if}}
+                    {{else if (eq kwd.type "pid")}}
+                    <img alt="avatar" src={{result.author.avatar}} />
+                    <div class="value">{{result.author.uname}}</div>
+                    <div class="type">uname</div>
+                    <div class="value-alt">{{result.author.uid}}</div>
+                    {{/if}}
+                </div>
+                <Icons::TriangleRight />
+                {{/let}}
+                <div class="result-abstract">
+                    <div class="value">
+                        <span>{{result.pics.length}}</span> Pictures
+                    </div>
+                </div>
+            </li>
+            {{/if}}
+            {{/each}}
+        </ul>
     </div>
 
     <div class="download" style={{html-safe (concat "display: " (if (ifStep this.steps "download" ) "flex" "none" ))}}>

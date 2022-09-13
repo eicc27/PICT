@@ -4,6 +4,7 @@ import { JSDOM } from 'jsdom';
 import ISearchHandler from "./ISearchHandler";
 import AsyncPool from "../AsyncPool";
 import Logger, { axiosErrorLogger, axiosResponseLogger, SigLevel } from "../Logger";
+import chalk from "chalk";
 
 /**
  * When result is not `RESULT.SUCCESS`, the rest of the attributes are not provided.
@@ -126,11 +127,13 @@ export default class SearchUIDHandler implements ISearchHandler {
         })
     }
 
-    public async searchWithoutAvatar(): Promise<UIDSearchResult> {
+    public async searchWithoutAvatar(retrial: number = 0): Promise<UIDSearchResult> {
         return new Promise((resolve) => {
             axios.get(`https://www.pixiv.net/users/${this.keyword}`,
                 { httpsAgent: ENV.PROXY_AGENT })
                 .then(async (resp) => { // on success
+                    if (!retrial)
+                        (new Logger(`Retrial #${chalk.yellowBright(retrial + 1)}`));
                     axiosResponseLogger(`https://www.pixiv.net/users/${this.keyword}`);
                     let html = new JSDOM(resp.data).window.document;
                     // gets user name and user avatar through json-encoded string
@@ -143,11 +146,15 @@ export default class SearchUIDHandler implements ISearchHandler {
                         result: RESULT.SUCCESS,
                         value: userName,
                     });
-                }, (error) => { // on error
-                    axiosErrorLogger(error, `https://www.pixiv.net/users/${this.keyword}`);
-                    resolve({
-                        result: RESULT.FAILED
-                    });
+                }, async (error) => { // on error
+                    axiosErrorLogger(error, `https://www.pixiv.net/users/${this.keyword}`, retrial);
+                    let isPageNotFound: boolean = error.response && error.response.status;
+                    if (!isPageNotFound && retrial < ENV.SETTINGS.MAX_RETRIAL)
+                        await this.searchWithoutAvatar(++retrial);
+                    else
+                        resolve({
+                            result: RESULT.FAILED
+                        });
                 });
         });
     }

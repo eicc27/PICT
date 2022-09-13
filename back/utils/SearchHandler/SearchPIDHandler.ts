@@ -3,6 +3,7 @@ import { ENV, RESULT } from "../../config/environment";
 import ISearchHandler from "./ISearchHandler";
 import { JSDOM } from 'jsdom';
 import Logger, { axiosErrorLogger, axiosResponseLogger, SigLevel } from "../Logger";
+import chalk from "chalk";
 
 class PIDSearchResult {
     extended?: boolean = false;
@@ -95,11 +96,13 @@ export default class SearchPIDHandler implements ISearchHandler {
         });
     }
 
-    public async searchWithoutAvatar(): Promise<PIDSearchResult> {
+    public async searchWithoutAvatar(retrial: number = 0): Promise<PIDSearchResult> {
         return new Promise(
             (resolve) => {
-                axios.get(ENV.PIXIV.USER.PID(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
+                axios.get(ENV.PIXIV.USER.PID(this.keyword), { httpsAgent: ENV.PROXY_AGENT, timeout: ENV.SETTINGS.TIMEOUT })
                     .then(async (resp) => {
+                        if (!retrial)
+                            (new Logger(`Retrial #${chalk.yellowBright(retrial + 1)}`));
                         axiosResponseLogger(ENV.PIXIV.USER.PID(this.keyword));
                         let retVal: PIDSearchResult = {
                             extended: false,
@@ -119,8 +122,11 @@ export default class SearchPIDHandler implements ISearchHandler {
                             uid: userInfo.userId,
                         };
                         resolve(retVal);
-                    }, (error) => {
-                        axiosErrorLogger(error, ENV.PIXIV.USER.PID(this.keyword));
+                    }, async (error) => {
+                        axiosErrorLogger(error, ENV.PIXIV.USER.PID(this.keyword), retrial);
+                        let isPageNotFound: boolean = error.response && error.response.status;
+                        if (!isPageNotFound && retrial < ENV.SETTINGS.MAX_RETRIAL)
+                            await this.searchWithoutAvatar(++retrial);
                         resolve({ result: RESULT.FAILED });
                     });
             }

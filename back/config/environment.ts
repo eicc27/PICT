@@ -177,6 +177,7 @@ const ENV = {
         MAX_RETRIAL: 3,
         PIC_CRED: 0.8,
         TAG_CRED: 100,
+        TIMEOUT: 20 * 1000,
     },
 
     /**
