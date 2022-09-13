@@ -2,11 +2,34 @@ import Koa from 'koa';
 import Router from 'koa-router';
 import websocket from 'ws';
 import BrowserChecker from '../utils/BrowserChecker';
+import SQLiteConnector, { SQLColumnType } from '../utils/DBConnector/SQLiteConnector';
 import PixcrawlWSHandler from '../utils/PixcrawlWSHandler';
 import ProxyListener from '../utils/ProxyListener';
 
 const proxyListener = new ProxyListener();
 proxyListener.listen();
+
+
+let testKey: Map<string, SQLColumnType> = new Map();
+testKey.set('name', {
+    value: 'eric',
+    ai: false,
+    pri: false,
+    nn: true,
+    foreign: false
+});
+testKey.set('age', {
+    value: 10,
+    ai: false,
+    pri: false,
+    nn: true,
+    foreign: false,
+});
+let connector = new SQLiteConnector<typeof testKey>('test', 'test');
+// connector.createTable(testKey);
+connector.insert(testKey);
+let t = connector.selectAllWhenPropertyEqual(testKey);
+console.log(t);
 
 const app = new Koa();
 const router = new Router();

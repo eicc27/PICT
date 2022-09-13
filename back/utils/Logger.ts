@@ -28,7 +28,7 @@ export default class Logger {
      * `ok`: green
      */
     public log() {
-            this.logToConsole();
+        this.logToConsole();
     }
 
     private logToConsole() {
@@ -68,4 +68,11 @@ export function axiosErrorLogger(error: any, url: string, retrial: number = 0) {
 
 export function axiosResponseLogger(url: string) {
     (new Logger(`Response recieved from: ${chalk.blueBright(url)}`)).log();
+}
+
+export function dbLogger(db: string, query: string, id: string, direction: 'from' | 'to', result?: any) {
+    let arrow = direction == 'from' ? '<-' : '->';
+    let log = ` [#${chalk.bgBlueBright.whiteBright(id)} ${chalk.bgGreenBright.whiteBright(arrow)}] ${db}: ${chalk.yellowBright(query)}`;
+    if (result) log += ` returned ${chalk.yellowBright(result)}`;
+    (new Logger(log)).log();
 }
