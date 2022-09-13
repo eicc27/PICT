@@ -35,6 +35,8 @@ export default class PixcrawlWSHandler {
                 return await this.extendedSearch();
             case REQUEST_TYPE.crawl:
                 return await this.crawl();
+            case REQUEST_TYPE.download:
+                return await this.download();
         }
     }
 
@@ -190,5 +192,10 @@ export default class PixcrawlWSHandler {
         let crawl = await crawlHandler.crawl();
         crawl.index = index;
         this.ws.send(JSON.stringify({ value: crawl, type: 'crawl-tag' }));
+    }
+
+    private async download() {
+        // constantly sends message to front end.
+        
     }
 }

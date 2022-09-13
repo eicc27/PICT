@@ -431,6 +431,19 @@
             {{/if}}
             {{/each}}
         </ul>
+        <div class="bottom-nav">
+            {{#if (eq this.searchProgress.searchCnt this.keywords.length)}}
+            <button type="button" {{on "click" (fn this.goBack 1)}}>
+                <Icons::AnglesLeft />
+                <span>Keyword</span>
+            </button>
+            <div class="seperator"></div>
+            <button type="button" {{on "click" this.goToDownload}}>
+                <span>Crawl</span>
+                <Icons::AnglesRight />
+            </button>
+            {{/if}}
+        </div>
     </div>
 
     <div class="download" style={{html-safe (concat "display: " (if (ifStep this.steps "download" ) "flex" "none" ))}}>

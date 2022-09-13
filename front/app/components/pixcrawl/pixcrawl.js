@@ -200,6 +200,12 @@ class CrawlResult {
     pics = [];
 }
 
+class CrawlProgress {
+    crawlCnt = 0;
+    success = 0;
+    failure = 0;
+}
+
 function copy(jsonLike) {
     return JSON.parse(JSON.stringify(jsonLike));
 }
@@ -237,6 +243,9 @@ export default class PixcrawlComponent extends Component {
 
     @tracked
     searchProgress = new SearchProgress();
+
+    @tracked 
+    crawlProgress = new CrawlProgress();
 
     @service('pixcrawl')
     pixcrawlWS;
@@ -292,10 +301,8 @@ export default class PixcrawlComponent extends Component {
                 this.fillPid(resp.value);
                 break;
             case 'crawl-uid':
-                this.fillCrawlUid(resp.value);
-                break;
             case 'crawl-tag':
-                this.fillCrawlTag(resp.value);
+                this.fillCrawl(resp.value);
                 break;
         }
     }
@@ -308,28 +315,52 @@ export default class PixcrawlComponent extends Component {
     /** @param {number} index */
     @action goBack(index) {
         let hint = document.querySelector('.hint');
+        let isSearch = document.querySelector('.search').style.display == 'flex';
+        let isCrawl = document.querySelector('.crawl').style.display == 'flex';
         switch (index) {
             case 0:
                 if (document.querySelector('.keyword').style.display == 'flex') return;
-                if (this.searchProgress.searchCnt < this.keywords.length) {
+                if (isSearch && this.searchProgress.searchCnt < this.keywords.length) {
                     hint.style.display = 'block';
                     let hintContent = document.querySelector('.hint .content');
                     hintContent.innerHTML = "Please wait for the search to complete.";
+                    return;
+                }
+                if (isCrawl && this.crawlProgress.crawlCnt < this.keywords.length) {
+                    hint.style.display = 'block';
+                    let hintContent = document.querySelector('.hint .content');
+                    hintContent.innerHTML = "Please wait for the crawl to complete.";
                     return;
                 }
                 this.steps.search = false;
                 this.steps.crawl = false;
                 this.steps.download = false;
                 this.searchProgress = new SearchProgress();
+                this.searchProgress = copy(this.searchProgress);
+                this.crawlProgress = new CrawlProgress();
+                this.crawlResults = copy(this.crawlResults);
                 this.searchResults = [];
                 let infoElement = document.querySelector('.search .progress .search-target');
+                infoElement.innerHTML = 'Starting up';
+                infoElement = document.querySelector('.crawl .progress .search-target');
                 infoElement.innerHTML = 'Starting up';
                 this.toggleAddTagsHintVisibility();
                 break;
             case 1:
+                if (isSearch) return;
+                if (isCrawl && this.crawlProgress.crawlCnt < this.keywords.length) {
+                    hint.style.display = 'block';
+                    let hintContent = document.querySelector('.hint .content');
+                    hintContent.innerHTML = "Please wait for the crawl to complete.";
+                    return;
+                }
                 this.steps.crawl = false;
                 this.steps.download = false;
-                return;
+                this.crawlResults = [];
+                this.crawlProgress = new CrawlProgress();
+                this.crawlResults = copy(this.crawlResults);
+                this.crawlProgress = copy(this.crawlProgress);
+                break;
             case 2:
                 break;
             case 3:
@@ -502,14 +533,14 @@ export default class PixcrawlComponent extends Component {
         let abstract = document.querySelector('.pixcrawl .search .abstract');
         abstract.innerHTML = sentences.join(', ') + '.';
         this.searchProgress = copy(this.searchProgress);
-        this.updateSearchProgressAbstract();
+        this.updateProgressAbstract('search');
         this.steps.search = true;
         this.steps = copy(this.steps);
     }
 
     /** Updates search progress abstract */
-    updateSearchProgressAbstract() {
-        let abstractElement = document.querySelector('.search .progress .abstract');
+    updateProgressAbstract(step) {
+        let abstractElement = document.querySelector(`.${step} .progress .abstract`);
         let infoStrs = [];
         // console.log(this.searchProgress);
         this.setupSearchAbstract('uid', 'user id', infoStrs);
@@ -841,7 +872,7 @@ export default class PixcrawlComponent extends Component {
             hintContent.innerHTML = "No search options left. Navigated back to keword step."
             hintElement.style.display = 'block';
         }
-        this.updateSearchProgressAbstract();
+        this.updateProgressAbstract('search');
     }
 
     /** @param {number} kwdIdx
@@ -901,7 +932,7 @@ export default class PixcrawlComponent extends Component {
         this.searchResults = copy(this.searchResults);
         this.updateSearchProgressInfo(`Searching additional tag ${kwd.value}`);
         ++this.searchProgress.nums.tag;
-        this.updateSearchProgressAbstract();
+        this.updateProgressAbstract('search');
         // console.log(this.keywords);
     }
 
@@ -920,6 +951,9 @@ export default class PixcrawlComponent extends Component {
         for (let i = 0; i < this.searchResults.length; i++) {
             this.crawlResults.push(new CrawlResult());
         }
+        this.updateProgressAbstract('crawl');
+        this.crawlProgress = new CrawlProgress();
+        this.crawlProgress = copy(this.crawlProgress);
     }
 
     /** Auto adjusts index attribute of this.keywords
@@ -986,19 +1020,31 @@ export default class PixcrawlComponent extends Component {
         return true;
     }
 
-    fillCrawlUid(value) {
+    fillCrawl(value) {
         // console.log(value);
         let crawlResult = this.crawlResults[value.index];
         crawlResult.pics = value.pics;
         crawlResult.display = true;
         this.crawlResults = copy(this.crawlResults);
+        ++this.crawlProgress.crawlCnt;
+        if (!value.result)
+            ++this.crawlProgress.success;
+        else
+            ++this.crawlProgress.failure;
+        this.crawlProgress = copy(this.crawlProgress);
+        let infoElement = document.querySelector('.crawl .progress .search-target')
+        console.log(this.crawlProgress);
+        if (this.crawlProgress.crawlCnt < this.keywords.length)
+            infoElement.innerHTML = `Crawled ${this.keywords[value.index].value}`;
+        else
+            infoElement.innerHTML = 'Completed';
     }
 
-    fillCrawlTag(value) {
-        // console.log(value);
-        let crawlResult = this.crawlResults[value.index];
-        crawlResult.pics = value.pics;
-        crawlResult.display = true;
-        this.crawlResults = copy(this.crawlResults);
+    goToDownload() {
+        this.send({
+            type: 'download',
+            value: this.crawlResults
+        });
+        this.steps.download = true;
     }
 }
