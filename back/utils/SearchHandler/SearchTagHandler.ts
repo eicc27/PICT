@@ -38,7 +38,7 @@ export default class SearchTagHandler implements ISearchHandler {
 
     public async search(): Promise<TagSearchResult> {
         return new Promise((resolve) => {
-            axios.get(ENV.PIXIV.USER.TAG(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
+            axios.get(ENV.PIXIV.USER.TAG(this.keyword), { httpsAgent: ENV.PROXY_AGENT, timeout: ENV.SETTINGS.TIMEOUT })
                 .then(async (resp) => {
                     // console.log(resp.data);
                     // if the tag does not have any illusts related to it, it's empty
@@ -90,7 +90,7 @@ export default class SearchTagHandler implements ISearchHandler {
 
     public async extendedSearch(): Promise<ExtendedTagSearchResult> {
         return new Promise((resolve) => {
-            axios.get(ENV.PIXIV.USER.TAG_PICTURE(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
+            axios.get(ENV.PIXIV.USER.TAG_PICTURE(this.keyword), { httpsAgent: ENV.PROXY_AGENT, timeout: ENV.SETTINGS.TIMEOUT })
                 .then(async (resp) => {
                     axiosResponseLogger(ENV.PIXIV.USER.TAG_PICTURE(this.keyword));
                     let tag = resp.data.body.tag;

@@ -24,6 +24,7 @@
     "koa": "^2.13.4",
     "koa-body": "^5.0.0",
     "koa-router": "^10.1.1",
+    "node-firebird": "^1.0.0",
     "playwright": "^1.22.2",
     "ws": "^8.8.0"
   },

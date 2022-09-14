@@ -433,13 +433,13 @@
         </ul>
         <div class="bottom-nav">
             {{#if (eq this.searchProgress.searchCnt this.keywords.length)}}
-            <button type="button" {{on "click" (fn this.goBack 1)}}>
+            <button type="button" {{on "click" (fn this.goBack 2)}}>
                 <Icons::AnglesLeft />
-                <span>Keyword</span>
+                <span>Crawl</span>
             </button>
             <div class="seperator"></div>
             <button type="button" {{on "click" this.goToDownload}}>
-                <span>Crawl</span>
+                <span>Download</span>
                 <Icons::AnglesRight />
             </button>
             {{/if}}

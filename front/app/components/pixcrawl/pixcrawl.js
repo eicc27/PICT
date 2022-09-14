@@ -1040,6 +1040,7 @@ export default class PixcrawlComponent extends Component {
             infoElement.innerHTML = 'Completed';
     }
 
+    @action
     goToDownload() {
         this.send({
             type: 'download',

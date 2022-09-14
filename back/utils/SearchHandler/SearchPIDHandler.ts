@@ -38,7 +38,7 @@ export default class SearchPIDHandler implements ISearchHandler {
     public async search(): Promise<PIDSearchResult> {
         return new Promise(
             (resolve) => {
-                axios.get(ENV.PIXIV.USER.PID(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
+                axios.get(ENV.PIXIV.USER.PID(this.keyword), { httpsAgent: ENV.PROXY_AGENT, timeout: ENV.SETTINGS.TIMEOUT })
                     .then(async (resp) => {
                         axiosResponseLogger(ENV.PIXIV.USER.PID(this.keyword));
                         let retVal: PIDSearchResult = {
@@ -73,7 +73,7 @@ export default class SearchPIDHandler implements ISearchHandler {
     /** Searches the original picture itself */
     public async extendedSearch(): Promise<ExtendedPIDSearchResult> {
         return new Promise((resolve) => {
-            axios.get(ENV.PIXIV.USER.PID(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
+            axios.get(ENV.PIXIV.USER.PID(this.keyword), { httpsAgent: ENV.PROXY_AGENT, timeout: ENV.SETTINGS.TIMEOUT })
                 .then(async (resp) => {
                     axiosResponseLogger(ENV.PIXIV.USER.PID(this.keyword));
                     let html = resp.data;

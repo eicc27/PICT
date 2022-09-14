@@ -37,4 +37,4 @@ class Picture {
     originalUrls: string[];
 }
 
-export { KEYWORD_TYPE, KeywordType, REQUEST_TYPE, RequestType, ExtendedRequestType, CrawlResult };
+export { KEYWORD_TYPE, KeywordType, REQUEST_TYPE, RequestType, ExtendedRequestType, CrawlResult, Picture };

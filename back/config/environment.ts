@@ -2,6 +2,7 @@ import axios from 'axios';
 import chalk from 'chalk';
 import httpsProxyAgent from 'https-proxy-agent';
 import { platform } from 'os';
+import { createWriteStream } from 'fs';
 import Logger, { axiosErrorLogger, axiosResponseLogger, SigLevel } from '../utils/Logger';
 
 /**
@@ -84,7 +85,7 @@ function getNavirankTagPage(tag: string) {
 async function getPictureInBase64(url: string): Promise<string> {
     return new Promise((resolve) => {
         axios.get(url,
-            { httpsAgent: ENV.PROXY_AGENT, headers: ENV.HEADER, responseType: 'arraybuffer' })
+            { httpsAgent: ENV.PROXY_AGENT, headers: ENV.HEADER, responseType: 'arraybuffer', timeout: ENV.SETTINGS.TIMEOUT })
             .then((resp) => {
                 axiosResponseLogger(url);
                 let buffer = Buffer.from(resp.data, 'binary');
@@ -92,6 +93,40 @@ async function getPictureInBase64(url: string): Promise<string> {
             }, (error) => {
                 axiosErrorLogger(error, url);
                 resolve('');
+            });
+    });
+}
+
+async function getPictureOriginal(url: string, fname: string, retrial: number = 0): Promise<void> {
+    return new Promise((resolve) => {
+        if (retrial >= ENV.SETTINGS.MAX_RETRIAL) {
+            resolve();
+            return;
+        }
+        axios.get(url,
+            { httpsAgent: ENV.PROXY_AGENT, headers: ENV.HEADER, responseType: 'stream', timeout: ENV.SETTINGS.TIMEOUT })
+            .then((resp) => {
+                const writer = createWriteStream(`..\\lsp\\${fname}.png`, {
+                    flags: 'w+'
+                });
+                resp.data.pipe(writer);
+                writer.on('finish', () => {
+                    (new Logger(`Finished downloading ${url}`)).log();
+                    resolve();
+                    return;
+                })
+                writer.on('error', async (e) => {
+                    console.log(e);
+                    (new Logger(`Writer error: ${url}`, SigLevel.error)).log();
+                    await getPictureOriginal(url, fname, ++retrial);
+                    resolve();
+                    return;
+                });
+            }, async (error) => {
+                axiosErrorLogger(error, url);
+                await getPictureOriginal(url, fname, ++retrial);
+                resolve();
+                return;
             });
     });
 }
@@ -104,7 +139,7 @@ async function getPictureInBase64(url: string): Promise<string> {
 async function getOriginalPictureUrl(pid: string): Promise<string[]> {
     return new Promise(((resolve) => {
         (new Logger(`Getting original pictures of pid ${chalk.blueBright(pid)}`)).log();
-        axios.get(ENV.PIXIV.USER.PID_SERIES(pid), { httpsAgent: ENV.PROXY_AGENT })
+        axios.get(ENV.PIXIV.USER.PID_SERIES(pid), { httpsAgent: ENV.PROXY_AGENT, timeout: ENV.SETTINGS.TIMEOUT })
             .then((resp) => {
                 axiosResponseLogger(ENV.PIXIV.USER.PID_SERIES(pid));
                 let body = resp.data.body;
@@ -158,6 +193,7 @@ const ENV = {
             PID_SERIES: crawlPidPage,
         },
         PICTURE_GETTER: getPictureInBase64,
+        DOWNLOADER: getPictureOriginal,
         PID_GETTER: getOriginalPictureUrl,
         TAG_MODE: TAGMODE.NAVIRANK,
     },

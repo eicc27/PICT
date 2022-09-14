@@ -1,14 +1,18 @@
 import { WebSocket } from 'ws';
 import AsyncPool from './AsyncPool';
 import SearchUIDHandler from './SearchHandler/SearchUIDHandler';
-import { RequestType, REQUEST_TYPE, KEYWORD_TYPE, ExtendedRequestType } from '../types/Types';
+import { RequestType, REQUEST_TYPE, KEYWORD_TYPE, ExtendedRequestType, Picture } from '../types/Types';
 import SearchUnameHandler from './SearchHandler/SearchUnameHandler';
 import SearchTagHandler from './SearchHandler/SearchTagHandler';
 import SearchPIDHandler from './SearchHandler/SearchPIDHandler';
-import Logger from './Logger';
+import Logger, { SigLevel } from './Logger';
 import chalk from 'chalk';
 import CrawlUIDHandler from './CrawlHandler/CrawlUIDHandler';
 import CrawlTagHandler from './CrawlHandler/CrawlTagHandler';
+import SQLiteConnector, { SQLColumnType } from './DBConnector/SQLiteConnector';
+import { ENV } from '../config/environment';
+import DataParser from './DownloadHandler/DataParser';
+
 
 /**
  * Handles WebSocket requests from front-end.
@@ -196,6 +200,24 @@ export default class PixcrawlWSHandler {
 
     private async download() {
         // constantly sends message to front end.
-        
+        let connection = new SQLiteConnector('PID', 'pixcrawl');
+        for (const val of this.data.value) {
+            let value: Picture[] = val.pics;
+            // console.log(value);
+            let pool = new AsyncPool(16);
+            for (const v of value) {
+                for (const url of v.originalUrls) {
+                    let pname = url.split('/').at(-1).slice(0, -4);
+                    await pool.submit(ENV.PIXIV.DOWNLOADER(url, pname));
+                }
+                let parser = new DataParser(v);
+                connection.switchToTable('PID').insertOrUpdate(parser.toPidTableMap(), 'pid')
+                    .switchToTable('UID').insertOrUpdate(parser.toUidTableMap(), 'uid')
+                    .switchToTable('TAG').insertOrUpdate(parser.toTagTableMap())
+                    .switchToTable('URL').insertOrUpdate(parser.toUrlTableMap());
+            }
+            await pool.close();
+            (new Logger(`${chalk.greenBright('Complete.')}`, SigLevel.ok)).log();
+        }
     }
 }

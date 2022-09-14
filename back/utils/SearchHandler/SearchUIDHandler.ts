@@ -50,7 +50,7 @@ export default class SearchUIDHandler implements ISearchHandler {
     public async search(): Promise<UIDSearchResult> {
         return new Promise((resolve) => {
             axios.get(`https://www.pixiv.net/users/${this.keyword}`,
-                { httpsAgent: ENV.PROXY_AGENT })
+                { httpsAgent: ENV.PROXY_AGENT, timeout: ENV.SETTINGS.TIMEOUT })
                 .then(async (resp) => { // on success
                     axiosResponseLogger(`https://www.pixiv.net/users/${this.keyword}`);
                     let html = new JSDOM(resp.data).window.document;
@@ -81,7 +81,7 @@ export default class SearchUIDHandler implements ISearchHandler {
      */
     public async extendedSearch(): Promise<ExtendedUIDSearchResult> {
         return new Promise((resolve) => {
-            axios.get(ENV.PIXIV.USER.TOP(this.keyword), { httpsAgent: ENV.PROXY_AGENT })
+            axios.get(ENV.PIXIV.USER.TOP(this.keyword), { httpsAgent: ENV.PROXY_AGENT, timeout: ENV.SETTINGS.TIMEOUT })
                 .then(async (resp) => {
                     axiosResponseLogger(ENV.PIXIV.USER.TOP(this.keyword));
                     let retVal: ExtendedUIDSearchResult = {
@@ -130,7 +130,7 @@ export default class SearchUIDHandler implements ISearchHandler {
     public async searchWithoutAvatar(retrial: number = 0): Promise<UIDSearchResult> {
         return new Promise((resolve) => {
             axios.get(`https://www.pixiv.net/users/${this.keyword}`,
-                { httpsAgent: ENV.PROXY_AGENT })
+                { httpsAgent: ENV.PROXY_AGENT, timeout: ENV.SETTINGS.TIMEOUT })
                 .then(async (resp) => { // on success
                     if (!retrial)
                         (new Logger(`Retrial #${chalk.yellowBright(retrial + 1)}`));

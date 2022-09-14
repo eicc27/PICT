@@ -7,21 +7,25 @@ import { createHash } from 'crypto';
  */
 export class SQLColumnType {
     value: string | number | Date;
-    ai: boolean = false;
-    pri: boolean = false;
-    nn: boolean = false;
-    foreign: boolean = false;
+    ai?: boolean = false;
+    pri?: boolean = false;
+    nn?: boolean = false;
+    foreign?: boolean = false;
     ref?: string;
 }
 
+/**
+ * 
+ * @param value 
+ * @returns 
+ */
 function auto(value: string | number | Date) {
     switch (typeof value) {
-        case 'string':
-            return `varchar(${value.length * 2})`;
         case 'number':
-            return `int(10)`;
-        case 'object':
-            return `datetime`;
+            return `integer`;
+        case 'string':
+        case 'object': // Date
+            return `text`;
     }
 }
 
@@ -40,31 +44,33 @@ export default class SQLiteConnector<T extends Map<string, SQLColumnType>> {
     private connection: Database.Database;
 
     public constructor(tableName: string, dbName: string) {
-        this.connection = new Database(`../db/${dbName}.db`);
+        this.connection = new Database(`../db/sqlite3/${dbName}.db`);
         this.tableName = tableName;
+    }
+
+    public switchToTable(tableName: string) {
+        this.tableName = tableName;
+        return this;
     }
 
     public info() {
         return this.connection.pragma(`table_info('${this.tableName}')`);
     }
 
-    private queryColumnType(column: string) {
+    public queryColumnType(column: string) {
         let query = `select typeof('${column}') from ${this.tableName};`;
-        (new Logger(`SQLite: ${chalk.yellowBright(query)}`)).log();
-        return this.connection.prepare(query).all()[0];
-    }
-
-    private alterColumnType(column: string, type: string) {
-        let query = `alter table ${this.tableName} alter column ${column} ${type} not null;`;
-        (new Logger(`SQLite: ${chalk.yellowBright(query)}`)).log();
-        return this.connection.prepare(query).run().changes;
+        let id = identifier();
+        dbLogger('SQLite', query, id, 'to');
+        let ret = this.connection.prepare(query).all();
+        dbLogger('SQLite', query, id, 'from', ret);
+        return ret;
     }
 
     public createTable(propertyList: T) {
         let queryStrs = [];
         let extraStrs = [];
         for (const [column, value] of propertyList) {
-            let queryStr = `${column} ${auto(value.value)}`;
+            let queryStr = `\`${column}\` ${auto(value.value)}`;
             if (value.foreign)
                 extraStrs.push(`foreign key (\`${column}\`) references ${value.ref}`);
             if (value.pri)
@@ -75,7 +81,7 @@ export default class SQLiteConnector<T extends Map<string, SQLColumnType>> {
                 queryStr += ' not null';
             queryStrs.push(queryStr);
         }
-        let query = `create table ${this.tableName} (${queryStrs.concat(extraStrs).join(',')});`;
+        let query = `create table if not exists ${this.tableName} (${queryStrs.concat(extraStrs).join(',')});`;
         let id = identifier();
         dbLogger('SQLite', query, id, 'to');
         let ret = this.connection.prepare(query).run().changes;
@@ -84,7 +90,6 @@ export default class SQLiteConnector<T extends Map<string, SQLColumnType>> {
     }
 
     public selectAllWhenPropertyEqual(propertyList: T) {
-
         let queryStrs = [];
         for (const [column, value] of propertyList) {
             if (typeof value.value == 'number')
@@ -100,20 +105,42 @@ export default class SQLiteConnector<T extends Map<string, SQLColumnType>> {
         return ret;
     }
 
-    public insert(propertyList: T) {
+    private _insertOrUpdate(propertyList: T, updateRefColumn?: string) {
         let columns = [];
         let values = [];
         for (const [column, value] of propertyList) {
             columns.push(`\`${column}\``);
             values.push(`'${value.value}'`);
-            if (typeof value.value == 'string' && value.value.length > parseInt(this.queryColumnType(column)))
-                this.alterColumnType(column, auto(value.value));
         }
-        let query = `insert into ${this.tableName} (${columns.join(',')}) values (${values.join(',')});`;
+        let query = `insert into ${this.tableName} (${columns.join(',')}) values (${values.join(',')})`;
+        if (updateRefColumn) { 
+            let i = columns.findIndex((v) => { return v.slice(1, -1) == updateRefColumn; });
+            // console.log(i);
+            if (i >= 0) {
+                columns.splice(i, 1);
+                let v = values.splice(i, 1)[0];
+                query += ` on conflict (${updateRefColumn}) do update set (${columns.join(',')})=(${values.join(',')}) where (${updateRefColumn}=${v});`;
+            }
+        }
         let id = identifier();
         dbLogger('SQLite', query, id, 'to');
-        let ret =  this.connection.prepare(query).run().changes;
+        let ret = this.connection.prepare(query).run().changes;
         dbLogger('SQLite', query, id, 'from', ret);
-        return ret;
+        return this;
     }
+
+    public insertOrUpdate(propertyList: T, updateRefColumn?: string): SQLiteConnector<T>;
+    public insertOrUpdate(propertyList: T[], updateRefColumn?: string): SQLiteConnector<T>;
+
+    public insertOrUpdate(propertyList: T | T[], updateRefColumn?: string) {
+        if (Array.isArray(propertyList)) {
+            for (const l of propertyList) {
+                 this._insertOrUpdate(l, updateRefColumn);
+            }
+        } else {
+            this._insertOrUpdate(propertyList, updateRefColumn);
+        }
+        return this;
+    }
+
 }

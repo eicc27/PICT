@@ -70,9 +70,14 @@ export function axiosResponseLogger(url: string) {
     (new Logger(`Response recieved from: ${chalk.blueBright(url)}`)).log();
 }
 
-export function dbLogger(db: string, query: string, id: string, direction: 'from' | 'to', result?: any) {
+export function dbLogger(db: 'SQLite' | 'Firebird', query: string, id: string, direction: 'from' | 'to', result?: any) {
     let arrow = direction == 'from' ? '<-' : '->';
-    let log = ` [#${chalk.bgBlueBright.whiteBright(id)} ${chalk.bgGreenBright.whiteBright(arrow)}] ${db}: ${chalk.yellowBright(query)}`;
-    if (result) log += ` returned ${chalk.yellowBright(result)}`;
+    let log = ` [${chalk.bgGrey.whiteBright(db)}] [${chalk.bgBlueBright.whiteBright(`#${id}`)} ${chalk.bgGreenBright.whiteBright(arrow)}]: ${chalk.yellowBright(query)}`;
+    if (result) {
+        if (typeof result == 'object')
+            log += ` returned: ${chalk.blueBright(JSON.stringify(result))}`;
+        else
+            log += ` returned ${chalk.blueBright(result)}`;
+    }
     (new Logger(log)).log();
 }

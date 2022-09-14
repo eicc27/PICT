@@ -28,7 +28,7 @@ export default class CrawlTagHandler implements ICrawlHander {
 
     private async crawlWithNavirank(retrial: number = 0): Promise<CrawlResult> {
         return new Promise((resolve) => {
-            axios.get(ENV.NAVIRANK.TAG(this.kwd), { httpsAgent: ENV.PROXY_AGENT })
+            axios.get(ENV.NAVIRANK.TAG(this.kwd), { httpsAgent: ENV.PROXY_AGENT, timeout: ENV.SETTINGS.TIMEOUT })
                 .then(async (resp) => {
                     let retVal: CrawlResult = {
                         result: RESULT.SUCCESS,
