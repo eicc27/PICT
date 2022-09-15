@@ -12,6 +12,8 @@ import CrawlTagHandler from './CrawlHandler/CrawlTagHandler';
 import SQLiteConnector, { SQLColumnType } from './DBConnector/SQLiteConnector';
 import { ENV } from '../config/environment';
 import DataParser from './DownloadHandler/DataParser';
+import Timer from './Timer';
+import AsyncDownloader from './DownloadHandler/AsyncDownloader';
 
 
 /**
@@ -201,23 +203,12 @@ export default class PixcrawlWSHandler {
     private async download() {
         // constantly sends message to front end.
         let connection = new SQLiteConnector('PID', 'pixcrawl');
+        let timeout = 10;
+        let pictures: Picture[] = [];
         for (const val of this.data.value) {
             let value: Picture[] = val.pics;
-            // console.log(value);
-            let pool = new AsyncPool(16);
-            for (const v of value) {
-                for (const url of v.originalUrls) {
-                    let pname = url.split('/').at(-1).slice(0, -4);
-                    await pool.submit(ENV.PIXIV.DOWNLOADER(url, pname));
-                }
-                let parser = new DataParser(v);
-                connection.switchToTable('PID').insertOrUpdate(parser.toPidTableMap(), 'pid')
-                    .switchToTable('UID').insertOrUpdate(parser.toUidTableMap(), 'uid')
-                    .switchToTable('TAG').insertOrUpdate(parser.toTagTableMap())
-                    .switchToTable('URL').insertOrUpdate(parser.toUrlTableMap());
-            }
-            await pool.close();
-            (new Logger(`${chalk.greenBright('Complete.')}`, SigLevel.ok)).log();
+            pictures = pictures.concat(value);
         }
+        await (new AsyncDownloader(pictures, this.ws, ENV.SETTINGS.BLOB_SIZE)).download();
     }
 }

@@ -36,12 +36,12 @@ export default class CrawlTagHandler implements ICrawlHander {
                     }
                     let html = (new JSDOM(resp.data)).window.document;
                     let elements = html.querySelectorAll('ul[class="irank"]');
-                    let i = 0;
-                    let pool = new AsyncPool(16);
-                    for (const element of elements) {
+                    let pool = new AsyncPool(8);
+                    for (let i = 0; i < elements.length; i++) {
+                        let element = elements[i];
                         if (!element.querySelector('li[class="type"]').innerHTML.includes('イラスト'))
                             continue;
-                        if (++i > ENV.SETTINGS.TAG_CRED) break;
+                        if (i >= ENV.SETTINGS.TAG_CRED) break;
                         await pool.submit((async (element, retVal) => {
                             let pidElement = element.querySelector('li[class="img"]>a');
                             let pid = pidElement.getAttribute('href').slice(4, -1);
@@ -57,6 +57,7 @@ export default class CrawlTagHandler implements ICrawlHander {
                                 tags: pidSearchResult.tags,
                                 originalUrls: await ENV.PIXIV.PID_GETTER(pid),
                             });
+                            (new Logger(`index: ${i} / ${ENV.SETTINGS.TAG_CRED}`)).log();
                         })(element, retVal));
                     }
                     await pool.close();

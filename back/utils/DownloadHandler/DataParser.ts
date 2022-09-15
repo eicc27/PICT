@@ -80,7 +80,7 @@ export default class DataParser<V extends Picture> {
 
     public toUrlTableMap(): Map<string, SQLColumnType>[] {
         let ret = [];
-        for (const url in this.picture.originalUrls) {
+        for (const url of this.picture.originalUrls) {
             let map = new Map<string, SQLColumnType>();
             map.set('pid', {
                 value: this.picture.pid,

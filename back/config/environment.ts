@@ -214,6 +214,7 @@ const ENV = {
         PIC_CRED: 0.8,
         TAG_CRED: 100,
         TIMEOUT: 20 * 1000,
+        BLOB_SIZE: 512 * 1024,
     },
 
     /**

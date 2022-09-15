@@ -283,7 +283,8 @@ export default class PixcrawlComponent extends Component {
 
     handle(msg) {
         let resp = JSON.parse(msg);
-        if ("extended" in resp.value && !resp.value.extended) this.updateSearchProgress(resp);
+        if (resp.value.result || ("extended" in resp.value && !resp.value.extended)) 
+            this.updateSearchProgress(resp);
         // console.log(resp);
         // handles searchProgress changes
         switch (resp.type) {
@@ -338,8 +339,10 @@ export default class PixcrawlComponent extends Component {
                 this.searchProgress = new SearchProgress();
                 this.searchProgress = copy(this.searchProgress);
                 this.crawlProgress = new CrawlProgress();
-                this.crawlResults = copy(this.crawlResults);
                 this.searchResults = [];
+                this.searchResults = copy(this.searchResults);
+                this.crawlResults = [];
+                this.crawlResults = copy(this.crawlResults);
                 let infoElement = document.querySelector('.search .progress .search-target');
                 infoElement.innerHTML = 'Starting up';
                 infoElement = document.querySelector('.crawl .progress .search-target');
@@ -992,6 +995,7 @@ export default class PixcrawlComponent extends Component {
             if (!result.success) {
                 this.searchResults.splice(i, 1);
                 this.spliceKeywords(i);
+                continue;
             }
             let uid = this.getUidForSearchResult(i);
             if (uid) {

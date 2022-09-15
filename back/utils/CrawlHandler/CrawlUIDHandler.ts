@@ -27,13 +27,13 @@ export default class CrawlUIDHandler implements ICrawlHander {
                         result: RESULT.SUCCESS,
                         pics: [],
                     }
-                    let allPics = resp.data.body.illusts;
+                    let allPics = Object.keys(resp.data.body.illusts);
                     let maxLen = Math.floor(allPics.length * ENV.SETTINGS.PIC_CRED);
-                    let i = 0;
                     let ajaxRequestIds: string[] = [];
-                    let pool = new AsyncPool(16);
-                    for (const pid in allPics) {
-                        if (++i > maxLen) break;
+                    let pool = new AsyncPool(8);
+                    // the picture jsons are sorted(from newest to oldest)
+                    for (let i = 0; i < allPics.length; i++) {
+                        if (i >= maxLen) break;
                         await pool.submit((async (ajaxRequestIds, retVal, pid) => {
                             ajaxRequestIds.push(`ids[]=${pid}`);
                             let originalUrls = await ENV.PIXIV.PID_GETTER(pid);
@@ -46,7 +46,9 @@ export default class CrawlUIDHandler implements ICrawlHander {
                                 originalUrls: originalUrls,
                                 uname: this.uname,
                             });
-                        })(ajaxRequestIds, retVal, pid));
+                            (new Logger(`index: ${i} / ${maxLen}`)).log();
+                            return;
+                        })(ajaxRequestIds, retVal, allPics[i]));
                     }
                     await pool.close();
                     (new Logger(`UID crawling of ${chalk.yellowBright(this.kwd)} completed. Total: ${chalk.yellowBright(retVal.pics.length)}`,
@@ -54,7 +56,7 @@ export default class CrawlUIDHandler implements ICrawlHander {
                     resolve(retVal);
                 }, async (error) => {
                     axiosErrorLogger(error, ENV.PIXIV.USER.ALL(this.kwd), retrial);
-                    let isPageNotFound:boolean = error.response && error.response.status;
+                    let isPageNotFound: boolean = error.response && error.response.status;
                     if (!isPageNotFound && retrial < ENV.SETTINGS.MAX_RETRIAL)
                         await this.crawl(++retrial);
                     else
