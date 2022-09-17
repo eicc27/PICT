@@ -1,5 +1,7 @@
 # PICT - Pixiv Integrated Crawling Toolset
 
+--Download over 80 Pics within 5 seconds!--
+
 ## Content
 
 - PixCrawl core
