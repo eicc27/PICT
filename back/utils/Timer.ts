@@ -1,6 +1,12 @@
-import chalk from "chalk";
-import AsyncPool from "./AsyncPool";
 import Logger, { SigLevel } from "./Logger";
+
+class TimerResult {
+    private index: number;
+
+    constructor(i: number) {
+        this.index = i;
+    }
+}
 
 export default class Timer {
     timeout: number;
@@ -11,33 +17,26 @@ export default class Timer {
         this.retrial = retrial;
     }
 
-    private async timer(): Promise<this> {
+    private async timer(i: number): Promise<TimerResult> {
         return new Promise((resolve) => {
-            setTimeout(() => { resolve(this); }, this.timeout * 1000);
+            setTimeout(() => { resolve(new TimerResult(i)); }, this.timeout * 1000);
         });
     }
 
     /**
      * A pool-friendly global retrial function.
      * @param job A `Promise` to be fulfilled.
-     * @param pool The pool to be submitted. If passed, the retrial job will also wait for the pool to close.
-     * @param retrial Recursion parameter. When max retrial achieved, the function would give up.
-     * @returns 
+     * @returns the job if it finally successes, else null
      */
-    public async time(job: Promise<unknown>, pool?: AsyncPool, retrial: number = 0) {
-        let promise = await Promise.race([this.timer(), job]);
-        if (promise == this && retrial < this.retrial) { // timeout comes first
-            (new Logger(`Timer: Retrial #${chalk.yellowBright(retrial + 1)} triggered`, SigLevel.warn)).log();
-            if (pool)
-                await pool.submit(this.time(job, pool, ++retrial));
-            else
-                this.time(job, pool, ++retrial);
-            return;
-        } else if (promise != this) {
-            return promise;
-        } else {
-            (new Logger(`Timer: Retrial failed with achieving max number ${this.retrial}`, SigLevel.error)).log();
-            return null;
+    public async time(job: Promise<unknown>){
+        for (let i = 0; i < this.retrial; i++) {
+            const promise = await Promise.race([this.timer(i), job]);
+            if (! (promise instanceof TimerResult)) {
+                return promise;
+            }
+            (new Logger(`Retrial #${i + 1} failed!`, SigLevel.warn)).log();
         }
+        (new Logger('Max retrial achieved!', SigLevel.warn)).log();
+        return;
     }
 }

@@ -8,6 +8,7 @@ import SearchPIDHandler from "../SearchHandler/SearchPIDHandler";
 import Logger, { axiosErrorLogger, SigLevel } from "../Logger";
 import AsyncPool from "../AsyncPool";
 import chalk from "chalk";
+import Timer from "../Timer";
 
 export default class CrawlTagHandler implements ICrawlHander {
     public kwd: string;
@@ -42,7 +43,7 @@ export default class CrawlTagHandler implements ICrawlHander {
                         if (!element.querySelector('li[class="type"]').innerHTML.includes('イラスト'))
                             continue;
                         if (i >= ENV.SETTINGS.TAG_CRED) break;
-                        await pool.submit((async (element, retVal) => {
+                        await pool.submit(new Timer(10, 3).time((async (element, retVal) => {
                             let pidElement = element.querySelector('li[class="img"]>a');
                             let pid = pidElement.getAttribute('href').slice(4, -1);
                             let pidSearchResult = await (new SearchPIDHandler(pid)).searchWithoutAvatar();
@@ -58,7 +59,7 @@ export default class CrawlTagHandler implements ICrawlHander {
                                 originalUrls: await ENV.PIXIV.PID_GETTER(pid),
                             });
                             (new Logger(`index: ${i} / ${ENV.SETTINGS.TAG_CRED}`)).log();
-                        })(element, retVal));
+                        })(element, retVal)));
                     }
                     await pool.close();
                     (new Logger(`Tag crawling of ${chalk.yellowBright(this.kwd)} completed. Total: ${chalk.yellowBright(retVal.pics.length)}`,

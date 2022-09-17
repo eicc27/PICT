@@ -831,6 +831,7 @@
 
 .pixcrawl .crawl li {
     align-items: center;
+    animation: none;
 }
 
 .pixcrawl .crawl .search-keyword,

@@ -201,6 +201,7 @@ class CrawlResult {
 }
 
 class CrawlProgress {
+    total = 0;
     crawlCnt = 0;
     success = 0;
     failure = 0;
@@ -244,7 +245,7 @@ export default class PixcrawlComponent extends Component {
     @tracked
     searchProgress = new SearchProgress();
 
-    @tracked 
+    @tracked
     crawlProgress = new CrawlProgress();
 
     @service('pixcrawl')
@@ -272,38 +273,52 @@ export default class PixcrawlComponent extends Component {
 
     /** Updates the search progress controller */
     updateSearchProgress(resp) {
-        ++this.searchProgress.searchCnt;
-        if (!resp.value.result) {
-            ++this.searchProgress.success;
-        } else {
-            ++this.searchProgress.failure;
+        if ((resp.value.result == 1) || ("extended" in resp.value && !resp.value.extended)) {
+            ++this.searchProgress.searchCnt;
+            if (!resp.value.result) {
+                ++this.searchProgress.success;
+            } else {
+                ++this.searchProgress.failure;
+            }
+            this.searchProgress = copy(this.searchProgress);
         }
-        this.searchProgress = copy(this.searchProgress);
     }
 
     handle(msg) {
         let resp = JSON.parse(msg);
-        if (resp.value.result || ("extended" in resp.value && !resp.value.extended)) 
-            this.updateSearchProgress(resp);
         // console.log(resp);
         // handles searchProgress changes
         switch (resp.type) {
             case 'search-uid':
                 this.fillUid(resp.value);
+                this.updateSearchProgress(resp);
                 // this.updateProgress(resp.value);
                 break;
             case 'search-uname':
                 this.fillUname(resp.value);
+                this.updateSearchProgress(resp);
                 break;
             case 'search-tag':
                 this.fillTag(resp.value);
+                this.updateSearchProgress(resp);
                 break;
             case 'search-pid':
                 this.fillPid(resp.value);
+                this.updateSearchProgress(resp);
                 break;
-            case 'crawl-uid':
-            case 'crawl-tag':
-                this.fillCrawl(resp.value);
+            case 'crawl-total':
+                this.crawlProgress.total += resp.value;
+                this.crawlProgress = copy(this.crawlProgress);
+                break;
+            case 'crawl-incr':
+                this.crawlProgress.success += 1;
+                this.crawlProgress.crawlCnt += 1;
+                this.crawlResults[resp.value.index].display = true;
+                this.crawlResults[resp.value.index].pics.push(resp.value.value);
+                this.crawlProgress = copy(this.crawlProgress);
+                this.crawlResults = copy(this.crawlResults);
+                break;
+            case 'crawl-decr':
                 break;
         }
     }
@@ -1024,26 +1039,6 @@ export default class PixcrawlComponent extends Component {
         return true;
     }
 
-    fillCrawl(value) {
-        // console.log(value);
-        let crawlResult = this.crawlResults[value.index];
-        crawlResult.pics = value.pics;
-        crawlResult.display = true;
-        this.crawlResults = copy(this.crawlResults);
-        ++this.crawlProgress.crawlCnt;
-        if (!value.result)
-            ++this.crawlProgress.success;
-        else
-            ++this.crawlProgress.failure;
-        this.crawlProgress = copy(this.crawlProgress);
-        let infoElement = document.querySelector('.crawl .progress .search-target')
-        console.log(this.crawlProgress);
-        if (this.crawlProgress.crawlCnt < this.keywords.length)
-            infoElement.innerHTML = `Crawled ${this.keywords[value.index].value}`;
-        else
-            infoElement.innerHTML = 'Completed';
-    }
-
     @action
     goToDownload() {
         this.send({
@@ -1051,5 +1046,6 @@ export default class PixcrawlComponent extends Component {
             value: this.crawlResults
         });
         this.steps.download = true;
+        this.steps = copy(this.steps);
     }
 }

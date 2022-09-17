@@ -134,30 +134,36 @@ async function getPictureOriginal(url: string, fname: string, retrial: number = 
 /**
  * Gets all original pids for a single pid.
  * @param pid picture ID
- * @returns A list of original picture ids the pid contains. Empty if error or not found.
+ * @returns A list of original picture ids the pid contains. Null if error or not found.
  */
 async function getOriginalPictureUrl(pid: string): Promise<string[]> {
-    return new Promise(((resolve) => {
-        (new Logger(`Getting original pictures of pid ${chalk.blueBright(pid)}`)).log();
-        axios.get(ENV.PIXIV.USER.PID_SERIES(pid), { httpsAgent: ENV.PROXY_AGENT, timeout: ENV.SETTINGS.TIMEOUT })
-            .then((resp) => {
-                axiosResponseLogger(ENV.PIXIV.USER.PID_SERIES(pid));
-                let body = resp.data.body;
-                let retVal = [];
-                for (let i = 0; i < body.length; i++) {
-                    let picture = body[i];
-                    retVal.push(picture.urls.original);
-                }
-                if (retVal.length)
-                    (new Logger(`Got ${chalk.blueBright(retVal.length)} picture(s).`)).log();
-                else
-                    (new Logger(`No picture found for ${chalk.yellowBright(pid)}!`, SigLevel.error)).log();
-                resolve(retVal);
-            }, (error) => {
-                axiosErrorLogger(error, ENV.PIXIV.USER.PID_SERIES(pid));
-                resolve([]);
-            })
-    }));
+    for (let retrial = 0; retrial < ENV.SETTINGS.MAX_RETRIAL; retrial++) {
+        let ret: string[] | number = await new Promise(((resolve) => {
+            (new Logger(`Getting original pictures of pid ${chalk.blueBright(pid)}`)).log();
+            axios.get(ENV.PIXIV.USER.PID_SERIES(pid), { httpsAgent: ENV.PROXY_AGENT, timeout: ENV.SETTINGS.TIMEOUT })
+                .then((resp) => {
+                    axiosResponseLogger(ENV.PIXIV.USER.PID_SERIES(pid));
+                    let body = resp.data.body;
+                    let retVal = [];
+                    for (let i = 0; i < body.length; i++) {
+                        let picture = body[i];
+                        retVal.push(picture.urls.original);
+                    }
+                    if (retVal.length)
+                        (new Logger(`Got ${chalk.blueBright(retVal.length)} picture(s).`)).log();
+                    else
+                        (new Logger(`No picture found for ${chalk.yellowBright(pid)}!`, SigLevel.error)).log();
+                    resolve(retVal);
+                }, (error) => {
+                    axiosErrorLogger(error, ENV.PIXIV.USER.PID_SERIES(pid));
+                    resolve(retrial);
+                })
+        }));
+        if (typeof ret != 'number') {
+            return ret;
+        }
+    }
+    (new Logger(`Max retrial achieved for ${ENV.PIXIV.USER.PID_SERIES(pid)}!`, SigLevel.error)).log();
 }
 
 /**
@@ -210,8 +216,8 @@ const ENV = {
      */
     SETTINGS: {
         MAX_PREVIEW_NUM: 3,
-        MAX_RETRIAL: 3,
-        PIC_CRED: 0.8,
+        MAX_RETRIAL: 5,
+        PIC_CRED: 0.6,
         TAG_CRED: 100,
         TIMEOUT: 20 * 1000,
         BLOB_SIZE: 512 * 1024,

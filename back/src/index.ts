@@ -19,19 +19,6 @@ const testPicture: Picture = {
     originalUrls: ['']
 };
 
-let t = new Map<string, SQLColumnType>();
-t.set('pid', { value: '100873280' });
-let connection = new SQLiteConnector('PID', 'pixcrawl');
-let uid = connection.selectAllWhenPropertyEqual(t)[0].uid;
-let pname = connection.selectAllWhenPropertyEqual(t)[0].pname;
-console.log(pname);
-let t2 = new Map<string, SQLColumnType>();
-t2.set('uid', { value: uid });
-let uname = connection.switchToTable('UID').selectAllWhenPropertyEqual(t2)[0].uname;
-console.log(uname);
-
-
-
 const testParser = new DataParser(testPicture);
 const testConnection = new SQLiteConnector('PID', 'pixcrawl');
 testConnection.createTable(testParser.toPidTableMap());

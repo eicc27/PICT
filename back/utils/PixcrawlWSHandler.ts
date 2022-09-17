@@ -165,21 +165,21 @@ export default class PixcrawlWSHandler {
                 case KEYWORD_TYPE.UID:
                     kwd = keyword.value;
                     uname = searchResult.uname;
-                    await pool.submit(this.crawlUID(kwd, uname, i));
+                    await pool.submit((new Timer(10, ENV.SETTINGS.MAX_RETRIAL)).time(this.crawlUID(kwd, uname, i)));
                     break;
                 case KEYWORD_TYPE.UNAME:
                     kwd = searchResult.value[0].uid;
                     uname = keyword.value;
-                    await pool.submit(this.crawlUID(kwd, uname, i));
+                    await pool.submit((new Timer(10, ENV.SETTINGS.MAX_RETRIAL)).time(this.crawlUID(kwd, uname, i)));
                     break;
                 case KEYWORD_TYPE.PID:
                     kwd = searchResult.author.uid;
                     uname = searchResult.author.uname;
-                    await pool.submit(this.crawlUID(kwd, uname, i));
+                    await pool.submit((new Timer(10, ENV.SETTINGS.MAX_RETRIAL)).time(this.crawlUID(kwd, uname, i)));
                     break;
                 case KEYWORD_TYPE.TAG:
                     kwd = searchResult.value[0].tag;
-                    await pool.submit(this.crawlTag(kwd, i));
+                    await pool.submit((new Timer(10, ENV.SETTINGS.MAX_RETRIAL)).time(this.crawlTag(kwd, i)));
                     break;
             }
         }
@@ -187,7 +187,7 @@ export default class PixcrawlWSHandler {
     }
 
     private async crawlUID(kwd: string, uname: string, index: number) {
-        let crawlHandler = new CrawlUIDHandler(kwd, uname);
+        let crawlHandler = new CrawlUIDHandler(kwd, uname, this.ws, index);
         let crawl = await crawlHandler.crawl();
         crawl.index = index;
         this.ws.send(JSON.stringify({ value: crawl, type: 'crawl-uid' }));

@@ -1,7 +1,7 @@
 import { helper } from '@ember/component/helper';
 
 function div([lvalue, rvalue]) {
-    return (lvalue / rvalue).toFixed(2);
+    return (lvalue / rvalue);
 }
 
-export default helper(div)
+export default helper(div);

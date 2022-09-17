@@ -370,9 +370,9 @@
             <div class="bar-content">
                 <div class="bar-bg" />
                 <div class="bar" style={{html-safe (concat "width: " (mul 600 (div this.crawlProgress.crawlCnt (if
-                    this.searchResults.length this.searchResults.length 1))) "px" )}} />
-                <div class="percent">{{mul 100 (div this.crawlProgress.crawlCnt (if this.searchResults.length
-                    this.searchResults.length 1))}}%</div>
+                    this.crawlProgress.total this.crawlProgress.total 1))) "px" )}} />
+                <div class="percent">{{toFixed (mul 100 (div this.crawlProgress.crawlCnt (if this.crawlProgress.total
+                    this.crawlProgress.total 1))) 2}}%</div>
             </div>
             <div class="abstract">
                 {{!-- xxx tags, xxx user names, xxx picture ids... --}}
@@ -435,7 +435,7 @@
             {{#if (eq this.searchProgress.searchCnt this.keywords.length)}}
             <button type="button" {{on "click" (fn this.goBack 2)}}>
                 <Icons::AnglesLeft />
-                <span>Crawl</span>
+                <span>Search</span>
             </button>
             <div class="seperator"></div>
             <button type="button" {{on "click" this.goToDownload}}>

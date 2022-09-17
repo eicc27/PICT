@@ -96,40 +96,44 @@ export default class SearchPIDHandler implements ISearchHandler {
         });
     }
 
-    public async searchWithoutAvatar(retrial: number = 0): Promise<PIDSearchResult> {
-        return new Promise(
-            (resolve) => {
-                axios.get(ENV.PIXIV.USER.PID(this.keyword), { httpsAgent: ENV.PROXY_AGENT, timeout: ENV.SETTINGS.TIMEOUT })
-                    .then(async (resp) => {
-                        if (!retrial)
-                            (new Logger(`Retrial #${chalk.yellowBright(retrial + 1)}`));
-                        axiosResponseLogger(ENV.PIXIV.USER.PID(this.keyword));
-                        let retVal: PIDSearchResult = {
-                            extended: false,
-                            result: RESULT.SUCCESS,
-                        };
-                        let html = resp.data;
-                        let metaPreloadData = new JSDOM(html).window.document.getElementById('meta-preload-data');
-                        let json = JSON.parse(metaPreloadData.getAttribute('content'));
-                        let pictureInfo: any = Object.values(json.illust)[0];
-                        retVal.pname = pictureInfo.illustTitle;
-                        let tags = [];
-                        for (const tag of pictureInfo.tags.tags) tags.push(tag.tag);
-                        retVal.tags = tags;
-                        let userInfo: any = Object.values(json.user)[0];
-                        retVal.author = {
-                            uname: userInfo.name,
-                            uid: userInfo.userId,
-                        };
-                        resolve(retVal);
-                    }, async (error) => {
-                        axiosErrorLogger(error, ENV.PIXIV.USER.PID(this.keyword), retrial);
-                        let isPageNotFound: boolean = error.response && error.response.status;
-                        if (!isPageNotFound && retrial < ENV.SETTINGS.MAX_RETRIAL)
-                            await this.searchWithoutAvatar(++retrial);
-                        resolve({ result: RESULT.FAILED });
-                    });
-            }
-        );
+    public async searchWithoutAvatar(): Promise<PIDSearchResult> {
+        for (let retrial = 0; retrial < ENV.SETTINGS.MAX_RETRIAL; retrial++) {
+            let ret: PIDSearchResult | number = await new Promise(
+                (resolve) => {
+                    axios.get(ENV.PIXIV.USER.PID(this.keyword), { httpsAgent: ENV.PROXY_AGENT, timeout: ENV.SETTINGS.TIMEOUT })
+                        .then(async (resp) => {
+                            if (!retrial)
+                                (new Logger(`Retrial #${chalk.yellowBright(retrial + 1)}`));
+                            axiosResponseLogger(ENV.PIXIV.USER.PID(this.keyword));
+                            let retVal: PIDSearchResult = {
+                                extended: false,
+                                result: RESULT.SUCCESS,
+                            };
+                            let html = resp.data;
+                            let metaPreloadData = new JSDOM(html).window.document.getElementById('meta-preload-data');
+                            let json = JSON.parse(metaPreloadData.getAttribute('content'));
+                            let pictureInfo: any = Object.values(json.illust)[0];
+                            retVal.pname = pictureInfo.illustTitle;
+                            let tags = [];
+                            for (const tag of pictureInfo.tags.tags) tags.push(tag.tag);
+                            retVal.tags = tags;
+                            let userInfo: any = Object.values(json.user)[0];
+                            retVal.author = {
+                                uname: userInfo.name,
+                                uid: userInfo.userId,
+                            };
+                            resolve(retVal);
+                        }, async (error) => {
+                            axiosErrorLogger(error, ENV.PIXIV.USER.PID(this.keyword), retrial);
+                            let isPageNotFound: boolean = error.response && error.response.status;
+                            if (!isPageNotFound && retrial < ENV.SETTINGS.MAX_RETRIAL)
+                                resolve(retrial);
+                            resolve({ result: RESULT.FAILED });
+                        });
+                });
+            if (typeof ret != 'number')
+                return ret;
+        }
+        (new Logger(`Max retrial achieved for ${ENV.PIXIV.USER.PID(this.keyword)}!`, SigLevel.error)).log();
     }
 }
