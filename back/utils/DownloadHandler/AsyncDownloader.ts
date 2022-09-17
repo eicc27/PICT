@@ -6,6 +6,7 @@ import { Picture } from "../../types/Types";
 import AsyncPool from "../AsyncPool";
 import Timer from "../Timer";
 import Logger, { axiosErrorLogger, SigLevel } from "../Logger";
+import chalk from "chalk";
 
 
 /**
@@ -15,19 +16,19 @@ import Logger, { axiosErrorLogger, SigLevel } from "../Logger";
  * For the tail blob that is smaller, it is joint within its predecessor.
  */
 export default class AsyncDownloader {
-    private pictures: Picture[];
+    private pictures: string[];
     private ws: WebSocket;
     private blobSize: number;
     private queryPool = new AsyncPool(8);
     private downloadPool = new AsyncPool(16);
 
-    public constructor(pictures: Picture[], ws: WebSocket, blobSize: number) {
+    public constructor(pictures: string[], ws: WebSocket, blobSize: number) {
         this.pictures = pictures;
         this.blobSize = blobSize;
         this.ws = ws;
     }
 
-    private async queryOne(url: string) {
+    private async queryOne(url: string, index: number) {
         for (let retrial = 0; retrial < ENV.SETTINGS.MAX_RETRIAL; retrial++) {
             if (retrial)
                 (new Logger(`HEAD: Retrial #${retrial} of ${url}`, SigLevel.warn)).log();
@@ -37,6 +38,18 @@ export default class AsyncDownloader {
                 headers: ENV.HEADER,
                 timeout: ENV.SETTINGS.TIMEOUT,
             }).then(async (resp) => {
+                if (!resp.headers['content-length']) {
+                    if (retrial < ENV.SETTINGS.MAX_RETRIAL) {
+                        (new Logger(`HEAD: Retrial #${retrial}: Failed to get size of ${url}!`, SigLevel.warn));
+                        return retrial;
+                    } // regarded as an error
+                    else {
+                        (new Logger(`HEAD: Max retrial achieved for ${url}`, SigLevel.error)).log();
+                        return;
+                    }
+                    //else
+                    // download as a whole(maybe a todo)...
+                }
                 const contentLength = parseInt(resp.headers['content-length']);
                 const blocks = Math.floor(contentLength / this.blobSize);
                 const tailSize = contentLength % this.blobSize;
@@ -47,10 +60,11 @@ export default class AsyncDownloader {
                     else
                         ranges.push(i * this.blobSize);
                 }
-                (new Logger(`Queried blob size of ${url}: ${contentLength}B`)).log();
+                (new Logger(`HEAD: ${chalk.yellowBright(resp.headers['content-length'])}B (${url}) `)).log();
+                this.ws.send(JSON.stringify({ type: 'dl-head', value: { index: index, value: contentLength } }));
                 for (let i = 0; i < ranges.length - 1; i++) {
                     await this.downloadPool.submit((new Timer(10, ENV.SETTINGS.MAX_RETRIAL)).time(
-                        this.downloadPart(url, ranges[i] - 1, ranges[i + 1]),
+                        this.downloadPart(url, ranges[i] - 1, ranges[i + 1], index),
                     ));
                 }
             }, async (error) => {
@@ -65,7 +79,7 @@ export default class AsyncDownloader {
         }
     }
 
-    private async downloadPart(url: string, start: number, end: number) {
+    private async downloadPart(url: string, start: number, end: number, index: number) {
         for (let retrial = 0; retrial < ENV.SETTINGS.MAX_RETRIAL; retrial++) {
             if (retrial)
                 (new Logger(`BLOCK: Retrial #${retrial} of ${url}(${start}-${end})`, SigLevel.warn)).log();
@@ -93,14 +107,15 @@ export default class AsyncDownloader {
                     flags: 'r+'
                 }));
                 resp.data.on('end', () => {
-                    (new Logger(`Block: download of ${url}(${start}-${end}) done.`)).log();
+                    (new Logger(`BLOCK: download of ${url}(${start}-${end}) done.`)).log();
+                    this.ws.send(JSON.stringify({ type: 'dl-incr', value: { index: index, value: start - end + 1 } }));
                 });
             }, async (error) => {
                 axiosErrorLogger(error, url);
                 if (retrial < ENV.SETTINGS.MAX_RETRIAL)
                     return retrial;
                 else
-                    (new Logger(`BLOCK: Max retrial achieved for ${url}(${start - end})`, SigLevel.error)).log();
+                    (new Logger(`BLOCK: Max retrial achieved for ${url}(${start} - ${end})`, SigLevel.error)).log();
             });
             if (typeof res != 'number')
                 return res;
@@ -108,12 +123,11 @@ export default class AsyncDownloader {
     }
 
     public async download() {
-        for (const picture of this.pictures) {
-            for (const url of picture.originalUrls) {
-                await this.queryPool.submit((new Timer(10, ENV.SETTINGS.MAX_RETRIAL)).time(
-                    this.queryOne(url)
-                ));
-            }
+        for (let i = 0; i < this.pictures.length; i++) {
+            let url = this.pictures[i];
+            await this.queryPool.submit((new Timer(10, ENV.SETTINGS.MAX_RETRIAL)).time(
+                this.queryOne(url, i)
+            ));
         }
         await this.queryPool.close();
         // (new Logger('Query pool closed', SigLevel.ok)).log();

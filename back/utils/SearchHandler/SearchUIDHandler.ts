@@ -127,35 +127,41 @@ export default class SearchUIDHandler implements ISearchHandler {
         })
     }
 
-    public async searchWithoutAvatar(retrial: number = 0): Promise<UIDSearchResult> {
-        return new Promise((resolve) => {
-            axios.get(`https://www.pixiv.net/users/${this.keyword}`,
-                { httpsAgent: ENV.PROXY_AGENT, timeout: ENV.SETTINGS.TIMEOUT })
-                .then(async (resp) => { // on success
-                    if (!retrial)
-                        (new Logger(`Retrial #${chalk.yellowBright(retrial + 1)}`));
-                    axiosResponseLogger(`https://www.pixiv.net/users/${this.keyword}`);
-                    let html = new JSDOM(resp.data).window.document;
-                    // gets user name and user avatar through json-encoded string
-                    let userInfo = JSON.parse(html.getElementById("meta-preload-data")
-                        .getAttribute('content'));
-                    userInfo = Object.values(userInfo.user)[0];
-                    let userName: string = userInfo.name;
-                    resolve({
-                        extended: false,
-                        result: RESULT.SUCCESS,
-                        value: userName,
-                    });
-                }, async (error) => { // on error
-                    axiosErrorLogger(error, `https://www.pixiv.net/users/${this.keyword}`, retrial);
-                    let isPageNotFound: boolean = error.response && error.response.status;
-                    if (!isPageNotFound && retrial < ENV.SETTINGS.MAX_RETRIAL)
-                        await this.searchWithoutAvatar(++retrial);
-                    else
+    public async searchWithoutAvatar(): Promise<UIDSearchResult> {
+        for (let retrial = 0; retrial < ENV.SETTINGS.TIMEOUT; retrial++) {
+            let ret: UIDSearchResult | number = await new Promise((resolve) => {
+                axios.get(`https://www.pixiv.net/users/${this.keyword}`,
+                    { httpsAgent: ENV.PROXY_AGENT, timeout: ENV.SETTINGS.TIMEOUT })
+                    .then(async (resp) => { // on success
+                        if (!retrial)
+                            (new Logger(`Retrial #${chalk.yellowBright(retrial + 1)}`));
+                        axiosResponseLogger(`https://www.pixiv.net/users/${this.keyword}`);
+                        let html = new JSDOM(resp.data).window.document;
+                        // gets user name and user avatar through json-encoded string
+                        let userInfo = JSON.parse(html.getElementById("meta-preload-data")
+                            .getAttribute('content'));
+                        userInfo = Object.values(userInfo.user)[0];
+                        let userName: string = userInfo.name;
                         resolve({
-                            result: RESULT.FAILED
+                            extended: false,
+                            result: RESULT.SUCCESS,
+                            value: userName,
                         });
-                });
-        });
+                    }, async (error) => { // on error
+                        axiosErrorLogger(error, `https://www.pixiv.net/users/${this.keyword}`, retrial);
+                        let isPageNotFound: boolean = error.response && error.response.status;
+                        if (!isPageNotFound && retrial < ENV.SETTINGS.MAX_RETRIAL)
+                            resolve(retrial);
+                        else
+                            resolve({
+                                result: RESULT.FAILED
+                            });
+                    });
+            });
+            if (typeof ret != 'number') {
+                return ret;
+            }
+        }
+        (new Logger(`Max retrial acheived for https://www.pixiv.net/users/${this.keyword}`, SigLevel.error)).log();
     }
 }

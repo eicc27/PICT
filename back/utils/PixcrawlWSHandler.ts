@@ -194,7 +194,7 @@ export default class PixcrawlWSHandler {
     }
 
     private async crawlTag(kwd: string, index: number) {
-        let crawlHandler = new CrawlTagHandler(kwd);
+        let crawlHandler = new CrawlTagHandler(kwd, this.ws, index);
         let crawl = await crawlHandler.crawl();
         crawl.index = index;
         this.ws.send(JSON.stringify({ value: crawl, type: 'crawl-tag' }));
@@ -202,13 +202,17 @@ export default class PixcrawlWSHandler {
 
     private async download() {
         // constantly sends message to front end.
-        let connection = new SQLiteConnector('PID', 'pixcrawl');
-        let timeout = 10;
-        let pictures: Picture[] = [];
+        let pictures: string[] = [];
         for (const val of this.data.value) {
-            let value: Picture[] = val.pics;
-            pictures = pictures.concat(value);
+            pictures.push(val.url);
         }
         await (new AsyncDownloader(pictures, this.ws, ENV.SETTINGS.BLOB_SIZE)).download();
+        // let connection = new SQLiteConnector('PID', 'pixcrawl');
+        // for (const picture of pictures) {
+        //     connection.switchToTable('PID').insertOrUpdate((new DataParser(picture)).toPidTableMap(), 'pid')
+        //         .switchToTable('UID').insertOrUpdate((new DataParser(picture)).toUidTableMap(), 'uid')
+        //         .switchToTable('TAG').insertOrUpdate((new DataParser(picture)).toTagTableMap())
+        //         .switchToTable('URL').insertOrUpdate((new DataParser(picture)).toUrlTableMap());
+        // }
     }
 }

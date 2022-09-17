@@ -197,7 +197,7 @@ class SearchRequestType {
 class CrawlResult {
     success = true;
     display = false;
-    pics = [];
+    pics = [new Picture()];
 }
 
 class CrawlProgress {
@@ -205,6 +205,25 @@ class CrawlProgress {
     crawlCnt = 0;
     success = 0;
     failure = 0;
+}
+
+class DownloadResult {
+    url = '';
+    /** In B-scope */
+    total = 0;
+    progress = 0;
+    success = true;
+    status = {
+        idle: true,
+        query: false,
+        download: false
+    }
+}
+
+class DownloadProgress {
+    /** Dynamic scopes (<10^6: KB, else MB) */
+    total = 0;
+    progress = 0;
 }
 
 function copy(jsonLike) {
@@ -242,11 +261,18 @@ export default class PixcrawlComponent extends Component {
     @tracked
     crawlResults = [];
 
+    /** @type {DownloadResult[]} */
+    @tracked
+    downloadResults = [];
+
     @tracked
     searchProgress = new SearchProgress();
 
     @tracked
     crawlProgress = new CrawlProgress();
+
+    @tracked 
+    downloadProgress = new DownloadProgress();
 
     @service('pixcrawl')
     pixcrawlWS;
@@ -311,14 +337,15 @@ export default class PixcrawlComponent extends Component {
                 this.crawlProgress = copy(this.crawlProgress);
                 break;
             case 'crawl-incr':
-                this.crawlProgress.success += 1;
-                this.crawlProgress.crawlCnt += 1;
+                this.crawlProgress.success++;
+                this.crawlProgress.crawlCnt++;
                 this.crawlResults[resp.value.index].display = true;
                 this.crawlResults[resp.value.index].pics.push(resp.value.value);
                 this.crawlProgress = copy(this.crawlProgress);
                 this.crawlResults = copy(this.crawlResults);
                 break;
             case 'crawl-decr':
+                this.crawlProgress.total--;
                 break;
         }
     }
@@ -1041,11 +1068,22 @@ export default class PixcrawlComponent extends Component {
 
     @action
     goToDownload() {
-        this.send({
-            type: 'download',
-            value: this.crawlResults
-        });
         this.steps.download = true;
         this.steps = copy(this.steps);
+        // collects crawl results to list of pictures
+        this.downloadResults = [];
+        for (const item of this.crawlResults) {
+            for (const pic of item.pics) {
+                for (const url of pic.originalUrls) {
+                    let result = new DownloadResult();
+                    result.url = url;
+                    this.downloadResults.push(result);
+                }
+            }
+        }
+        this.send({
+            type: 'download',
+            value: this.downloadResults,
+        });
     }
 }
