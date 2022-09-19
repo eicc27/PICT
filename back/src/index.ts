@@ -31,8 +31,8 @@ testConnection.switchToTable('URL').createTable(testParser.toUrlTableMap()[0]);
 // new MongoBinGetter().getMongoLatest();
 
 // sync mongo with sqlite (sqlite -> mongo)
-let picturesInSql = SQLiteConnector.toPictures();
-await (new MongoConnector(picturesInSql)).insert();
+// let picturesInSql = SQLiteConnector.toPictures();
+// await (new MongoConnector(picturesInSql)).insert();
 
 
 const proxyListener = new ProxyListener();
