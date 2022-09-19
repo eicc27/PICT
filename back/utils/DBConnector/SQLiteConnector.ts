@@ -1,12 +1,20 @@
 import Database from 'better-sqlite3';
 import chalk from 'chalk';
-import Logger, { dbLogger } from '../Logger';
-import { createHash } from 'crypto';
+import { Picture } from '../../types/Types';
+import Logger, { dbLogger, identifier } from '../Logger';
+
+function sqlify(value: string | number) {
+    // single quote
+    value = String(value);
+    value = value.split("'").join("''");
+    value = `'${value}'`;
+    return value;
+}
 
 /** The type of the value is induced by `typeof`. Mind that the max length of the string is set doubled.
  */
 export class SQLColumnType {
-    value: string | number | Date;
+    value: string | number;
     ai?: boolean = false;
     pri?: boolean = false;
     nn?: boolean = false;
@@ -19,7 +27,7 @@ export class SQLColumnType {
  * @param value 
  * @returns 
  */
-function auto(value: string | number | Date) {
+function auto(value: string | number) {
     switch (typeof value) {
         case 'number':
             return `integer`;
@@ -29,17 +37,9 @@ function auto(value: string | number | Date) {
     }
 }
 
-function identifier() {
-    let timeStr = String((new Date()).getUTCMilliseconds());
-    let salt = '';
-    for (let i = 0; i < 10; i++) {
-        salt += String(Math.floor((Math.random() * 10) % 10));
-    }
-    let hashStr = timeStr + salt;
-    return createHash('sha256').update(hashStr).digest('hex').slice(0, 6);
-}
 
-export default class SQLiteConnector<T extends Map<string, SQLColumnType>> {
+
+export default class SQLiteConnector<T extends Map<string, SQLColumnType> | Map<string, SQLColumnType>> {
     private tableName: string;
     private connection: Database.Database;
 
@@ -89,15 +89,20 @@ export default class SQLiteConnector<T extends Map<string, SQLColumnType>> {
         return ret;
     }
 
-    public selectAllWhenPropertyEqual(propertyList: T) {
+    public selectAllWhenPropertyEqual(propertyList?: T) {
         let queryStrs = [];
-        for (const [column, value] of propertyList) {
-            if (typeof value.value == 'number')
-                queryStrs.push(`\`${column}\`=${value.value}`)
-            else
-                queryStrs.push(`\`${column}\`='${value.value}'`)
+        let query: string;
+        if (propertyList) {
+            for (const [column, value] of propertyList) {
+                if (typeof value.value == 'number')
+                    queryStrs.push(`\`${column}\`='${value.value}'`)
+                else
+                    queryStrs.push(`\`${column}\`=${sqlify(value.value)}`)
+            }
+            query = `select * from ${this.tableName} where ${queryStrs.join(' and ')};`;
+        } else {
+            query = `select * from ${this.tableName};`;
         }
-        let query = `select * from ${this.tableName} where ${queryStrs.join(' and ')};`;
         let id = identifier();
         dbLogger('SQLite', query, id, 'to');
         let ret = this.connection.prepare(query).all();
@@ -105,15 +110,43 @@ export default class SQLiteConnector<T extends Map<string, SQLColumnType>> {
         return ret;
     }
 
+    public static toPictures() {
+        let connector = new SQLiteConnector('PID', 'pixcrawl');
+        let pictures: Picture[] = [];
+        let pids = connector.switchToTable('PID').selectAllWhenPropertyEqual();
+        for (const pid of pids) {
+            let pidMap = new Map<string, SQLColumnType>();
+            pidMap.set('pid', { value: pid.pid });
+            let urlJsons = connector.switchToTable('URL').selectAllWhenPropertyEqual(pidMap);
+            let urls = [];
+            for (const url of urlJsons) { urls.push(url.url); }
+            let uidMap = new Map<string, SQLColumnType>();
+            uidMap.set('uid', { value: pid.uid });
+            let uname = connector.switchToTable('UID').selectAllWhenPropertyEqual(uidMap)[0].uname;
+            let tags = [];
+            let tagJsons = connector.switchToTable('TAG').selectAllWhenPropertyEqual(pidMap);
+            for (const tag of tagJsons) { tags.push(tag.tag); }
+            pictures.push({
+                pid: pid.pid,
+                pname: pid.pname,
+                originalUrls: urls,
+                tags: tags,
+                uid: pid.uid,
+                uname: uname
+            });
+        }
+        return pictures;
+    }
+
     private _insertOrUpdate(propertyList: T, updateRefColumn?: string) {
         let columns = [];
         let values = [];
         for (const [column, value] of propertyList) {
             columns.push(`\`${column}\``);
-            values.push(`'${value.value}'`);
+            values.push(sqlify(value.value));
         }
         let query = `insert into ${this.tableName} (${columns.join(',')}) values (${values.join(',')})`;
-        if (updateRefColumn) { 
+        if (updateRefColumn) {
             let i = columns.findIndex((v) => { return v.slice(1, -1) == updateRefColumn; });
             // console.log(i);
             if (i >= 0) {
@@ -135,7 +168,7 @@ export default class SQLiteConnector<T extends Map<string, SQLColumnType>> {
     public insertOrUpdate(propertyList: T | T[], updateRefColumn?: string) {
         if (Array.isArray(propertyList)) {
             for (const l of propertyList) {
-                 this._insertOrUpdate(l, updateRefColumn);
+                this._insertOrUpdate(l, updateRefColumn);
             }
         } else {
             this._insertOrUpdate(propertyList, updateRefColumn);

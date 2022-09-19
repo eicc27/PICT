@@ -197,7 +197,8 @@ class SearchRequestType {
 class CrawlResult {
     success = true;
     display = false;
-    pics = [new Picture()];
+    /** @type Picture[] */
+    pics = [];
 }
 
 class CrawlProgress {
@@ -212,18 +213,14 @@ class DownloadResult {
     /** In B-scope */
     total = 0;
     progress = 0;
-    success = true;
-    status = {
-        idle: true,
-        query: false,
-        download: false
-    }
+    head = true;
+    status = 'idle';
 }
 
 class DownloadProgress {
-    /** Dynamic scopes (<10^6: KB, else MB) */
-    total = 0;
     progress = 0;
+    success = 0;
+    failure = 0;
 }
 
 function copy(jsonLike) {
@@ -271,7 +268,7 @@ export default class PixcrawlComponent extends Component {
     @tracked
     crawlProgress = new CrawlProgress();
 
-    @tracked 
+    @tracked
     downloadProgress = new DownloadProgress();
 
     @service('pixcrawl')
@@ -341,11 +338,48 @@ export default class PixcrawlComponent extends Component {
                 this.crawlProgress.crawlCnt++;
                 this.crawlResults[resp.value.index].display = true;
                 this.crawlResults[resp.value.index].pics.push(resp.value.value);
+                const targetElement = document.querySelector('.crawl .progress .search-target');
+                targetElement.innerHTML = (this.crawlProgress.crawlCnt == this.crawlProgress.total)
+                    ? 'Completed.' : `Got picture(s) ${resp.value.value.pid}`
                 this.crawlProgress = copy(this.crawlProgress);
                 this.crawlResults = copy(this.crawlResults);
                 break;
             case 'crawl-decr':
                 this.crawlProgress.total--;
+                break;
+            case 'dl-head':
+                this.downloadResults[resp.value.index].total = resp.value.value;
+                this.downloadResults[resp.value.index].status = 'query';
+                this.downloadResults = copy(this.downloadResults);
+                break;
+            case 'dl-headless':
+                this.downloadResults[resp.value].head = false;
+                this.downloadResults[resp.value].status = 'download';
+                this.downloadResults = copy(this.downloadResults);
+                break;
+            case 'dl-incr':
+                this.downloadResults[resp.value.index].status = 'download';
+                this.downloadResults[resp.value.index].progress += resp.value.value;
+                if (this.downloadResults[resp.value.index].head) {
+                    if (this.downloadResults[resp.value.index].progress >= this.downloadResults[resp.value.index].total) {
+                        this.downloadResults[resp.value.index].status = 'fin';
+                        this.downloadProgress.success++;
+                        this.downloadProgress.progress++;
+                    }
+                } else {
+                    this.downloadResults[resp.value.index].total += resp.value.value;
+                }
+                this.downloadResults = copy(this.downloadResults);
+                this.downloadProgress = copy(this.downloadProgress);
+                console.log(this.downloadProgress);
+                console.log(this.downloadResults);
+                break;
+            case 'dl-fin':
+                this.downloadResults[resp.value].status = 'fin';
+                this.downloadProgress.success++;
+                this.downloadProgress.progress++;
+                this.downloadResults = copy(this.downloadResults);
+                this.downloadProgress = copy(this.downloadProgress);
                 break;
         }
     }
@@ -775,7 +809,7 @@ export default class PixcrawlComponent extends Component {
         }
         result.value[result.extendIndex].pictures = value.pictures;
         result.value[result.extendIndex].tags = value.tags;
-        result.vlaue[result.extendIndex].extended = true;
+        result.value[result.extendIndex].extended = true;
         result.elementState.searching = false;
         result.elementState.expand = true;
         this.searchResults = copy(this.searchResults);
@@ -1083,7 +1117,7 @@ export default class PixcrawlComponent extends Component {
         }
         this.send({
             type: 'download',
-            value: this.downloadResults,
+            value: this.crawlResults,
         });
     }
 }

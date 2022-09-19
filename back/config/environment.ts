@@ -217,8 +217,8 @@ const ENV = {
     SETTINGS: {
         MAX_PREVIEW_NUM: 3,
         MAX_RETRIAL: 5,
-        PIC_CRED: 0.6,
-        TAG_CRED: 100,
+        PIC_CRED: 1,
+        TAG_CRED: 30,
         TIMEOUT: 20 * 1000,
         BLOB_SIZE: 512 * 1024,
     },
@@ -239,6 +239,11 @@ const ENV = {
     PROXY_AGENT: httpsProxyAgent(''),
 
     PLATFORM: platform(),
+
+    MONGO: {
+        DONWLOAD: 'https://www.mongodb.com/download-center/community/releases',
+        PORT: '4203',
+    },
 
     /**
      * Stores browser-related info. Now supports only firefox.

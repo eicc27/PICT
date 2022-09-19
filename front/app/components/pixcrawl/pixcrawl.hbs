@@ -75,8 +75,8 @@
                 <div class="bar-bg" />
                 <div class="bar" style={{html-safe (concat "width: " (mul 600 (div this.searchProgress.searchCnt (if
                     this.searchResults.length this.searchResults.length 1))) "px" )}} />
-                <div class="percent">{{mul 100 (div this.searchProgress.searchCnt (if this.searchResults.length
-                    this.searchResults.length 1))}}%</div>
+                <div class="percent">{{toFixed (mul 100 (div this.searchProgress.searchCnt (if this.searchResults.length
+                    this.searchResults.length 1))) 2}}%</div>
             </div>
             <div class="abstract">
                 {{!-- xxx tags, xxx user names, xxx picture ids... --}}
@@ -338,7 +338,7 @@
                     <div class="result-abstract">
                         <div class="value">No result found</div>
                     </div>
-                    {{/if}} {{!-- End of if !reuslt.success --}}
+                    {{/if}} {{!-- End of if !result.success --}}
                 </div>
             </li>
             {{/if}} {{!-- End of if result.display --}}
@@ -432,7 +432,7 @@
             {{/each}}
         </ul>
         <div class="bottom-nav">
-            {{#if (eq this.searchProgress.searchCnt this.keywords.length)}}
+            {{#if (eq this.crawlProgress.crawlCnt this.crawlProgress.total)}}
             <button type="button" {{on "click" (fn this.goBack 2)}}>
                 <Icons::AnglesLeft />
                 <span>Search</span>
@@ -447,7 +447,77 @@
     </div>
 
     <div class="download" style={{html-safe (concat "display: " (if (ifStep this.steps "download" ) "flex" "none" ))}}>
-
+        <div class="progress">
+            <h2>Total Progress</h2>
+            <div class="search-target">
+                {{!-- Changed by JS(while WebSocket recieves message) --}}
+                Starting...
+            </div>
+            <div class="bar-content">
+                <div class="bar-bg" />
+                <div class="bar" style={{html-safe (concat "width: " (mul 600 (div this.downloadProgress.progress (if
+                    this.downloadResults.length this.downloadResults.length 1))) "px" )}} />
+                <div class="percent">{{toFixed (mul 100 (div this.downloadProgress.progress (if
+                    this.downloadResults.length
+                    this.downloadResults.length 1))) 2}}%</div>
+            </div>
+            <div class="abstract">
+                {{!-- xxx tags, xxx user names, xxx picture ids... --}}
+                {{!-- <span>10</span> tags. --}}
+                {{!-- Unknown Emberjs bugs for removing children, use traditional JS instead... --}}
+            </div>
+            <div class="abstract-progress">
+                {{#if this.downloadProgress.success}}
+                <span class="completed">{{this.downloadProgress.success}}</span> completed.
+                {{/if}}
+                {{#if this.downloadProgress.failure}}
+                <span class="failed">{{this.downloadProgress.failure}}</span> failed.
+                {{/if}}
+            </div>
+        </div>
+        <ul>
+            {{#each this.downloadResults as |result|}}
+            <li>
+                {{#if (eq result.status "idle")}}
+                <div class="abstract">
+                    <div class="status-light gray"></div>
+                    <div class="url">{{getUrl result.url}}</div>
+                </div>
+                {{else if (eq result.status "query")}}
+                <div class="abstract">
+                    <div class="status-light yellow"></div>
+                    <div class="url">{{getUrl result.url}}</div>
+                </div>
+                {{else if (eq result.status "download")}}
+                <div class="abstract">
+                    <div class="status-light blue"></div>
+                    <div class="url">{{getUrl result.url}}</div>
+                </div>
+                {{#if result.head}}
+                <div class="progress">
+                    {{getSize result.progress}} / {{getSize result.total}}
+                </div>
+                <div class="bar-content">
+                    <div class="bar-bg" />
+                    <div class="bar" style={{html-safe (concat "width: " (mul 300 (div result.progress (if result.total
+                        result.total 1))) "px" )}} />
+                    <div class="percent">{{toFixed (mul 100 (div result.progress (if
+                        result.total
+                        result.total 1))) 2}}%</div>
+                </div>
+                {{else}}
+                <div class="progress">(Dyn.) {{getSize result.total}}</div>
+                {{/if}}
+                {{else if (eq result.status "fin")}}
+                <div class="abstract">
+                    <div class="status-light green"></div>
+                    <div class="url">{{getUrl result.url}}</div>
+                    <div class="size">{{getSize result.total}}</div>
+                </div>
+                {{/if}}
+            </li>
+            {{/each}}
+        </ul>
     </div>
 
     <div class="hint">

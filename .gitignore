@@ -49,3 +49,5 @@
 /db/
 
 /arch/
+
+/mongodb*/

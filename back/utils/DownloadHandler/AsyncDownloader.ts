@@ -2,7 +2,6 @@ import axios from "axios";
 import { WebSocket } from "ws";
 import { createWriteStream, accessSync, writeFileSync, constants } from "fs";
 import { ENV } from "../../config/environment";
-import { Picture } from "../../types/Types";
 import AsyncPool from "../AsyncPool";
 import Timer from "../Timer";
 import Logger, { axiosErrorLogger, SigLevel } from "../Logger";
@@ -20,7 +19,7 @@ export default class AsyncDownloader {
     private ws: WebSocket;
     private blobSize: number;
     private queryPool = new AsyncPool(8);
-    private downloadPool = new AsyncPool(16);
+    private downloadPool = new AsyncPool(8);
 
     public constructor(pictures: string[], ws: WebSocket, blobSize: number) {
         this.pictures = pictures;
@@ -39,21 +38,26 @@ export default class AsyncDownloader {
                 timeout: ENV.SETTINGS.TIMEOUT,
             }).then(async (resp) => {
                 if (!resp.headers['content-length']) {
-                    if (retrial < ENV.SETTINGS.MAX_RETRIAL) {
-                        (new Logger(`HEAD: Retrial #${retrial}: Failed to get size of ${url}!`, SigLevel.warn));
+                    if (retrial < 2) {
+                        (new Logger(`HEAD: Retrial #${retrial}: Failed to get size of ${url}! Trying direct download`, SigLevel.warn));
                         return retrial;
                     } // regarded as an error
                     else {
-                        (new Logger(`HEAD: Max retrial achieved for ${url}`, SigLevel.error)).log();
+                        (new Logger(`HEAD: Max retrial achieved for ${url}, trying direct download`, SigLevel.warn)).log();
+                        this.ws.send(JSON.stringify({ type: 'dl-headless', value: index }));
+                        // download as a whole
+                        await this.downloadPool.submit((new Timer(10, ENV.SETTINGS.MAX_RETRIAL)).time(
+                            this.downloadPart(url, index),
+                        ));
                         return;
                     }
-                    //else
-                    // download as a whole(maybe a todo)...
                 }
                 const contentLength = parseInt(resp.headers['content-length']);
                 const blocks = Math.floor(contentLength / this.blobSize);
                 const tailSize = contentLength % this.blobSize;
-                let ranges = [1];
+                let ranges = [0];
+                if (!blocks)
+                    ranges.push(tailSize);
                 for (let i = 1; i <= blocks; i++) {
                     if (i == blocks && tailSize)
                         ranges.push(i * this.blobSize + tailSize);
@@ -64,7 +68,7 @@ export default class AsyncDownloader {
                 this.ws.send(JSON.stringify({ type: 'dl-head', value: { index: index, value: contentLength } }));
                 for (let i = 0; i < ranges.length - 1; i++) {
                     await this.downloadPool.submit((new Timer(10, ENV.SETTINGS.MAX_RETRIAL)).time(
-                        this.downloadPart(url, ranges[i] - 1, ranges[i + 1], index),
+                        this.downloadPart(url, index, ranges[i], ranges[i + 1] - 1),
                     ));
                 }
             }, async (error) => {
@@ -79,15 +83,23 @@ export default class AsyncDownloader {
         }
     }
 
-    private async downloadPart(url: string, start: number, end: number, index: number) {
+    private async downloadPart(url: string, index: number, start?: number, end?: number) {
         for (let retrial = 0; retrial < ENV.SETTINGS.MAX_RETRIAL; retrial++) {
             if (retrial)
                 (new Logger(`BLOCK: Retrial #${retrial} of ${url}(${start}-${end})`, SigLevel.warn)).log();
-            let header = {
-                'User-Agent': ENV.HEADER["User-Agent"],
-                'Referer': ENV.HEADER.Referer,
-                'Range': `bytes=${start}-${end}`
-            };
+            let header: any;
+            if (start || end) {
+                header = {
+                    'User-Agent': ENV.HEADER["User-Agent"],
+                    'Referer': ENV.HEADER.Referer,
+                    'Range': `bytes=${start}-${end}`
+                };
+            } else {
+                header = {
+                    'User-Agent': ENV.HEADER["User-Agent"],
+                    'Referer': ENV.HEADER.Referer,
+                };
+            }
             let res = await axios.get(url, {
                 httpsAgent: ENV.PROXY_AGENT,
                 headers: header,
@@ -100,15 +112,21 @@ export default class AsyncDownloader {
                     accessSync(path, constants.F_OK);
                 } catch (error) {
                     writeFileSync(path, '', { flag: 'w+' });
-                    (new Logger(`FS: Created new file ${filename}`)).log();
+                    (new Logger(`FS: Created new file ${chalk.yellowBright(filename)}`)).log();
                 }
                 resp.data.pipe(createWriteStream(path, {
                     start: start,
                     flags: 'r+'
                 }));
+                resp.data.on('data', (chunck: any) => {
+                    // console.log(chunck.length);
+                    this.ws.send(JSON.stringify({ type: 'dl-incr', value: { index: index, value: chunck.length } }));
+                });
                 resp.data.on('end', () => {
                     (new Logger(`BLOCK: download of ${url}(${start}-${end}) done.`)).log();
-                    this.ws.send(JSON.stringify({ type: 'dl-incr', value: { index: index, value: start - end + 1 } }));
+                    if (!(start || end)) {
+                        this.ws.send(JSON.stringify({ type: 'dl-fin', value: index }));
+                    }
                 });
             }, async (error) => {
                 axiosErrorLogger(error, url);

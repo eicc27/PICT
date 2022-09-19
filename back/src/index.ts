@@ -3,6 +3,8 @@ import Router from 'koa-router';
 import websocket from 'ws';
 import { Picture } from '../types/Types';
 import BrowserChecker from '../utils/BrowserChecker';
+import MongoBinGetter from '../utils/DBConnector/Mongo/MongoBinGetter';
+import MongoConnector from '../utils/DBConnector/Mongo/MongoConnector';
 import SQLiteConnector, { SQLColumnType } from '../utils/DBConnector/SQLiteConnector';
 import DataParser from '../utils/DownloadHandler/DataParser';
 // import SQLiteConnector, { SQLColumnType } from '../utils/DBConnector/SQLiteConnector';
@@ -25,6 +27,12 @@ testConnection.createTable(testParser.toPidTableMap());
 testConnection.switchToTable('TAG').createTable(testParser.toTagTableMap()[0]);
 testConnection.switchToTable('UID').createTable(testParser.toUidTableMap());
 testConnection.switchToTable('URL').createTable(testParser.toUrlTableMap()[0]);
+
+// new MongoBinGetter().getMongoLatest();
+
+// sync mongo with sqlite (sqlite -> mongo)
+let picturesInSql = SQLiteConnector.toPictures();
+await (new MongoConnector(picturesInSql)).insert();
 
 
 const proxyListener = new ProxyListener();

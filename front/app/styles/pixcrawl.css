@@ -88,7 +88,8 @@
 
 .pixcrawl .keyword,
 .pixcrawl .search,
-.pixcrawl .crawl {
+.pixcrawl .crawl,
+.pixcrawl .download {
     position: absolute;
     top: 200px;
     display: flex;
@@ -848,4 +849,91 @@
     color: #C44F6F;
     font-style: normal;
     font-size: 2rem;
+}
+
+.pixcrawl .download ul {
+    max-height: 100vh;
+    overflow-y: scroll;
+    margin: 50px 0;
+    padding: 10px;
+    background: hsl(0, 0%, 90%);
+}
+
+.pixcrawl .download li {
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+.pixcrawl .download li .abstract {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.pixcrawl .download .status-light {
+    width: 10px;
+    height: 10px;
+    transform: rotate(45deg);
+    margin-right: 5px;
+    transition: all 0.2s ease-out;
+}
+
+.pixcrawl .download .status-light.gray {
+    background: gray;
+}
+
+.pixcrawl .download .status-light.yellow {
+    background: #FBC02D;
+}
+
+.pixcrawl .download .status-light.blue {
+    background: royalblue;
+}
+
+.pixcrawl .download .status-light.green {
+    background: #00C9A7;
+}
+
+.pixcrawl .download li .size {
+    font-size: 0.9rem;
+    color: hsl(0, 0%, 50%);
+    margin-left: 5px;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.pixcrawl .download li .progress {
+    font-size: 0.9rem;
+    color: hsl(0, 0%, 50%);
+    margin: 0;
+    padding: 0;
+}
+
+.pixcrawl .download li .bar-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.pixcrawl .download li .bar-bg {
+    width: 300px;
+    height: 10px;
+    background: hsl(0, 0%, 80%);
+}
+
+.pixcrawl .download li .bar {
+    height: 10px;
+    position: absolute;
+    background: royalblue;
+    transition: all 20ms ease-out;
+}
+
+.pixcrawl .download li .percent {
+    margin-left: 5px;
+    font-size: 0.9rem;
+    color: hsl(0, 0%, 50%);
 }

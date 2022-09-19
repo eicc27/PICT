@@ -1,5 +1,7 @@
 import chalk from "chalk";
 import { ENV } from "../config/environment";
+import { createHash } from 'crypto';
+
 
 export enum SigLevel { info = 'info', warn = 'warn', error = 'error', ok = 'ok' };
 
@@ -53,6 +55,16 @@ export default class Logger {
     }
 }
 
+export function identifier() {
+    let timeStr = String((new Date()).getUTCMilliseconds());
+    let salt = '';
+    for (let i = 0; i < 10; i++) {
+        salt += String(Math.floor((Math.random() * 10) % 10));
+    }
+    let hashStr = timeStr + salt;
+    return createHash('sha256').update(hashStr).digest('hex').slice(0, 6);
+}
+
 export function axiosErrorLogger(error: any, url: string, retrial: number = 0) {
     let requestTargetString = `Requesting ${chalk.blueBright(url)}:`;
     if (error.response) {
@@ -70,7 +82,7 @@ export function axiosResponseLogger(url: string) {
     (new Logger(`Response recieved from: ${chalk.blueBright(url)}`)).log();
 }
 
-export function dbLogger(db: 'SQLite' | 'Firebird', query: string, id: string, direction: 'from' | 'to', result?: any) {
+export function dbLogger(db: 'SQLite' | 'Mongo', query: string, id: string, direction: 'from' | 'to', result?: any) {
     let arrow = direction == 'from' ? '<-' : '->';
     let log = ` [${chalk.bgGrey.whiteBright(db)}] [${chalk.bgBlueBright.whiteBright(`#${id}`)} ${chalk.bgGreenBright.whiteBright(arrow)}]: ${chalk.yellowBright(query)}`;
     if (result) {

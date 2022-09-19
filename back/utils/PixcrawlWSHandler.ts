@@ -202,17 +202,22 @@ export default class PixcrawlWSHandler {
 
     private async download() {
         // constantly sends message to front end.
+        // data: {type: ..., value: CrawlResult[]}
         let pictures: string[] = [];
-        for (const val of this.data.value) {
-            pictures.push(val.url);
+        let pictureMaps: Picture[] = [];
+        for (const val of this.data.value) { // val: CrawlResult
+            pictureMaps = pictureMaps.concat(val.pics); // val.pics: Picture[]
+            for (const pic of val.pics) { // pic: Picture
+                pictures = pictures.concat(pic.originalUrls);
+            }
         }
         await (new AsyncDownloader(pictures, this.ws, ENV.SETTINGS.BLOB_SIZE)).download();
-        // let connection = new SQLiteConnector('PID', 'pixcrawl');
-        // for (const picture of pictures) {
-        //     connection.switchToTable('PID').insertOrUpdate((new DataParser(picture)).toPidTableMap(), 'pid')
-        //         .switchToTable('UID').insertOrUpdate((new DataParser(picture)).toUidTableMap(), 'uid')
-        //         .switchToTable('TAG').insertOrUpdate((new DataParser(picture)).toTagTableMap())
-        //         .switchToTable('URL').insertOrUpdate((new DataParser(picture)).toUrlTableMap());
-        // }
+        let connection = new SQLiteConnector('PID', 'pixcrawl');
+        for (const pictureMap of pictureMaps) {
+            connection.switchToTable('PID').insertOrUpdate((new DataParser(pictureMap)).toPidTableMap(), 'pid')
+                .switchToTable('UID').insertOrUpdate((new DataParser(pictureMap)).toUidTableMap(), 'uid')
+                .switchToTable('TAG').insertOrUpdate((new DataParser(pictureMap)).toTagTableMap())
+                .switchToTable('URL').insertOrUpdate((new DataParser(pictureMap)).toUrlTableMap());
+        }
     }
 }
