@@ -1,6 +1,7 @@
 # PICT - Pixiv Integrated Crawling Toolset
 
---Download over 80 Pics within 5 seconds!--
+## Current Progress
+Largely refactoring the code
 
 ## Content
 
