@@ -4,6 +4,8 @@
 /back/.eslintrc.js
 /back/test/
 
+/back-py/venv/
+
 # front-end
 
 # See https://help.github.com/ignore-files/ for more about ignoring files.
