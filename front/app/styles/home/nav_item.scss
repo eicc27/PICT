@@ -1,0 +1,52 @@
+@import "../mixins/flex.scss";
+
+.home.main li {
+    @include flex-cr;
+    justify-content: flex-start;
+    position: relative;
+
+    :hover {
+        cursor: pointer;
+    }
+
+    .chev-right {
+        width: 30px;
+        height: 30px;
+        position: absolute;
+        animation: chev-right-showup 0.3s linear forwards;
+        svg {
+            fill: black;
+            stroke: black;
+        }
+    }
+
+    button {
+        margin-top: 50px;
+        margin-bottom: 50px;
+        font-size: 2em;
+        font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+    }
+}
+
+@keyframes chev-right-showup {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes nav-text-move-left {
+    0% {
+        transform: translateX(0);
+        color: black;
+    }
+
+    100% {
+        transform: translateX(40px);
+        color: darkorange;
+        border-bottom: 1px solid black;
+    }
+}

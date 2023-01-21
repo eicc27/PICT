@@ -1,0 +1,14 @@
+<div class="keyword-item" ...attributes {{did-insert this.getKeyword}}>
+    <button type="button" class="type" {{on "click" this.toggleMenu}}>{{this.type}}</button>
+    {{#if this.menu}}
+    <div class="types" {{on "mouseleave" this.toggleMenu}} {{did-insert this.setMenuItems}}>
+        {{#each-in this.menuItems as |item desc|}}
+        <button type="button" {{on "click" (fn this.setType item)}}>
+            <span>{{item}}</span>
+            <i>{{desc}}</i>
+        </button>
+        {{/each-in}}
+    </div>
+    {{/if}}
+    <input aria-label="input" class="input" type="text" value={{this.value}} {{on "change" this.setValue}}>
+</div>

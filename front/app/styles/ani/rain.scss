@@ -1,0 +1,85 @@
+@import "../mixins/flex.scss";
+@import "../mixins/object.scss";
+
+.ani.rain {
+    .raindot {
+        width: 50px;
+        height: 50px;
+        border-radius: 25px;
+        position: absolute;
+        z-index: 10;
+        animation: raindots-scale 0.4s cubic-bezier(1, 0, 1, 1) forwards, static 0.4s 2s linear forwards,
+            raindots-fade 0.8s 2.4s cubic-bezier(1, 0, 1, 1) forwards;
+    }
+
+    .hint {
+        z-index: 11;
+        position: relative;
+        @include flex_cc;
+        animation: hint-float 5s linear infinite;
+        .title, .content {
+            max-width: 300px;
+            animation: hint-fade 0.8s 1.6s cubic-bezier(1, 0, 1, 1) forwards;
+        }
+    }
+
+    .link {
+        z-index: -1;
+        position: fixed;
+        visibility: hidden;
+    }
+}
+
+@keyframes raindots-scale {
+    0% {
+        background-color: royalblue;
+        transform: scale(0.1);
+    }
+
+    100% {
+        background-color: skyblue;
+        transform: scale(100);
+    }
+}
+
+@keyframes raindots-fade {
+    0% {
+        background-color: skyblue;
+    }
+
+    100% {
+        background-color: white;
+    }
+}
+
+@keyframes hint-float {
+    0% {
+        left: 0;
+        top: 0;
+    }
+
+    33% {
+        left: 4px;
+        top: 4px;
+    }
+
+    67% {
+        left: 0;
+        top: 0;
+    }
+
+    100% {
+        left: 4px;
+        top: 4px;
+    }
+}
+
+@keyframes hint-fade {
+    0% {
+        color: black;
+    }
+
+    100% {
+        color: transparent;
+    }
+}

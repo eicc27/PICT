@@ -1,0 +1,9 @@
+{
+	"firstUse": false,
+	"lang": "zh",
+	"retrial": {
+		"times": 5,
+		"timeout": 20
+	},
+	"proxyPort": 32345
+}

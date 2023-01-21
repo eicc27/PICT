@@ -7,9 +7,17 @@ export default class Router extends EmberRouter {
 }
 
 Router.map(function () {
-    this.route('nav', { path: '/' });
+    this.route('home', { path: '/' });
     this.route('settings');
-    this.route('pixcrawl');
     this.route('fm');
     this.route('iris');
+});
+
+Router.map(function () {
+    this.route('pixcrawl', function () {
+        this.route('keyword');
+        this.route('index');
+        this.route('search');
+        this.route('download');
+    });
 });

@@ -1,0 +1,9 @@
+{
+    "system": {
+        "has_browser": "现在的操作系统是$1。发现Playwright浏览器：$2。",
+        "no_browser": "现在的操作系统是$1。没有发现Playwright浏览器，请去设置中尝试下载。",
+        "no_picture": "没有下载过的图片。",
+        "has_picture": "你一共有$1张受到PICT管理的图片，$2个认识的画师。",
+        "is_firsttime": "欢迎使用PICT！这大概是你第一次使用它。如果有什么不懂的，可以去设置里翻找提示！"
+    }
+}

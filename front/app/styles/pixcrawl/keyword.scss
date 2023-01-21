@@ -1,0 +1,136 @@
+@import "../mixins/flex.scss";
+.main {
+    &.keyword {
+        @include flex-cr;
+        justify-content: flex-start;
+    }
+    @include flex-cc;
+    justify-content: flex-start;
+    width: 80%;
+    position: absolute;
+    top: 250px;
+    .leftbar {
+        min-width: 8px;
+        margin-right: 10px;
+        transition: all 0.2s ease-out;
+    }
+    .keyword {
+        @include flex-cr;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        .add-tag {
+            @include flex-cr;
+            margin-left: 10px;
+            button {
+                margin-left: 10px;
+                @include flex-cr;
+                align-items: flex-start;
+                position: relative;
+                .tag-solid {
+                    width: 32px;
+                    height: 32px;
+                    fill: gainsboro;
+                    stroke: gainsboro;
+                    transition: all 0.2s ease-out;
+                    &:hover {
+                        fill: royalblue;
+                        stroke: royalblue;
+                    }
+                }
+
+                .plus-solid {
+                    fill: royalblue;
+                    stroke: royalblue;
+                    position: absolute;
+                    left: 20px;
+                    top: -10px;
+                    width: 12px;
+                    height: 12px;
+                    animation: plus-showup 0.2s cubic-bezier(0.42, 0, 0.1, 1.77) forwards;
+                }
+            }
+        }
+        .keywords {
+            overflow: visible;
+            @include flex-cr;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            .keyword-item {
+                position: relative;
+                @include flex-cr;
+                margin: 10px;
+                padding: 5px 10px;
+                border-radius: 100px;
+                .type {
+                    font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial,
+                        sans-serif;
+                    font-size: 0.9em;
+                    background: royalblue;
+                    color: white;
+                    padding: 0 2px;
+                    margin: 2px 5px;
+                    border-radius: 2px;
+                }
+                input {
+                    width: 80px;
+                    background: transparent;
+                }
+                background: gainsboro;
+                .types {
+                    position: absolute;
+                    top: 0;
+                    left: 10px;
+                    @include flex-cc;
+                    justify-content: flex-start;
+                    background: gainsboro;
+                    border-radius: 5px;
+                    width: 150px;
+                    button {
+                        width: inherit;
+                        @include flex-sar;
+                        span {
+                            color: navy;
+                            width: max-content;
+                        }
+                        i {
+                            width: max-content;
+                            font-size: 0.6em;
+                        }
+                        padding: 10px;
+                        font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial,
+                            sans-serif;
+                        font-size: 0.9em;
+                        transition: all 0.3s ease-in-out;
+                        &:hover {
+                            transform: scale(1.2);
+                            background: darkorange;
+                            box-shadow: 0px 0px 2px 0px gray;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@keyframes plus-showup {
+    0% {
+        width: 0;
+        height: 0;
+    }
+
+    100% {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+@keyframes list-showup {
+    0% {
+        clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+    }
+
+    100% {
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+}

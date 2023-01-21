@@ -1,0 +1,26 @@
+<Pixcrawl::Pbar @highlight="keyword" />
+<div class="main keyword" {{did-insert this.setup}}>
+    <Common::Zebra class="leftbar" @color="darkorange" />
+    <div class="keyword">
+        <div class="keywords">
+            <h2>关键词 - </h2>
+            {{#each this.keywords.keywords as |keyword index|}}
+            <Pixcrawl::KeywordItem @type={{keyword.type}} @value={{keyword.value}} @index={{index}}
+                @setType={{this.setType}} @setValue={{this.setValue}} @get={{this.getKeyword}} />
+            {{/each}}
+            <div class="add-tag">
+                {{#if this.isFirstUse}}
+                <div>单击右边的标签按钮新增关键字选项...</div>
+                {{/if}}
+                <button type="button" class="tag-icons" {{on "click" this.addItem}} {{on "mouseenter"
+                    this.toggleAddTag}} {{on "mouseleave" this.toggleAddTag}}>
+                    <Svg::TagSolid />
+                    {{#if this.isAddTag}}
+                    <Svg::PlusSolid />
+                    {{/if}}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<Pixcrawl::SideNav @nextRoute="pixcrawl.search" @continue={{this.continue}}/>

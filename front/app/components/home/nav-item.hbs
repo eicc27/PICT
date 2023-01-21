@@ -1,0 +1,7 @@
+<li>
+        {{#if this.highlight}}
+        <Svg::ChevronRight class="chev-right" />
+        {{/if}}
+        <button type="button" {{on "mouseenter" (fn this.toggleHighlight @index)}} {{on "mouseleave" (fn
+                this.toggleHighlight @index)}} ...attributes>{{yield}}</button>
+</li>

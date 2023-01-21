@@ -1,0 +1,11 @@
+<div class="node {{@step}} {{if (eq @highlight @step) " highlight"}}" ...attributes>
+    {{!-- Use CSS to control the appearance of desc --}}
+    {{#if @canClick}}
+    {{!-- template-lint-disable no-invalid-link-text --}}
+    <LinkTo class="dot" @route={{printf "pixcrawl.$1" @step}} {{on "click" this.changeRoute}} {{on "mouseenter"
+        this.toggleJointLine}} {{on "mouseleave" this.toggleJointLine}} />
+    {{else}}
+    <div class="dot" />
+    {{/if}}
+    <div class="desc">{{yield}}</div>
+</div>

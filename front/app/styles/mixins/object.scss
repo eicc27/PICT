@@ -1,0 +1,12 @@
+@mixin makeCircle($radius) {
+    width: $radius;
+    height: $radius;
+    border-radius: calc($radius / 2);
+}
+
+@keyframes static {
+    0% {
+    }
+    100% {
+    }
+}

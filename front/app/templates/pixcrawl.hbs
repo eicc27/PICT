@@ -1,8 +1,3 @@
-{{page-title "PixCrawl"}}
-
-<Navbar @page="PixCrawl" @pages={{array "Home" "Settings" "PixCrawl" "File Manager" "IRIS" }} />
-
-<Pixcrawl::Pixcrawl />
-
-<ArrowTransition @direction="left" />
-<ArrowTransition @direction="right" />
+{{page-title "Pixcrawl"}}
+<Common::Navbar @route="pixcrawl" />
+{{outlet}}

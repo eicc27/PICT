@@ -1,0 +1,59 @@
+@import "mixins/flex.scss";
+@import "home.scss";
+@import "common/navbar.scss";
+@import "common/jumpout.scss";
+@import "pixcrawl/pbar.scss";
+@import "pixcrawl/keyword.scss";
+@import "pixcrawl/side-nav.scss";
+@import "pixcrawl/search.scss";
+@import "pixcrawl/progress.scss";
+
+body {
+    min-height: 100vh;
+    overflow: hidden;
+    @include flex_cc;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+button {
+    background: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+em {
+    font-size: 2em;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-style: normal;
+    color: royalblue;
+}
+
+h2 {
+    padding: 0;
+    margin: 0;
+}
+
+input {
+    border: none;
+    padding: none;
+    margin: none;
+    border-radius: none;
+}
+
+input:focus {
+    outline: none;
+}

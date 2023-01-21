@@ -1,0 +1,13 @@
+<div class="ani rain" ...attributes>
+    {{#each this.raindrops as |index|}}
+    <div class="raindot" {{did-insert (fn this.randomPosition index)}} {{on "animationend" this.toggleHint}} />
+    {{/each}}
+    {{#if this.hint}}
+    <div class="hint">
+        {{!-- pseudolink element: not visible, only for JS clicking --}}
+        <LinkTo @route={{@route}} class="link">link</LinkTo>
+        <h1 class="title">提示</h1>
+        <div class="content">{{yield}}</div>
+    </div>
+    {{/if}}
+</div>

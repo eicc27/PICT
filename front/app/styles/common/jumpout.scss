@@ -1,0 +1,33 @@
+@import "../mixins/flex.scss";
+
+.jumpout {
+    @include flex-cc;
+    width: 50%;
+    max-height: 200px;
+    padding: 10px 0;
+    font-size: 1.2em;
+    position: fixed;
+    top: 75px;
+    color: white;
+    background: darkorange;
+    border-radius: 200px;
+    animation: jumpout-show 5s ease-in-out forwards;
+}
+
+@keyframes jumpout-show {
+    0% {
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}

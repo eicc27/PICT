@@ -1,0 +1,23 @@
+<nav ...attributes>
+    <div>
+        <button type="button" {{on "click" (fn this.startTransitionTo "home" )}}>the <em>PICT</em> project</button>
+    </div>
+    <div>
+        <button type="button" {{on "click" (fn this.startTransitionTo "pixcrawl" )}}>Pixcrawl爬虫程序</button>
+    </div>
+    <div>
+        <button type="button" {{on "click" (fn this.startTransitionTo "fm" )}}>文件管理器</button>
+    </div>
+    <div>
+        <button type="button" {{on "click" (fn this.startTransitionTo "iris" )}}>IRIS实验室</button>
+    </div>
+    <div>
+        <button type="button" {{on "click" (fn this.startTransitionTo "settings" )}}>设置</button>
+    </div>
+</nav>
+
+{{#if this.transition}}
+<Ani::Rain @route={{this.route}} {{did-insert this.randomHintText}}>
+    {{this.hintText}}
+</Ani::Rain>
+{{/if}}

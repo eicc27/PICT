@@ -2,7 +2,7 @@
 /back/node_modules/
 /back/.vscode/
 /back/.eslintrc.js
-/back/tests
+/back/test/
 
 # front-end
 
@@ -49,5 +49,7 @@
 /db/
 
 /arch/
+
+/.vscode/
 
 /mongodb*/

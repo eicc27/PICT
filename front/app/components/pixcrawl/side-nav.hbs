@@ -1,0 +1,18 @@
+{{#if @prevRoute}}
+{{!-- template-lint-disable no-invalid-link-text --}}
+<LinkTo class="prev" @route={{@prevRoute}} {{on "click" @back}} {{on "mouseenter" this.togglePrev}} {{on "mouseleave" this.togglePrev}}>
+    {{#if this.prev}}
+    <Svg::CaretRightSolid />
+    <div>前一步</div>
+    {{/if}}
+</LinkTo>
+{{/if}}
+{{#if @nextRoute}}
+{{!-- template-lint-disable no-invalid-link-text --}}
+<LinkTo class="next" @route={{@nextRoute}} {{on "click" @continue}} {{on "mouseenter" this.toggleNext}} {{on "mouseleave" this.toggleNext}}>
+    {{#if this.next}}
+    <Svg::CaretRightSolid />
+    <div>下一步</div>
+    {{/if}}
+</LinkTo>
+{{/if}}

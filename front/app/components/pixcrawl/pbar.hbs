@@ -1,0 +1,23 @@
+<div class="pixcrawl pbar" ...attributes {{did-insert this.setClickable}}>
+    <Pixcrawl::Node @highlight={{@highlight}} @step="keyword" @canClick={{get this.clickStatus "keyword"}}>
+        关键词指定
+    </Pixcrawl::Node>
+    <div class="jointline" {{did-insert (fn this.connect "keyword" "search" 1)}}>
+        <div />
+    </div>
+    <Pixcrawl::Node @highlight={{@highlight}} @step="search" @canClick={{get this.clickStatus "search"}}>
+        搜索
+    </Pixcrawl::Node>
+    <div class="jointline" {{did-insert (fn this.connect "search" "index" 2)}}>
+        <div />
+    </div>
+    <Pixcrawl::Node @highlight={{@highlight}} @step="index" @canClick={{get this.clickStatus "index"}}>
+        建立下载索引
+    </Pixcrawl::Node>
+    <div class="jointline" {{did-insert (fn this.connect "index" "download" 3)}}>
+        <div />
+    </div>
+    <Pixcrawl::Node @highlight={{@highlight}} @step="download" @canclick = {{get this.clickStatus "download"}}>
+        下载
+    </Pixcrawl::Node>
+</div>

@@ -1,0 +1,38 @@
+<div class="home canvas" {{did-insert (fn this.addRandomTriangles 70)}} />
+<div class="home background-right" />
+<div class="home background-middle" />
+<div class="home background-left" />
+<div class="home main">
+    <div class="left">
+        <h2>the <em>PICT</em> project</h2>
+        <ul>
+            {{!-- Use lists to pass parameters through components --}}
+            <Home::NavItem @index="0" {{on "click" (fn this.startTransitionTo "pixcrawl" )}} {{on "mouseenter" (fn
+                this.toggleIntro "pixcrawl" )}} {{on "mouseleave" (fn this.toggleIntro "pixcrawl" )}}>
+                Pixcrawl爬虫程序
+            </Home::NavItem>
+            <Home::NavItem @index="1" {{on "click" (fn this.startTransitionTo "fm" )}} {{on "mouseenter" (fn
+                this.toggleIntro "fm" )}} {{on "mouseleave" (fn this.toggleIntro "fm" )}}>
+                文件管理器
+            </Home::NavItem>
+            <Home::NavItem @index="2" {{on "click" (fn this.startTransitionTo "iris" )}} {{on "mouseenter" (fn
+                this.toggleIntro "iris" )}} {{on "mouseleave" (fn this.toggleIntro "iris" )}}>
+                IRIS实验室
+            </Home::NavItem>
+            <Home::NavItem @index="3" {{on "click" (fn this.startTransitionTo "settings" )}} {{on "mouseenter" (fn
+                this.toggleIntro "settings" )}} {{on "mouseleave" (fn this.toggleIntro "settings" )}}>
+                设置
+            </Home::NavItem>
+        </ul>
+    </div>
+
+    <div class="right" {{did-insert this.getSystemInfo}} >
+        <h2>{{this.title}}</h2>
+        <div>{{this.description}}</div>
+    </div>
+</div>
+{{#if this.transition}}
+<Ani::Rain @route={{this.route}} {{did-insert this.randomHintText}}>
+    {{this.hintText}}
+</Ani::Rain>
+{{/if}}
