@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { logfcall, LOGGER } from './Logger.js';
-import { DB_DIR, SQLite } from './SQLite.js';
+import { DB_DIR, SQLITE_DB } from './SQLite.js';
 
 export const PLAYWRIGHT_DIR_WIN = `${process.env['HOME']}/AppData/Local/ms-playwright`;
 export const PLAYWRIGHT_DIR_LINUX = "~/.cache/ms-playwright";
@@ -39,7 +39,7 @@ export class System {
     @logfcall() public static initDatabase() {
         System.mkdir('../db');
         System.newFile(DB_DIR);
-        new SQLite().createTables();
+        SQLITE_DB.createTables();
         SYSTEM_SETTINGS.firstUse = false;
         fs.writeFileSync('./settings/system.json', JSON.stringify(SYSTEM_SETTINGS, null, '\t'));
         LOGGER.ok('database creation successful');
@@ -72,6 +72,15 @@ export class System {
             fs.accessSync(fpath, fs.constants.F_OK);
         } catch (error) {
             fs.writeFileSync(fpath, '');
+        }
+    }
+
+    @logfcall() public static exists(fpath: string) {
+        try {
+            fs.accessSync(fpath, fs.constants.F_OK);
+            return true;
+        } catch (e) {
+            return false;
         }
     }
 }

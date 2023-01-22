@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import { WebSocket } from "ws";
 import { PIXCRAWL_DATA } from "../src/pixcrawl.js";
 import { AsyncPool } from "../utils/AsyncPool.js";
@@ -39,5 +40,7 @@ export class DownloadHandler {
         await queryPool.close();
         await downloadPool.close();
         LOGGER.ok('Download complete');
+        // happy new year!
+        LOGGER.easter(chalk.bgRedBright.white('🐇癸卯🐇'), chalk.bgRed.white('🐇年快乐！'));
     }
 }

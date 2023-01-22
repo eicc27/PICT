@@ -5,8 +5,8 @@
         {{#each this.searchResults.searchResults as |searchRes index|}}
         {{#if (eq searchRes.type "uid")}}
         <Pixcrawl::UidResult @uidResult={{searchRes}} @index={{index}} />
-        {{else if (eq searchRes.type "pid")}}
-
+        {{else if (eq searchRes.type "tag")}}
+        <Pixcrawl::TagResult @tagResult={{searchRes}} @index={{index}}/>
         {{/if}}
         {{/each}}
     </div>

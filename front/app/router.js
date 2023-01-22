@@ -11,6 +11,7 @@ Router.map(function () {
     this.route('settings');
     this.route('fm');
     this.route('iris');
+    this.route('picture', { path: '/picture/:pid' });
 });
 
 Router.map(function () {
@@ -21,3 +22,4 @@ Router.map(function () {
         this.route('download');
     });
 });
+

@@ -1,6 +1,5 @@
 import Service from '@ember/service';
 import { A } from '@ember/array';
-import EmberObject from '@ember/object';
 
 export default class KeywordService extends Service {
     keywords = A([]);

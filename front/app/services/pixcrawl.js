@@ -49,7 +49,10 @@ export default class PixcrawlService extends Service {
                 console.log(data);
                 if (data.type == 'index-total') {
                     indexResults.updateTotal(data.value);
-                } else {
+                } else if (data.type == 'index-decrease') {
+                    indexResults.decreaseTotal();
+                }
+                else {
                     indexResults.adds(data.value);
                     indexResults.updateCount();
                 }

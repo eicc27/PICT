@@ -5,7 +5,7 @@ import { AsyncPool } from "./AsyncPool.js";
 import { Retrial } from "./Retrial.js";
 import { Picture, PIXCRAWL_DATA } from "../src/pixcrawl.js";
 import { System, SYSTEM_SETTINGS } from "./System.js";
-import { SQLite } from "./SQLite.js";
+import { SQLITE_DB } from "./SQLite.js";
 import { logfcall, LOGGER } from "./Logger.js";
 import chalk from 'chalk';
 
@@ -69,7 +69,7 @@ export class Downloader {
                 PIXCRAWL_DATA.getSocket().send(JSON.stringify({
                     type: 'download',
                 }));
-                new SQLite().addPicture(picture);
+                SQLITE_DB.addPicture(picture);
             }
         }
         const query = async function () {

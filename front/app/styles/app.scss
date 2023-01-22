@@ -7,10 +7,12 @@
 @import "pixcrawl/side-nav.scss";
 @import "pixcrawl/search.scss";
 @import "pixcrawl/progress.scss";
+@import "fm/fm.scss";
+@import "fm/picture.scss";
 
 body {
     min-height: 100vh;
-    overflow: hidden;
+    overflow: scroll;
     @include flex_cc;
 }
 
@@ -56,4 +58,9 @@ input {
 
 input:focus {
     outline: none;
+}
+
+a {
+    color: black;
+    text-decoration: none;
 }

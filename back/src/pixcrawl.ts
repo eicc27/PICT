@@ -25,8 +25,8 @@ export type Picture = {
     uname: string
 }
 
-type SearchResult = {
-    type: Type,
+type UidSearchResult = {
+    type: 'uid',
     value: {
         uid: string,
         thumbnail: Buffer,
@@ -35,6 +35,14 @@ type SearchResult = {
     }
 };
 
+type TagSearchResult = {
+    type: 'tag',
+    value: {
+        tag: string,
+        pictures: string[]
+    }
+}
+
 type IndexResult = {
     type: string,
     value: Picture[]
@@ -42,7 +50,7 @@ type IndexResult = {
 
 class PixcrawlData {
     private keywords: Keyword[] = [];
-    private searchResults: SearchResult[] = [];
+    private searchResults: (UidSearchResult | TagSearchResult)[] = [];
     private indexResults: IndexResult[] = []
     private searchData = {
         total: 0,
@@ -93,7 +101,7 @@ class PixcrawlData {
     @logfcall() public addKeywords(...keywords: Keyword[]) {
         this.keywords.push(...keywords);
     }
-    @logfcall() public addSearchResults(...searchResults: SearchResult[]) {
+    @logfcall() public addSearchResults(...searchResults: (UidSearchResult | TagSearchResult)[]) {
         this.searchResults.push(...searchResults);
     }
     @logfcall() public addIndexResults(...indexResults: IndexResult[]) {

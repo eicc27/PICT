@@ -32,6 +32,10 @@ class Logger {
     public debug(...msgs: Object[]) {
         this.log(chalk.cyanBright('debug'), ...msgs);
     }
+
+    public easter(easterType: string, ...msgs: Object[]) {
+        this.log(easterType, ...msgs);
+    }
 }
 export const LOGGER = new Logger();
 

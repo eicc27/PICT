@@ -1,6 +1,5 @@
 import Service from '@ember/service';
 import { A } from '@ember/array';
-import EmberObject from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 
 
@@ -42,5 +41,9 @@ export default class IndexService extends Service {
         this.indexResults.pushObjects(indexResults.indexResults);
         this.total = indexResults.total;
         this.count = indexResults.count;
+    }
+
+    decreaseTotal() {
+        this.total--;
     }
 } 

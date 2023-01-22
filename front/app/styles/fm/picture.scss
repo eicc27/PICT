@@ -1,0 +1,77 @@
+.picture {
+    @include flex-cc;
+    width: 80vw;
+    .img-original {
+        @include flex-cc;
+        .info {
+            align-self: flex-start;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            margin: 50px 0;
+            div {
+                margin: 20px 0;
+            }
+            .title {
+                font-size: 2.5em;
+                font-weight: bold;
+                color: royalblue;
+            }
+            .illust {
+                font-size: 1.5em;
+                i {
+                    font-size: 0.8em;
+                    color: gray;
+                }
+            }
+            .time {
+                @include flex-cr;
+                justify-content: flex-start;
+                .clock-solid {
+                    width: 16px;
+                    height: 16px;
+                    margin-right: 10px;
+                }
+            }
+            .views {
+                span {
+                    margin-right: 5px;
+                }
+            }
+        }
+        .preview {
+            @include flex-cc;
+            img {
+                margin: 50px 0;
+                object-fit: contain;
+            }
+        }
+    }
+    .tags {
+        align-self: flex-start;
+        margin: 50px 0;
+        .title {
+            @include flex-cr;
+            justify-content: flex-start;
+            .hashtag-solid {
+                width: 32px;
+                height: 32px;
+                margin-right: 10px;
+            }
+            font-size: 2em;
+            font-weight: bold;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        }
+        .tags-main {
+            @include flex-cr;
+            margin-top: 20px;
+            .tag {
+                margin-right: 20px;
+                font-size: 1.5em;
+                span {
+                    margin-left: 5px;
+                    color: gray;
+                    font-size: 0.8em;
+                }
+            }
+        }
+    }
+}
