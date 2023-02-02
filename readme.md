@@ -1,19 +1,17 @@
 # PICT - Pixiv Integrated Crawling Toolset
 
 ## Current Progress
-Largely refactoring the code
+
+Refining the robustness. Training SRGAN.
 
 ## Content
 
 - PixCrawl core
-  - Python(`playwright`)
-  - Node(`playwright`)
+  - Python
+  - Node
 - Customized file manager
 - IRIS experimental enhancement toolset
-  - IRIS(`TODO`)
-    - Python(`matplotlib`)
-    - Node(`js`, `hbs`)
-  - SRCNN(`TODO`, `python`)
+  - Super Resolution Solution
 
 ## Arch
 
@@ -21,28 +19,36 @@ Front-end(`ember.js`) & back-end(`koa2 with ts`), localhost application
 
 **port: 3000, 4200**
 
+*Note: backend uses 2 types of protocols: HTTP & WebSocket. They share a same port.*
+
 ## Initialization - npm modules
 
-### back
+### Common
 
-npm init -y
+To install the NPM Modules preconfigured, change directory into `/back` and `/front`, respectively, run:
 
-npm install koa koa-router
+`npm i`
 
-npm install --save-dev @types/koa @types/koa-router
+### Back
 
-npm install --save-dev typescript ts-node nodemon
+Change into `/back` and run:
 
-npm install koa-body
+`npm run dev`
 
-npm install @playwright/latest
+If a test application is needed, make a `/back/test` directory and put a `test.ts` in. Run:
 
-(tsconfig.json)
+`npm run test`
 
-### front
+### Front
 
-(sudo) npm install -g ember
+To run the `ember.js` project, a global ember configuration is suggested:
 
-ember init
+`(sudo) npm install -g ember`
 
-ember install @ember/render-modifiers
+After installation, change into `/front` directory and run:
+
+`ember serve`
+
+## Technical Overview
+
+![](./readme-src/back.svg)

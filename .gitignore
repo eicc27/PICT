@@ -8,6 +8,9 @@
 # backend-python
 /back-py/venv/
 
+# src-drawio
+/readme-src/*.drawio
+
 # front-end
 
 # See https://help.github.com/ignore-files/ for more about ignoring files.
