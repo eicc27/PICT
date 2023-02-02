@@ -91,6 +91,15 @@ export class System {
             return false;
         }
     }
+
+    @logfcall() public static async sleep(secs: number) {
+        if (secs <= 0) return;
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(null);
+            }, secs * 1000);
+        });
+    }
 }
 
 /** System wide settings. May change over runtime. */

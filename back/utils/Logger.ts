@@ -7,7 +7,7 @@ class Logger {
 
     private log(siglevel: string, ...msgs: Object[]) {
         if (!msgs.length) throw new EvalError('Logger: must specify a message');
-        const head = msgs.splice(0, 1);
+        const head = msgs.splice(0, 1)[0];
         console.log(this.logHead(siglevel) + head.toString());
         for (const msg of msgs)
             console.log(msg);

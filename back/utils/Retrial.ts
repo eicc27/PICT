@@ -1,4 +1,6 @@
+import { AxiosError } from "axios";
 import { logfcall, LOGGER } from "./Logger.js";
+import { SYSTEM_SETTINGS } from "./System.js";
 
 class RetrialTimer {
     private timer: number;
@@ -21,8 +23,6 @@ export class Retrial {
         func: (...args: unknown[]) => Promise<unknown>, ...args: unknown[]) {
         return new Promise(async function (resolve, reject) {
             for (let i = 0; i < retrial; i++) {
-                if (i)
-                    LOGGER.warn(`Retrial ${i}`);
                 try {
                     const ret = await Promise.race([Retrial.timeOutFunction(timeOut), func(...args)]);
                     if (!(ret instanceof RetrialTimer)) {
@@ -30,8 +30,11 @@ export class Retrial {
                         return;
                     }
                     continue;
-                } catch (e) {
+                } catch (e: any) {
+                    LOGGER.warn(`Retrial ${i + 1}`);
                     console.log(e);
+                    if (e.code == '429')// wait for some time to retry(in case of HTTP 429 error)
+                        await Retrial.timeOutFunction(60);
                     continue;
                 }
             }

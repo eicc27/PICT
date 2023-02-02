@@ -120,7 +120,7 @@ class PixcrawlData {
         this.indexData.total = total;
     }
 
-    @logfcall() public decrIndexProgress() {
+    @logfcall() public decrIndexTotal() {
         this.indexData.total--;
     }
 

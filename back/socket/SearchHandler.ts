@@ -39,7 +39,7 @@ export class KeywordHandler {
         LOGGER.ok('Search complete');
     }
 
-    private static async getUid(uid: string) {
+    @logfcall() private static async getUid(uid: string) {
         // user-profile-all
         const response = await axios.get(`https://www.pixiv.net/ajax/user/${uid}/profile/all`, {
             httpsAgent: httpsProxyAgent({
@@ -68,9 +68,9 @@ export class KeywordHandler {
         PIXCRAWL_DATA.getSocket().send(JSON.stringify(result));
     }
 
-    private static async getTag(tag: string) {
+    @logfcall() private static async getTag(tag: string) {
         // pixiv navirank
-        const response = await axios.get(`https://pixiv.navirank.com/tag/${encodeURI(tag)}/2023`, {
+        const response = await axios.get(`https://pixiv.navirank.com/tag/${encodeURI(tag)}`, {
             httpsAgent: httpsProxyAgent({
                 host: '127.0.0.1',
                 port: SYSTEM_SETTINGS.proxyPort
