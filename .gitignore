@@ -1,9 +1,11 @@
-# back-end
+# backend
 /back/node_modules/
 /back/.vscode/
 /back/.eslintrc.js
 /back/test/
+/back/response_samples/
 
+# backend-python
 /back-py/venv/
 
 # front-end

@@ -119,6 +119,11 @@ class PixcrawlData {
     @logfcall() public setIndexProgress(total: number) {
         this.indexData.total = total;
     }
+
+    @logfcall() public decrIndexProgress() {
+        this.indexData.total--;
+    }
+
     @logfcall() public addDownloadProgress() {
         this.downloadData.count++;
     }

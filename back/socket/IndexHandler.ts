@@ -71,9 +71,11 @@ export class IndexHandler {
             PIXCRAWL_DATA.addIndexProgress();
             PIXCRAWL_DATA.getSocket().send(JSON.stringify(result));
         } catch (e: any) {
+            LOGGER.error(e);
             if (e.response && e.response.status == 404) {
                 LOGGER.warn(`${pid} is no longer exist`);
                 PIXCRAWL_DATA.getSocket().send(JSON.stringify({ type: 'index-decrease' }));
+                PIXCRAWL_DATA.decrIndexProgress();
                 return;
             }
         }

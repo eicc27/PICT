@@ -28,9 +28,11 @@ export class KeywordHandler {
                 case 'uid':
                     await pool.submit(Retrial.retry, SYSTEM_SETTINGS.retrial.times, SYSTEM_SETTINGS.retrial.timeout,
                         KeywordHandler.getUid, keyword.value);
+                    break;
                 case 'tag':
                     await pool.submit(Retrial.retry, SYSTEM_SETTINGS.retrial.times, SYSTEM_SETTINGS.retrial.timeout,
                         KeywordHandler.getTag, keyword.value);
+                    break;
             }
         }
         await pool.close();
@@ -48,7 +50,9 @@ export class KeywordHandler {
         const data = response.data;
         const top = data.body.pickup[0];
         const name = decodeURI(top.userName);
-        const thumbnail = await new Downloader(top.userImageUrl).download();
+        let thumbnail = null;
+        if (top.userImageUrl)
+            thumbnail = await new Downloader(top.userImageUrl).download();
         const pictures = Object.keys(data.body.illusts);
         const result: { type: 'uid', value: { uid: string, thumbnail: Buffer, name: string, pictures: string[] } } = {
             type: 'uid',

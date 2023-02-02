@@ -39,16 +39,19 @@ class Logger {
 }
 export const LOGGER = new Logger();
 
-export function logfcall() {
+export function logfcall(needParams = false) {
     return function (target: any, propKey: string, desc: PropertyDescriptor) {
         const { value } = desc;
-        desc.value = function(...args: any[]) {
+        desc.value = function (...args: any[]) {
             const res = value.apply(this, args);
             const argsString: string[] = [];
             for (const arg of args) {
                 argsString.push(arg.toString());
             }
-            LOGGER.debug(`Function call: ${propKey}(${argsString.join(', ')})`);
+            if (needParams)
+                LOGGER.debug(`Function call: ${propKey}(${argsString.join(', ')})`);
+            else
+                LOGGER.debug(`Function call: ${propKey}`);
             return res;
         }
         return desc;

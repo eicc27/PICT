@@ -12,6 +12,7 @@
     background: darkorange;
     border-radius: 200px;
     animation: jumpout-show 5s ease-in-out forwards;
+    z-index: 100;
 }
 
 @keyframes jumpout-show {

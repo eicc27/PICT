@@ -16,7 +16,8 @@ export class Retrial {
         });
     }
 
-    @logfcall() public static async retry(retrial: number, timeOut: number,
+    /** The function printed includes the function code. Disable parameter printing. */
+    @logfcall(false) public static async retry(retrial: number, timeOut: number,
         func: (...args: unknown[]) => Promise<unknown>, ...args: unknown[]) {
         return new Promise(async function (resolve, reject) {
             for (let i = 0; i < retrial; i++) {

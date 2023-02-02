@@ -1,6 +1,11 @@
+{{#if this.hasError}}
+<Common::Jumpout @reset={{this.resetError}}>
+    {{this.errorMessage}}
+</Common::Jumpout>
+{{/if}}
 <Pixcrawl::Pbar @highlight="keyword" />
-<div class="main keyword" {{did-insert this.setup}}>
-    <Common::Zebra class="leftbar" @color="darkorange" />
+<div class="main keyword">
+    <Common::Zebra class="leftbar" @color="darkorange" {{did-insert this.setup}}/>
     <div class="keyword">
         <div class="keywords">
             <h2>关键词 - </h2>
@@ -23,4 +28,4 @@
         </div>
     </div>
 </div>
-<Pixcrawl::SideNav @nextRoute="pixcrawl.search" @continue={{this.continue}}/>
+<Pixcrawl::SideNav @nextRoute="pixcrawl.search" @continue={{this.continue}} />

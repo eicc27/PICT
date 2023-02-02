@@ -15,10 +15,18 @@ export class System {
         let dirs: string[] = [];
         switch (PLATFORM) {
             case 'win32':
-                dirs = fs.readdirSync(PLAYWRIGHT_DIR_WIN);
+                try {
+                    dirs = fs.readdirSync(PLAYWRIGHT_DIR_WIN);
+                } catch(e) {
+                    LOGGER.error('No playwright browser installation found');
+                }
                 break;
             case 'linux':
-                dirs = fs.readdirSync(PLAYWRIGHT_DIR_LINUX);
+                try {
+                    dirs = fs.readdirSync(PLAYWRIGHT_DIR_LINUX);
+                } catch(e) {
+                    LOGGER.error('No playwright browser installation found');
+                }
                 break;
             default:
                 throw new TypeError(`Your type of machine (${PLATFORM}) is not supported.`);

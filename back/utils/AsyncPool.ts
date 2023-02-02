@@ -24,7 +24,8 @@ export class AsyncPool {
         return task;
     }
 
-    @logfcall() public async submit(fn: (...args: any[]) => Promise<unknown>, ...args: unknown[]) {
+    /** The function printed includes the function code. Disable parameter printing. */
+    @logfcall(false) public async submit(fn: (...args: any[]) => Promise<unknown>, ...args: unknown[]) {
         const index = this.getVacantIndex();
         if (index != null) { // pool is still vacant (only when initializing)
             this.pool.push(this.wrapTaskWithIndex(index, fn, ...args));

@@ -1,7 +1,7 @@
 @import "../mixins/flex.scss";
 nav {
     @include flex-sar;
-    position: absolute;
+    position: fixed;
     left: 0;
     top: 0;
     width: 100%;
