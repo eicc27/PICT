@@ -1,5 +1,7 @@
 # PICT - Pixiv Integrated Crawling Toolset
 
+[toc]
+
 ## Current Progress
 
 Refining the robustness. Training SRGAN.
@@ -22,6 +24,13 @@ Front-end(`ember.js`) & back-end(`koa2 with ts`), localhost application
 *Note: backend uses 2 types of protocols: HTTP & WebSocket. They share a same port.*
 
 ## Initialization - npm modules
+
+### Using auto-starter
+
+Make sure you are in the PICT root directory, run:
+
+- Windows: `./starter/windows/start-pict.ps1`. This will evoke Windows Terminal(make sure you have it), and try to run front and back in one single window but two different pages.
+- Linux: `./starter/liunux/start-pict.sh`. This will start front and back in your default shell, and make them daemon(`nohup`).
 
 ### Common
 
@@ -51,4 +60,6 @@ After installation, change into `/front` directory and run:
 
 ## Technical Overview
 
-![](./readme-src/back.svg)
+This provides an overview of crawling progress, showing the data flow control inside.
+
+![img](./readme-src/back.svg)

@@ -33,8 +33,6 @@ export class Retrial {
                 } catch (e: any) {
                     LOGGER.warn(`Retrial ${i + 1}`);
                     console.log(e);
-                    if (e.code == '429')// wait for some time to retry(in case of HTTP 429 error)
-                        await Retrial.timeOutFunction(60);
                     continue;
                 }
             }

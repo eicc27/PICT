@@ -106,7 +106,7 @@ export default class PixcrawlKeywordComponent extends Component {
         if (this.hasError) return;
         this.socket.sendKeywords(this.keywords);
         this.observer.disconnect();
-        console.log(ENV.CRAWL_PROG);
+        // console.log(ENV.CRAWL_PROG);
         ENV.CRAWL_PROG = 'search';
         const nextElement = document.querySelector('.next .link-next');
         nextElement.click();

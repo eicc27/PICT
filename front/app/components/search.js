@@ -32,6 +32,8 @@ export default class SearchComponent extends Component {
     back() {
         this.searchResults.clear();
         ENV.CRAWL_PROG = 'keyword';
+        const prevElement = document.querySelector('.prev .link-prev');
+        prevElement.click();
     }
 
     @action
@@ -45,5 +47,7 @@ export default class SearchComponent extends Component {
         this.socket.sendSearchResults(urls);
         this.socket.clear();
         ENV.CRAWL_PROG = 'index';
+        const nextElement = document.querySelector('.next .link-next');
+        nextElement.click();
     }
 }
