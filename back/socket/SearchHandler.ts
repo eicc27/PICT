@@ -6,7 +6,7 @@ import { AsyncPool } from '../utils/AsyncPool.js';
 import { Downloader } from '../utils/Downloader.js';
 import { logfcall, LOGGER } from '../utils/Logger.js';
 import { Retrial } from '../utils/Retrial.js';
-import { SYSTEM_SETTINGS } from '../utils/System.js';
+import { HEADERS, PROXY, SYSTEM_SETTINGS } from '../utils/System.js';
 
 
 export class KeywordHandler {
@@ -23,15 +23,14 @@ export class KeywordHandler {
             value: this.keywords.length,
         }));
         const pool = new AsyncPool(16);
+        console.log(this.keywords.length);
         for (const keyword of this.keywords) {
             switch (keyword.type) {
                 case 'uid':
-                    await pool.submit(Retrial.retry, SYSTEM_SETTINGS.retrial.times, SYSTEM_SETTINGS.retrial.timeout,
-                        KeywordHandler.getUid, keyword.value);
+                    await pool.submit(Retrial.retry, KeywordHandler.getUid, keyword.value);
                     break;
                 case 'tag':
-                    await pool.submit(Retrial.retry, SYSTEM_SETTINGS.retrial.times, SYSTEM_SETTINGS.retrial.timeout,
-                        KeywordHandler.getTag, keyword.value);
+                    await pool.submit(Retrial.retry, KeywordHandler.getTag, keyword.value);
                     break;
             }
         }
@@ -42,10 +41,7 @@ export class KeywordHandler {
     @logfcall() private static async getUid(uid: string) {
         // user-profile-all
         const response = await axios.get(`https://www.pixiv.net/ajax/user/${uid}/profile/all`, {
-            httpsAgent: httpsProxyAgent({
-                host: '127.0.0.1',
-                port: SYSTEM_SETTINGS.proxyPort
-            })
+            httpsAgent: PROXY
         });
         const data = response.data;
         const top = data.body.pickup[0];
@@ -71,13 +67,8 @@ export class KeywordHandler {
     @logfcall() private static async getTag(tag: string) {
         // pixiv navirank
         const response = await axios.get(`https://pixiv.navirank.com/tag/${encodeURI(tag)}`, {
-            httpsAgent: httpsProxyAgent({
-                host: '127.0.0.1',
-                port: SYSTEM_SETTINGS.proxyPort
-            }),
-            headers: {
-                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.55'
-            }
+            httpsAgent: PROXY,
+            headers: HEADERS
         });
         const html = new jsdom.JSDOM(response.data).window.document;
         const pictureElements = html.querySelectorAll(`ul[class='irank'] li[class='img'] >a`);

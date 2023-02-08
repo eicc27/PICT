@@ -35,7 +35,7 @@ export class DownloadHandler {
         const downloadPool = new AsyncPool(16);
         for (const picture of this.pictures) {
             const downloader = Downloader.blockDownload(picture, downloadPool, this.pictureIndexes);
-            await queryPool.submit(Retrial.retry, SYSTEM_SETTINGS.retrial.times, SYSTEM_SETTINGS.retrial.timeout, downloader);
+            await queryPool.submit(Retrial.retry, downloader);
         }
         await queryPool.close();
         await downloadPool.close();

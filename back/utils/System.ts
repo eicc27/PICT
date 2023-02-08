@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import httpsProxyAgent from 'https-proxy-agent';
 import { logfcall, LOGGER } from './Logger.js';
 import { DB_DIR, SQLITE_DB } from './SQLite.js';
 
@@ -17,14 +18,14 @@ export class System {
             case 'win32':
                 try {
                     dirs = fs.readdirSync(PLAYWRIGHT_DIR_WIN);
-                } catch(e) {
+                } catch (e) {
                     LOGGER.error('No playwright browser installation found');
                 }
                 break;
             case 'linux':
                 try {
                     dirs = fs.readdirSync(PLAYWRIGHT_DIR_LINUX);
-                } catch(e) {
+                } catch (e) {
                     LOGGER.error('No playwright browser installation found');
                 }
                 break;
@@ -105,3 +106,11 @@ export class System {
 /** System wide settings. May change over runtime. */
 export let SYSTEM_SETTINGS = System.getSystemSettings();
 export let LANG = SYSTEM_SETTINGS.lang;
+export let PROXY = httpsProxyAgent({
+    host: '127.0.0.1',
+    port: SYSTEM_SETTINGS.proxyPort
+})
+export const HEADERS = {
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.52',
+    'referer': 'https://www.pixiv.net'
+}

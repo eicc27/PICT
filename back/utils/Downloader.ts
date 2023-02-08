@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { AsyncPool } from "./AsyncPool.js";
 import { Retrial } from "./Retrial.js";
 import { Picture, PIXCRAWL_DATA } from "../src/pixcrawl.js";
-import { System, SYSTEM_SETTINGS } from "./System.js";
+import { HEADERS, PROXY, System, SYSTEM_SETTINGS } from "./System.js";
 import { SQLITE_DB } from "./SQLite.js";
 import { logfcall, LOGGER } from "./Logger.js";
 import chalk from 'chalk';
@@ -19,14 +19,8 @@ export class Downloader {
     @logfcall() public async download() {
         LOGGER.info(`url: ${this.url}`);
         const response = await axios.get(this.url, {
-            headers: {
-                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.52',
-                'referer': 'https://www.pixiv.net'
-            },
-            httpsAgent: httpsProxyAgent({
-                host: '127.0.0.1',
-                port: SYSTEM_SETTINGS.proxyPort
-            }),
+            headers: HEADERS,
+            httpsAgent: PROXY,
             responseType: 'arraybuffer',
         });
         const data = response.data;
@@ -40,21 +34,11 @@ export class Downloader {
         const block = async function (start?: number, end?: number) {
             end ? LOGGER.info(`GET ${chalk.blue(url)} RANGE ${chalk.yellowBright(start)}-${chalk.yellowBright(end)}`)
                 : LOGGER.info(`GET ${chalk.blue(url)} BLOCK`);
-            const headers = end ? {
-                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.52',
-                'referer': 'https://www.pixiv.net',
-                'range': `bytes=${start}-${end}`,
-            } :
-                {
-                    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.52',
-                    'referer': 'https://www.pixiv.net',
-                };
+            const headers: any = HEADERS;
+            if (end) headers.range = `bytes=${start}-${end}`;
             const blockResponse = await axios.get(url, {
                 headers: headers,
-                httpsAgent: httpsProxyAgent({
-                    host: '127.0.0.1',
-                    port: SYSTEM_SETTINGS.proxyPort
-                }),
+                httpsAgent: PROXY,
                 responseType: 'stream'
             });
             System.newFile(fpath);
@@ -76,21 +60,14 @@ export class Downloader {
         const query = async function () {
             console.log(`HEAD ${chalk.blueBright(url)}`);
             const headerResponse = await axios.head(url, {
-                headers: {
-                    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.52',
-                    'referer': 'https://www.pixiv.net'
-                },
-                httpsAgent: httpsProxyAgent({
-                    host: '127.0.0.1',
-                    port: SYSTEM_SETTINGS.proxyPort
-                }),
+                headers: HEADERS,
+                httpsAgent: PROXY,
             });
             const data = headerResponse.headers;
             const acceptRanges = data['accept-ranges'];
             if (!acceptRanges) {
                 index[key].total = 1;
-                await downloadPool.submit(Retrial.retry, SYSTEM_SETTINGS.retrial.times, SYSTEM_SETTINGS.retrial.timeout,
-                    block);
+                await downloadPool.submit(Retrial.retry, block);
                 return;
             }
             const lengthString = data['content-length'];
@@ -103,8 +80,7 @@ export class Downloader {
             for (let i = 0; i < blks; i++) {
                 const start = i * blksize;
                 const end = Math.min((i + 1) * blksize, length);
-                await downloadPool.submit(Retrial.retry, SYSTEM_SETTINGS.retrial.times, SYSTEM_SETTINGS.retrial.timeout,
-                    block, start, end);
+                await downloadPool.submit(Retrial.retry, block, start, end);
             }
         }
         return query;

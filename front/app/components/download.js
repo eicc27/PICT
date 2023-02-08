@@ -25,7 +25,7 @@ export default class DownloadComponent extends Component {
 
     @action back() {
         this.downloadResults.clear();
-        ENV.CRAWL_PROG = 'index';
+        axios.get('')
         const prevElement = document.querySelector('.prev .link-prev');
         prevElement.click();
     }

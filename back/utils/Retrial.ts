@@ -19,25 +19,26 @@ export class Retrial {
     }
 
     /** The function printed includes the function code. Disable parameter printing. */
-    @logfcall(false) public static async retry(retrial: number, timeOut: number,
-        func: (...args: unknown[]) => Promise<unknown>, ...args: unknown[]) {
+    @logfcall(false) public static async retry(func: (...args: unknown[]) => Promise<unknown>, ...args: unknown[]) {
         return new Promise(async function (resolve, reject) {
-            for (let i = 0; i < retrial; i++) {
+            let error: any = null;
+            for (let i = 0; i < SYSTEM_SETTINGS.retrial.times; i++) {
                 try {
-                    const ret = await Promise.race([Retrial.timeOutFunction(timeOut), func(...args)]);
+                    const ret = await Promise.race([Retrial.timeOutFunction(SYSTEM_SETTINGS.retrial.timeout), func(...args)]);
                     if (!(ret instanceof RetrialTimer)) {
                         resolve(ret);
                         return;
                     }
                     continue;
                 } catch (e: any) {
-                    LOGGER.warn(`Retrial ${i + 1}`);
+                    LOGGER.warn(`Retrial ${i + 1}:`);
                     console.log(e);
+                    error = e;
                     continue;
                 }
             }
             LOGGER.error('Max retrial exceeded');
-            reject('Max retrial exceeded');
+            reject(error);
             return;
         });
     }

@@ -39,7 +39,7 @@ class Logger {
 }
 export const LOGGER = new Logger();
 
-export function logfcall(needParams = false) {
+export function logfcall(needParams = true) {
     return function (target: any, propKey: string, desc: PropertyDescriptor) {
         const { value } = desc;
         desc.value = function (...args: any[]) {

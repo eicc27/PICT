@@ -2,6 +2,8 @@ import { logfcall } from "./Logger.js";
 
 export class AsyncPool {
     private pool: Promise<number>[] = [];
+    private errors: any[] = [];
+    private closed = false;
     private maxWorkers: number;
 
     constructor(maxWorkers: number) {
@@ -17,9 +19,8 @@ export class AsyncPool {
 
     private wrapTaskWithIndex(index: number, fn: (...args: any[]) => Promise<unknown>, ...args: unknown[]) {
         const task = fn(...args).then(() => { return index; }, (reason) => {
-            console.log('A promise has been rejected on call in pool. Here is its reason:');
-            console.log(reason);
-            throw new EvalError('A promise has been rejected on call in pool');
+            this.errors.push(reason);
+            return index;
         });
         return task;
     }
@@ -37,5 +38,13 @@ export class AsyncPool {
 
     @logfcall() public async close() {
         await Promise.all(this.pool);
+        this.closed = true;
+    }
+
+    @logfcall() public getErrors() {
+        if (this.closed)
+            return this.errors;
+        else 
+            throw new EvalError('Cannot sum up errors in unclosed pools');
     }
 }

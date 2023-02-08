@@ -12,7 +12,6 @@ export default class PixcrawlNodeComponent extends Component {
 
     @action
     changeRoute() {
-        ENV.CRAWL_PROG = this.args.step;
         switch (this.args.step) {
             case 'keyword':
                 this.searchResults.clear();
@@ -22,7 +21,7 @@ export default class PixcrawlNodeComponent extends Component {
                 this.indexResults.clear();
                 break;
         }
-        // console.log(ENV.CRAWL_PROG);
+        ENV.CRAWL_PROG = this.args.step;
     }
 
     @action
@@ -38,7 +37,6 @@ export default class PixcrawlNodeComponent extends Component {
         };
         const thisIndex = findIndex(this.args.step);
         const highlightIndex = findIndex(this.args.highlight);
-        // console.log(thisIndex, highlightIndex);
         const jointLines = document.querySelectorAll(
             '.pixcrawl.pbar .jointline>div'
         );

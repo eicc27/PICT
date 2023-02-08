@@ -5,6 +5,6 @@
 		"times": 5,
 		"timeout": 20
 	},
-	"submitDelay": 5, 
+	"submitDelay": 2, 
 	"proxyPort": 20171
 }

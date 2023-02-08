@@ -16,14 +16,12 @@ export default class PixcrawlRoute extends Route {
             const data = response.data;
             console.log(data);
             if (data.progress.length) {
-                ENV.CRAWL_PROG = data.progress;
                 this.keywords.setKeyword(data.keywords);
                 this.searchResults.setSearch(data.searchResults);
                 this.indexResults.setIndex(data.indexResults);
                 this.downloadResults.setDownload(data.downloadResults);
             }
-            console.log(ENV.CRAWL_PROG);
-            this.router.transitionTo(`pixcrawl.${ENV.CRAWL_PROG}`);
+            this.router.transitionTo(`pixcrawl.${data.progress}`);
         }
         );
     }
