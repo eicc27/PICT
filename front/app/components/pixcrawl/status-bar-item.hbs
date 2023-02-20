@@ -1,0 +1,26 @@
+<div class='status-bar-item-container' ...attributes>
+    {{#if (and @details this.showDetails)}}
+        <div class='details'>
+            {{@details}}
+        </div>
+    {{/if}}
+    {{#if @clickable}}
+        <button
+            type='button'
+            {{on 'click' @clickfn}}
+            {{on 'mouseenter' this.toggleDetails}}
+            {{on 'mouseleave' this.toggleDetails}}
+            class='status-bar-item'
+        >
+            {{yield}}
+        </button>
+    {{else}}
+        <div
+            {{on 'mouseenter' this.toggleDetails}}
+            {{on 'mouseleave' this.toggleDetails}}
+            class='status-bar-item'
+        >
+            {{yield}}
+        </div>
+    {{/if}}
+</div>

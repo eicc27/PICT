@@ -1,21 +1,26 @@
 @import "../mixins/flex.scss";
 nav {
-    @include flex-sar;
+    @include flex-cr;
     position: fixed;
     left: 0;
     top: 0;
     width: 100%;
     height: 50px;
-    background-color: rgba(135, 206, 235, 0.8);
+    background-color: gainsboro;
     z-index: 10;
+    transition: all 0.2s ease-out;
     button {
         font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
         font-size: 1.3em;
         transition: all 0.2s ease-out;
+        height: 50px;
+        padding: 0 5vw;
+        width: max-content;
     }
     
     button:hover {
-        color: darkorange;
+        background: lightsteelblue;
+        color: white;
     }
 
     :first-child button {

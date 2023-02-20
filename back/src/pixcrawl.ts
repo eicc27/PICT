@@ -1,154 +1,107 @@
 import WebSocket from "ws";
 import { logfcall, LOGGER } from "../utils/Logger.js";
 
-type Type = 'pid' | 'uid' | 'tag' | 'uname';
-
-type Progress = 'keyword' | 'search' | 'index' | 'download';
-
-type Keyword = {
-    type: Type,
-    value: string
-};
-
 type Tag = {
-    tag: string,
-    translation: string | null,
-}
+    tag: string;
+    translation?: string;
+};
 
 export type Picture = {
-    pid: string,
-    title: string,
-    index: number,
-    url: string,
-    tags: Tag[],
-    uid: string,
-    uname: string
-}
-
-type UidSearchResult = {
-    type: 'uid',
-    value: {
-        uid: string,
-        thumbnail: Buffer,
-        name: string,
-        pictures: string[]
-    }
+    pid: string;
+    title?: string;
+    uid?: string;
+    uname?: string;
+    index?: number;
+    url?: string;
+    tags?: Tag[];
 };
 
-type TagSearchResult = {
-    type: 'tag',
-    value: {
-        tag: string,
-        pictures: string[]
-    }
-}
-
-type IndexResult = {
-    type: string,
-    value: Picture[]
-}
-
+export type Keyword = {
+    type: string;
+    value: string;
+    index: number;
+    uid?: string;
+    uname?: string;
+    avatar?: Buffer;
+    pictures: Picture[];
+};
 class PixcrawlData {
     private keywords: Keyword[] = [];
-    private searchResults: (UidSearchResult | TagSearchResult)[] = [];
-    private indexResults: IndexResult[] = []
-    private searchData = {
-        total: 0,
-        count: 0,
-        searchResults: this.searchResults
-    };
-    private indexData = {
-        total: 0,
-        count: 0,
-        indexResults: this.indexResults,
-    };
-    private downloadData = {
-        total: 0,
-        count: 0
-    }
-    private progress: Progress = 'keyword';
-    private socket: WebSocket | null = null;
+    private searchProgress = 0;
+    private indexProgress = 0;
+    private indexDecr = 0;
+    private downloadProgress = 0;
 
-    @logfcall() public clearKeywords() {
-        this.keywords.splice(0, this.keywords.length);
-    }
-    private clearSearchResults() {
-        this.searchResults.splice(0, this.searchResults.length);
-    }
-    private clearIndexResults() {
-        this.indexResults.splice(0, this.indexResults.length);
-    }
-    @logfcall() public resetSearchData() {
-        this.searchData.total = 0;
-        this.searchData.count = 0;
-        this.clearSearchResults();
-    }
-    @logfcall() public resetIndexData() {
-        this.indexData.total = 0;
-        this.indexData.count = 0;
-        this.clearIndexResults();
-    }
-    @logfcall() public resetDownloadData() {
-        this.downloadData.total = 0;
-        this.downloadData.count = 0;
-    }
-    @logfcall() public setProgress(progress: Progress) {
-        this.progress = progress;
-    }
-    @logfcall() public setSocket(socket: WebSocket) {
-        this.socket = socket;
-    }
-    @logfcall() public addKeywords(...keywords: Keyword[]) {
+    public setKeywords(keywords: Keyword[]) {
         this.keywords.push(...keywords);
     }
-    @logfcall() public addSearchResults(...searchResults: (UidSearchResult | TagSearchResult)[]) {
-        this.searchResults.push(...searchResults);
-    }
-    @logfcall() public addIndexResults(...indexResults: IndexResult[]) {
-        this.indexResults.push(...indexResults);
-    }
-    @logfcall() public addSearchProgress() {
-        this.searchData.count++;
-    }
-    @logfcall() public setSearchProgress(total: number) {
-        this.searchData.total = total;
-    }
-    @logfcall() public addIndexProgress() {
-        this.indexData.count++;
-    }
-    @logfcall() public setIndexProgress(total: number) {
-        this.indexData.total = total;
+
+    public clearKeywords() {
+        this.keywords = [];
+        this.searchProgress = 0;
+        this.indexProgress = 0;
+        this.indexDecr = 0;
+        this.downloadProgress = 0;
     }
 
-    @logfcall() public decrIndexTotal() {
-        this.indexData.total--;
+    public length() {
+        return this.keywords.length;
     }
 
-    @logfcall() public addDownloadProgress() {
-        this.downloadData.count++;
+    public getPictureLength(available = true) {
+        let count = 0;
+        for (const keyword of this.keywords) {
+            if (available)
+                for (const picture of keyword.pictures) {
+                    if (picture.index) count += picture.index;
+                }
+            else count += keyword.pictures.length;
+        }
+        return count;
     }
-    @logfcall() public setDownloadProgress(total: number) {
-        this.downloadData.total = total;
+
+    public setKeyword(index: number, keyword: Keyword) {
+        this.keywords[index] = keyword;
     }
-    @logfcall() public getProgress() {
-        return this.progress;
+
+    public addSearchProgress() {
+        this.searchProgress++;
     }
-    @logfcall() public getKeywords() {
-        return this.keywords;
+
+    public getLength() {
+        return this.keywords.length;
     }
-    @logfcall() public getSearchData() {
-        return this.searchData;
+
+    public getKeyword(index: number) {
+        return this.keywords[index];
     }
-    @logfcall() public getIndexData() {
-        return this.indexData;
+
+    public setPicture(
+        keywordIndex: number,
+        pictureIndex: number,
+        picture: Picture
+    ) {
+        this.keywords[keywordIndex].pictures[pictureIndex] = picture;
     }
-    @logfcall() public getDownloadData() {
-        return this.downloadData;
+
+    public addIndexProgress() {
+        this.indexProgress++;
     }
-    @logfcall() public getSocket() {
-        if (this.socket)
-            return this.socket;
-        else throw new EvalError('Socket not present');
+
+    public decreaseIndexTotal() {
+        this.indexDecr++;
+    }
+
+    public isIndexComplete() {
+        return this.indexProgress + this.indexDecr == this.getPictureLength(false);
+    }
+
+    public getIndexTotal() {
+        return this.getPictureLength(false) - this.indexDecr;
+    }
+
+    public getIndexProgress() {
+        return this.indexProgress;
     }
 }
 

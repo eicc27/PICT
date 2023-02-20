@@ -11,15 +11,8 @@ Router.map(function () {
     this.route('settings');
     this.route('fm');
     this.route('iris');
+    this.route('pixcrawl');
     this.route('picture', { path: '/picture/:pid' });
 });
 
-Router.map(function () {
-    this.route('pixcrawl', function () {
-        this.route('keyword');
-        this.route('index');
-        this.route('search');
-        this.route('download');
-    });
-});
 

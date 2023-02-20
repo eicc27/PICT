@@ -1,136 +1,109 @@
-@import "../mixins/flex.scss";
-.main {
-    &.keyword {
-        @include flex-cr;
-        justify-content: flex-start;
-    }
-    @include flex-cc;
-    justify-content: flex-start;
-    width: 80%;
+.keywords {
+    width: 80vw;
     position: absolute;
-    top: 250px;
-    .leftbar {
-        min-width: 8px;
-        margin-right: 10px;
-        transition: all 0.2s ease-out;
+    top: 200px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    transition: all 0.3s ease-out;
+    .add-keywords {
+        width: 32px;
+        height: 32px;
+        margin: 10px;
+        transition: all 0.3s ease-out;
+        fill: gainsboro;
+        &:hover {
+            fill: darkorange;
+        }
     }
     .keyword {
+        position: relative;
+        background: gainsboro;
+        padding: 10px;
+        margin: 10px;
+        border-radius: 10px;
         @include flex-cr;
-        justify-content: flex-start;
-        flex-wrap: wrap;
-        .add-tag {
+        font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+        transition: all 0.3s ease-out;
+        .keyword-container {
             @include flex-cr;
-            margin-left: 10px;
-            button {
-                margin-left: 10px;
-                @include flex-cr;
-                align-items: flex-start;
-                position: relative;
-                .tag-solid {
-                    width: 32px;
-                    height: 32px;
-                    fill: gainsboro;
-                    stroke: gainsboro;
-                    transition: all 0.2s ease-out;
-                    &:hover {
-                        fill: royalblue;
-                        stroke: royalblue;
-                    }
-                }
-
-                .plus-solid {
-                    fill: royalblue;
-                    stroke: royalblue;
-                    position: absolute;
-                    left: 20px;
-                    top: -10px;
-                    width: 12px;
-                    height: 12px;
-                    animation: plus-showup 0.2s cubic-bezier(0.42, 0, 0.1, 1.77) forwards;
-                }
+        }
+        &.expand {
+            width: 80vw;
+            @include flex-cc;
+            align-items: flex-start;
+            .value {
+                pointer-events: none;
+            }
+            .disabled {
+                pointer-events: none;
             }
         }
-        .keywords {
-            overflow: visible;
-            @include flex-cr;
-            justify-content: flex-start;
-            flex-wrap: wrap;
-            .keyword-item {
-                position: relative;
-                @include flex-cr;
-                margin: 10px;
-                padding: 5px 10px;
-                border-radius: 100px;
-                .type {
-                    font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial,
-                        sans-serif;
-                    font-size: 0.9em;
-                    background: royalblue;
-                    color: white;
-                    padding: 0 2px;
-                    margin: 2px 5px;
-                    border-radius: 2px;
-                }
-                input {
-                    width: 80px;
-                    background: transparent;
-                }
-                background: gainsboro;
-                .types {
-                    position: absolute;
-                    top: 0;
-                    left: 10px;
-                    @include flex-cc;
+        .value {
+            outline: none;
+            border: none;
+            background: transparent;
+            font-weight: normal;
+            min-width: 80px;
+        }
+        .type {
+            background: royalblue;
+            color: white;
+            padding: 2px;
+            border-radius: 2px;
+            margin: 0 5px;
+        }
+        ul {
+            position: absolute;
+            left: 0;
+            top: 0;
+            align-self: flex-start;
+            justify-self: flex-start;
+            background: gainsboro;
+            @include flex-cc;
+            border-radius: 5px;
+            li {
+                width: 100px;
+                transition: all 0.3s ease-out;
+                button {
+                    padding: 10px;
+                    width: inherit;
+                    @include flex-cr;
                     justify-content: flex-start;
-                    background: gainsboro;
-                    border-radius: 5px;
-                    width: 150px;
-                    button {
-                        width: inherit;
-                        @include flex-sar;
-                        span {
-                            color: navy;
-                            width: max-content;
-                        }
-                        i {
-                            width: max-content;
-                            font-size: 0.6em;
-                        }
-                        padding: 10px;
-                        font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial,
-                            sans-serif;
-                        font-size: 0.9em;
-                        transition: all 0.3s ease-in-out;
-                        &:hover {
-                            transform: scale(1.2);
-                            background: darkorange;
-                            box-shadow: 0px 0px 2px 0px gray;
-                        }
-                    }
+                }
+                &:hover {
+                    background: darkorange;
+                    transform: scale(1.2);
+                }
+                &:first-child {
+                    border-radius: 5px 5px 0 0;
+                }
+                &:last-child {
+                    border-radius: 0 0 5px 5px;
                 }
             }
         }
-    }
-}
-
-@keyframes plus-showup {
-    0% {
-        width: 0;
-        height: 0;
-    }
-
-    100% {
-        width: 16px;
-        height: 16px;
-    }
-}
-
-@keyframes list-showup {
-    0% {
-        clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
-    }
-
-    100% {
-        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+        .search-container {
+            padding-top: 20px;
+            @include flex-cr;
+            display: none;
+            justify-content: flex-start;
+            font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+            &.show {
+                display: flex;
+                .avatar img {
+                    width: 100px;
+                    height: 100px;
+                    border-radius: 50px;
+                    object-fit: cover;
+                }
+                .desc {
+                    font-size: 1.3em;
+                    margin-left: 20px;
+                }
+            }
+        }
     }
 }

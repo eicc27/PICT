@@ -6,31 +6,38 @@ class Logger {
     }
 
     private log(siglevel: string, ...msgs: Object[]) {
-        if (!msgs.length) throw new EvalError('Logger: must specify a message');
-        const head = msgs.splice(0, 1)[0];
-        console.log(this.logHead(siglevel) + head.toString());
-        for (const msg of msgs)
-            console.log(msg);
+        if (!msgs.length) throw new EvalError("Logger: must specify a message");
+        const head = msgs.splice(0, 1)[0].toString();
+        console.log(
+            this.logHead(siglevel) +
+                (head.length < 100 ? head : head.slice(0, 100) + "...")
+        );
+        for (const msg of msgs) {
+            const msgStr = msg.toString();
+            console.log(
+                msgStr.length < 100 ? msgStr : msgStr.slice(0, 100) + "..."
+            );
+        }
     }
 
     public warn(...msgs: Object[]) {
-        this.log(chalk.yellowBright('warn'), ...msgs);
+        this.log(chalk.yellowBright("warn"), ...msgs);
     }
 
     public error(...msgs: Object[]) {
-        this.log(chalk.redBright('error'), ...msgs);
+        this.log(chalk.redBright("error"), ...msgs);
     }
 
     public ok(...msgs: Object[]) {
-        this.log(chalk.greenBright('ok'), ...msgs);
+        this.log(chalk.greenBright("ok"), ...msgs);
     }
 
     public info(...msgs: Object[]) {
-        this.log(chalk.blueBright('info'), ...msgs);
+        this.log(chalk.blueBright("info"), ...msgs);
     }
 
     public debug(...msgs: Object[]) {
-        this.log(chalk.cyanBright('debug'), ...msgs);
+        this.log(chalk.cyanBright("debug"), ...msgs);
     }
 
     public easter(easterType: string, ...msgs: Object[]) {
@@ -49,11 +56,12 @@ export function logfcall(needParams = true) {
                 argsString.push(arg.toString());
             }
             if (needParams)
-                LOGGER.debug(`Function call: ${propKey}(${argsString.join(', ')})`);
-            else
-                LOGGER.debug(`Function call: ${propKey}`);
+                LOGGER.debug(
+                    `Function call: ${propKey}(${argsString.join(", ")})`
+                );
+            else LOGGER.debug(`Function call: ${propKey}`);
             return res;
-        }
+        };
         return desc;
-    }
+    };
 }

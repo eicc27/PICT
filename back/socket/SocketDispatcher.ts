@@ -1,35 +1,26 @@
-import WebSocket from "ws";
-import { PIXCRAWL_DATA } from "../src/pixcrawl.js";
 import { logfcall } from "../utils/Logger.js";
 import { DownloadHandler } from "./DownloadHandler.js";
 import { IndexHandler } from "./IndexHandler.js";
-import { KeywordHandler } from "./SearchHandler.js";
+import { KeywordHandler } from "./KeywordHandler.js";
+import { Socket } from "./Socket.js";
 
 export class SocketJobDispatcher {
-    private msg: { type: string, value: any };
-    private socket: WebSocket;
-
-    public constructor(msg: string, socket: WebSocket) {
-        this.msg = JSON.parse(msg);
+    private socket: Socket;
+    public constructor(socket: Socket) {
         this.socket = socket;
     }
 
-    @logfcall() public async dispatch() {
-        switch (this.msg.type) {
-            case 'keyword':
-                PIXCRAWL_DATA.resetDownloadData();
-                PIXCRAWL_DATA.resetIndexData();
-                PIXCRAWL_DATA.resetSearchData();
-                await new KeywordHandler(this.msg.value.keywords).handle();
+    @logfcall() public async dispatch(msg: any) {
+        console.log(msg);
+        switch (msg.type) {
+            case "keyword":
+                await new KeywordHandler(msg.value, this.socket).handle();
                 break;
-            case 'index':
-                PIXCRAWL_DATA.resetIndexData();
-                PIXCRAWL_DATA.resetDownloadData();
-                await new IndexHandler(this.msg.value).handle();
+            case "index":
+                await new IndexHandler(this.socket).handle();
                 break;
-            case 'download':
-                PIXCRAWL_DATA.resetDownloadData();
-                await new DownloadHandler(this.msg.value).handle();
+            case "download":
+                await new DownloadHandler(msg.value, this.socket).handle();
                 break;
         }
     }

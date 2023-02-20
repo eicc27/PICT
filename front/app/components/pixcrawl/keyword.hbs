@@ -1,0 +1,44 @@
+<div class='keyword'>
+    <div class='keyword-container'>
+        {{#if this.showTypes}}
+            <ul {{on 'mouseleave' this.hideTypes}}>
+                {{#each this.types as |type|}}
+                    <li>
+                        <button
+                            type='button'
+                            {{on 'click' (fn this.setType type)}}
+                        >{{type}}</button>
+                    </li>
+                {{/each}}
+            </ul>
+        {{else}}
+            <button
+                type='button'
+                class='type
+                    {{if
+                        (not-eq this.pixcrawlService.step "keyword")
+                        "disabled"
+                    }}'
+                {{on 'click' this.toggleShowTypes}}
+            >{{@type}}</button>
+        {{/if}}
+        <div
+            contenteditable='{{if
+                (eq this.pixcrawlService.step "keyword")
+                "true"
+                "false"
+            }}'
+            type='text'
+            class='value'
+            aria-label='input keyword'
+            {{did-insert this.initValue}}
+            {{on 'input' this.setValue}}
+        ></div>
+    </div>
+    <div class='search-container'>
+        <div class='avatar'>
+            <img alt='avatar' />
+        </div>
+        <div class='desc'></div>
+    </div>
+</div>

@@ -1,4 +1,3 @@
-import { AxiosError } from "axios";
 import { logfcall, LOGGER } from "./Logger.js";
 import { SYSTEM_SETTINGS } from "./System.js";
 
@@ -19,12 +18,20 @@ export class Retrial {
     }
 
     /** The function printed includes the function code. Disable parameter printing. */
-    @logfcall(false) public static async retry(func: (...args: unknown[]) => Promise<unknown>, ...args: unknown[]) {
+    @logfcall(false) public static async retry(
+        func: (...args: unknown[]) => Promise<unknown>,
+        ...args: unknown[]
+    ) {
         return new Promise(async function (resolve, reject) {
             let error: any = null;
             for (let i = 0; i < SYSTEM_SETTINGS.retrial.times; i++) {
                 try {
-                    const ret = await Promise.race([Retrial.timeOutFunction(SYSTEM_SETTINGS.retrial.timeout), func(...args)]);
+                    const ret = await Promise.race([
+                        Retrial.timeOutFunction(
+                            SYSTEM_SETTINGS.retrial.timeout
+                        ),
+                        func(...args),
+                    ]);
                     if (!(ret instanceof RetrialTimer)) {
                         resolve(ret);
                         return;
@@ -37,7 +44,7 @@ export class Retrial {
                     continue;
                 }
             }
-            LOGGER.error('Max retrial exceeded');
+            LOGGER.error("Max retrial exceeded");
             reject(error);
             return;
         });

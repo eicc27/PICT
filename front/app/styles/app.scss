@@ -2,13 +2,10 @@
 @import "home.scss";
 @import "common/navbar.scss";
 @import "common/jumpout.scss";
-@import "pixcrawl/pbar.scss";
-@import "pixcrawl/keyword.scss";
-@import "pixcrawl/side-nav.scss";
-@import "pixcrawl/search.scss";
-@import "pixcrawl/progress.scss";
 @import "fm/fm.scss";
 @import "fm/picture.scss";
+@import "pixcrawl/keyword.scss";
+@import "pixcrawl/statusbar.scss";
 
 body {
     min-height: 100vh;

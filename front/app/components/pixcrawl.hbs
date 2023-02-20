@@ -1,0 +1,23 @@
+<div
+    class='keywords'
+    {{did-insert this.didInsert}}
+    {{will-destroy this.willDestroyPage}}
+>
+    {{#each this.pixcrawlService.keywords as |keyword index|}}
+        <Pixcrawl::Keyword
+            @value={{keyword.value}}
+            @type={{keyword.type}}
+            @index={{index}}
+        />
+    {{/each}}
+    {{#if (eq this.pixcrawlService.step 'keyword')}}
+        <button
+            type='button'
+            class='add-keywords'
+            {{on 'click' this.addKeywordOption}}
+        >
+            <Svg::TagSolid />
+        </button>
+    {{/if}}
+</div>
+<Pixcrawl::StatusBar />
