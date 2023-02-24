@@ -72,7 +72,7 @@
             font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
             font-weight: normal;
             font-size: 1.2em;
-            margin-bottom: 100px;
+            margin-bottom: 1em;
             em {
                 font-size: 3em;
             }
@@ -82,14 +82,13 @@
     .right {
         @include flex_cc;
         position: absolute;
-        width: 500px;
-        right: 10%;
+        width: 30vw;
+        right: 8vw;
         top: 20%;
         font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
         h2 {
             font-size: 2em;
-            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-            margin-bottom: 50px;
+            margin-bottom: 1.8em;
         }
         div {
             font-size: 1.5em;

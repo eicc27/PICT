@@ -17,7 +17,7 @@ export default class FmComponent extends Component {
         document.onmousemove =  function (e) {
             const x = (e.pageX - windowCenterX) / windowCenterX * X;
             const y = (e.pageY - windowCenterY) / windowCenterY * Y;
-            element.style.transform = `rotate3d(${x}, ${y}, 1, ${x}deg)`;
+            element.style.transform = `rotate3d(${x}, ${y}, 0.4, ${x}deg)`;
         };
         window.onbeforeunload = function () {
             document.onmousemove = null;

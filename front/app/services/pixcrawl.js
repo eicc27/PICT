@@ -19,6 +19,7 @@ export default class PixcrawlService extends Service {
     @tracked step = 'keyword';
     @tracked working = false;
     @tracked connected = false;
+    @tracked progress = 0;
     intervalfn = null;
 
     listen() {
@@ -73,6 +74,7 @@ export default class PixcrawlService extends Service {
     }
 
     sendSearchRequest() {
+        this.prorgess = 0;
         this.working = true;
         this.socket.send(
             JSON.stringify({ type: 'keyword', value: this.keywords })
@@ -80,12 +82,17 @@ export default class PixcrawlService extends Service {
         const that = this;
         this.step = 'search';
         let i = 0;
+        const total = this.keywords.length;
+        let progress = 0;
         /** recieve search data */
         this.socket.onmessage = function (event) {
             const data = JSON.parse(event.data);
             console.log(data);
             i++;
-            if (i == that.keywords.length) that.working = false;
+            if (i == that.keywords.length) {
+                that.working = false;
+                console.log(that.pictures);
+            }
             const index = data.index;
             // expand search results
             const keywordElement = document.querySelectorAll('.keyword')[index];
@@ -107,6 +114,9 @@ export default class PixcrawlService extends Service {
                 '.search-container .desc'
             )[index];
             let desc = '';
+            that.keywords[index].length = data.pictures.length;
+            progress++;
+            that.progress = (progress / total * 100).toFixed(1);
             switch (data.type) {
                 case 'uid':
                     desc = data.uname;
@@ -120,26 +130,61 @@ export default class PixcrawlService extends Service {
     }
 
     clear() {
+        this.progress = 0;
         this.keywords.clear();
         this.step = 'keyword';
+        this.socket.send(JSON.stringify({ type: 'clear' }));
     }
 
+    getPictureLength() {
+        let length = 0;
+        for (const keyword of this.keywords) {
+            length += keyword.length;
+        }
+        return length;
+    }
 
     sendIndexRequest() {
+        this.progress = 0;
         const that = this;
+        const total = this.getPictureLength();
+        let progress = 0;
         this.working = true;
         this.socket.send(JSON.stringify({ type: 'index' }));
         this.socket.onmessage = function (event) {
-            let index = 0;
             const data = JSON.parse(event.data);
-            switch(data.type) {
+            switch (data.type) {
                 case 'index':
-                    index = data.index;
-                    // update corresponding progress of keyword item
+                    let index = data.index;
+                    progress++;
+                    that.progress = (progress / total * 100).toFixed(1);
+                    that.keywords[index].length += data.total - 1;
+                    break;
                 case 'index-complete':
-                    that.working = false;
+                    that.sendDownloadRequest();
                     break;
             }
         };
+    }
+
+    sendDownloadRequest() {
+        this.progress = 0;
+        this.step = 'download';
+        const that = this;
+        const total = this.getPictureLength();
+        let progress = 0;
+        this.socket.send(JSON.stringify({ type: 'download' }));
+        this.socket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            switch (data.type) {
+                case 'download':
+                    progress++;
+                    that.progress = (progress / total * 100).toFixed(1);
+                    break;
+                case 'download-complete':
+                    that.working = false;
+                    break;
+            }
+        }
     }
 }

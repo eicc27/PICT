@@ -103,6 +103,14 @@ class PixcrawlData {
     public getIndexProgress() {
         return this.indexProgress;
     }
+
+    public getDownloadProgress() {
+        return this.downloadProgress;
+    }
+
+    public addDownloadProgress() {
+        this.downloadProgress++;
+    }
 }
 
 export const PIXCRAWL_DATA = new PixcrawlData();

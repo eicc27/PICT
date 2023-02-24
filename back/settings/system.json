@@ -1,10 +1,11 @@
 {
+	"logLevel": "debug",
 	"firstUse": false,
 	"lang": "zh",
 	"retrial": {
 		"times": 5,
 		"timeout": 20
 	},
-	"submitDelay": 2, 
-	"proxyPort": 20171
+	"submitDelay": 2,
+	"proxyPort": 10809
 }

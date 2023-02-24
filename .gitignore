@@ -53,7 +53,7 @@
 
 /lsp/
 
-/db/
+/db/*.db
 
 /arch/
 

@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { SYSTEM_SETTINGS } from "./System.js";
 
 class Logger {
     private logHead(siglevel: string) {
@@ -7,11 +8,9 @@ class Logger {
 
     private log(siglevel: string, ...msgs: Object[]) {
         if (!msgs.length) throw new EvalError("Logger: must specify a message");
-        const head = msgs.splice(0, 1)[0].toString();
-        console.log(
-            this.logHead(siglevel) +
-                (head.length < 100 ? head : head.slice(0, 100) + "...")
-        );
+        const head = msgs.splice(0, 1)[0]
+        process.stdout.write(this.logHead(siglevel));
+        console.log(head);
         for (const msg of msgs) {
             const msgStr = msg.toString();
             console.log(
@@ -21,6 +20,7 @@ class Logger {
     }
 
     public warn(...msgs: Object[]) {
+        if (SYSTEM_SETTINGS.logLevel == 'error') return;
         this.log(chalk.yellowBright("warn"), ...msgs);
     }
 
@@ -29,15 +29,21 @@ class Logger {
     }
 
     public ok(...msgs: Object[]) {
+        if (SYSTEM_SETTINGS.logLevel == 'warn' ||
+            SYSTEM_SETTINGS.logLevel == 'error')
+            return;
         this.log(chalk.greenBright("ok"), ...msgs);
     }
 
     public info(...msgs: Object[]) {
-        this.log(chalk.blueBright("info"), ...msgs);
+        if (SYSTEM_SETTINGS.logLevel == 'info' ||
+            SYSTEM_SETTINGS.logLevel == 'debug')
+            this.log(chalk.blueBright("info"), ...msgs);
     }
 
     public debug(...msgs: Object[]) {
-        this.log(chalk.cyanBright("debug"), ...msgs);
+        if (SYSTEM_SETTINGS.logLevel == 'debug')
+            this.log(chalk.cyanBright("debug"), ...msgs);
     }
 
     public easter(easterType: string, ...msgs: Object[]) {
@@ -50,7 +56,6 @@ export function logfcall(needParams = true) {
     return function (target: any, propKey: string, desc: PropertyDescriptor) {
         const { value } = desc;
         desc.value = function (...args: any[]) {
-            const res = value.apply(this, args);
             const argsString: string[] = [];
             for (const arg of args) {
                 argsString.push(arg.toString());
@@ -60,6 +65,7 @@ export function logfcall(needParams = true) {
                     `Function call: ${propKey}(${argsString.join(", ")})`
                 );
             else LOGGER.debug(`Function call: ${propKey}`);
+            const res = value.apply(this, args);
             return res;
         };
         return desc;

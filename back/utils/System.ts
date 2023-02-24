@@ -8,7 +8,8 @@ export const PLAYWRIGHT_DIR_LINUX = "~/.cache/ms-playwright";
 export const PLATFORM = process.platform;
 
 export class System {
-    @logfcall() public static getSystemSettings() {
+    // used to initialize log level. cannot log function call.
+    public static getSystemSettings() {
         return JSON.parse(fs.readFileSync("./settings/system.json").toString());
     }
 

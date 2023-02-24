@@ -1,3 +1,6 @@
+html :has(.picture) {
+    overflow: scroll;
+}
 .picture {
     @include flex-cc;
     width: 80vw;
@@ -6,9 +9,9 @@
         .info {
             align-self: flex-start;
             font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-            margin: 50px 0;
+            margin: 2em 0;
             div {
-                margin: 20px 0;
+                margin: 1em 0;
             }
             .title {
                 font-size: 2.5em;
@@ -40,7 +43,6 @@
         .preview {
             @include flex-cc;
             img {
-                margin: 50px 0;
                 object-fit: contain;
             }
         }
@@ -62,12 +64,16 @@
         }
         .tags-main {
             @include flex-cr;
+            flex-wrap: wrap;
+            justify-content: flex-start;
             margin-top: 20px;
+            width: 80vw;
             .tag {
-                margin-right: 20px;
-                font-size: 1.5em;
+                margin-right: 1em;
+                font-size: 1.2em;
+                width: max-content;
                 span {
-                    margin-left: 5px;
+                    margin-left: .5em;
                     color: gray;
                     font-size: 0.8em;
                 }

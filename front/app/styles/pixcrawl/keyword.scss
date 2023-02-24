@@ -1,23 +1,26 @@
 .keywords {
     width: 80vw;
     position: absolute;
-    top: 200px;
+    top: 100px;
     display: flex;
     flex-direction: row;
     align-items: flex-start;
     justify-content: flex-start;
     flex-wrap: wrap;
     transition: all 0.3s ease-out;
+
     .add-keywords {
         width: 32px;
         height: 32px;
         margin: 10px;
         transition: all 0.3s ease-out;
         fill: gainsboro;
+
         &:hover {
             fill: darkorange;
         }
     }
+
     .keyword {
         position: relative;
         background: gainsboro;
@@ -27,20 +30,25 @@
         @include flex-cr;
         font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
         transition: all 0.3s ease-out;
+
         .keyword-container {
             @include flex-cr;
         }
+
         &.expand {
             width: 80vw;
             @include flex-cc;
             align-items: flex-start;
+
             .value {
                 pointer-events: none;
             }
+
             .disabled {
                 pointer-events: none;
             }
         }
+
         .value {
             outline: none;
             border: none;
@@ -48,6 +56,7 @@
             font-weight: normal;
             min-width: 80px;
         }
+
         .type {
             background: royalblue;
             color: white;
@@ -55,6 +64,7 @@
             border-radius: 2px;
             margin: 0 5px;
         }
+
         ul {
             position: absolute;
             left: 0;
@@ -64,41 +74,50 @@
             background: gainsboro;
             @include flex-cc;
             border-radius: 5px;
+
             li {
                 width: 100px;
                 transition: all 0.3s ease-out;
+
                 button {
                     padding: 10px;
                     width: inherit;
                     @include flex-cr;
                     justify-content: flex-start;
                 }
+
                 &:hover {
                     background: darkorange;
                     transform: scale(1.2);
                 }
+
                 &:first-child {
                     border-radius: 5px 5px 0 0;
                 }
+
                 &:last-child {
                     border-radius: 0 0 5px 5px;
                 }
             }
         }
+
         .search-container {
             padding-top: 20px;
             @include flex-cr;
             display: none;
             justify-content: flex-start;
             font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+
             &.show {
                 display: flex;
+
                 .avatar img {
                     width: 100px;
                     height: 100px;
                     border-radius: 50px;
                     object-fit: cover;
                 }
+
                 .desc {
                     font-size: 1.3em;
                     margin-left: 20px;
@@ -106,4 +125,15 @@
             }
         }
     }
+}
+
+.progress-background {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    filter: brightness(.4) opacity(.1);
+    transition: all .03s ease-out;
 }

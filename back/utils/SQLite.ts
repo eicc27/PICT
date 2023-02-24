@@ -59,7 +59,6 @@ class SQLite {
                 picture.uid
             }', '${sql(picture.uname)}')
 ON CONFLICT(id) DO UPDATE SET name=excluded.name`;
-            console.log(illustInsertionQuery);
             that.db.exec(illustInsertionQuery);
             // upsert into Pictures
             const pictureInsertionQuery = `INSERT INTO Pictures 
@@ -67,12 +66,10 @@ ON CONFLICT(id) DO UPDATE SET name=excluded.name`;
 ('${picture.pid}', '${sql(picture.title)}', '${picture.uid}', '${date}')
 ON CONFLICT(id) DO UPDATE SET
 title=excluded.title, illust_id=excluded.illust_id, time=excluded.time`;
-            console.log(pictureInsertionQuery);
             that.db.exec(pictureInsertionQuery);
             const pictureIndexesInsertionQuery = `INSERT INTO Picture_indexes
 (pid, "index") VALUES ('${picture.pid}', ${picture.index})
 ON CONFLICT(pid, "index") DO NOTHING`;
-            console.log(pictureIndexesInsertionQuery);
             that.db.exec(pictureIndexesInsertionQuery);
             for (const tag of picture.tags) {
                 if (tag.translation)
@@ -87,7 +84,6 @@ ON CONFLICT (tag) DO NOTHING`);
 (pid, tag) VALUES ('${picture.pid}', '${sql(tag.tag)}') 
 ON CONFLICT(pid, tag) DO NOTHING`);
             }
-            console.log("transaction end");
         };
         const insertPicture = this.db.transaction(transaction);
         insertPicture();

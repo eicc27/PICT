@@ -1,3 +1,4 @@
+import { PIXCRAWL_DATA } from "../src/pixcrawl.js";
 import { logfcall } from "../utils/Logger.js";
 import { DownloadHandler } from "./DownloadHandler.js";
 import { IndexHandler } from "./IndexHandler.js";
@@ -11,7 +12,6 @@ export class SocketJobDispatcher {
     }
 
     @logfcall() public async dispatch(msg: any) {
-        console.log(msg);
         switch (msg.type) {
             case "keyword":
                 await new KeywordHandler(msg.value, this.socket).handle();
@@ -20,7 +20,10 @@ export class SocketJobDispatcher {
                 await new IndexHandler(this.socket).handle();
                 break;
             case "download":
-                await new DownloadHandler(msg.value, this.socket).handle();
+                await new DownloadHandler(this.socket).handle();
+                break;
+            case "clear":
+                PIXCRAWL_DATA.clearKeywords();
                 break;
         }
     }

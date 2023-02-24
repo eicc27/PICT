@@ -1,3 +1,4 @@
+import { PIXCRAWL_DATA } from "../src/pixcrawl.js";
 import { AsyncPool } from "../utils/AsyncPool.js";
 import { Downloader } from "../utils/Downloader.js";
 import { logfcall, LOGGER } from "../utils/Logger.js";
@@ -7,44 +8,51 @@ import { BaseHandler } from "./BaseHandler.js";
 import { Socket } from "./Socket.js";
 
 export class DownloadHandler extends BaseHandler {
-    private pictures: any[];
     private pictureIndexes: any = {};
 
-    public constructor(pictures: any[], socket: Socket) {
+    public constructor(socket: Socket) {
         super(socket);
-        this.pictures = pictures;
         // set up indexes
-        for (const picture of pictures) {
-            const key = `${picture.pid}_${picture.index}`;
-            const value = {
-                total: 0,
-                count: 0,
-            };
-            this.pictureIndexes[key] = value;
+        for (let i = 0; i < PIXCRAWL_DATA.getLength(); i++) {
+            const pictures = PIXCRAWL_DATA.getKeyword(i).pictures;
+            for (const picture of pictures) {
+                if (!picture.index) continue;
+                for (let i = 0; i < picture.index; i++) {
+                    const key = `${picture.pid}_${i}`;
+                    const value = {
+                        total: 0,
+                        count: 0,
+                    };
+                    this.pictureIndexes[key] = value;
+                }
+            }
         }
+        console.log(Object.keys(this.pictureIndexes).length);
     }
 
     @logfcall() public async handle() {
-        this.socket.broadcast(
-            JSON.stringify({
-                type: "download-total",
-                value: this.pictures.length,
-            })
-        );
         System.mkdir("../lsp");
         const queryPool = new AsyncPool(16);
         const downloadPool = new AsyncPool(16);
-        for (const picture of this.pictures) {
-            const downloader = Downloader.blockDownload(
-                picture,
-                downloadPool,
-                this.pictureIndexes,
-                this.socket
-            );
-            await queryPool.submit(Retrial.retry, downloader);
+        for (let i = 0; i < PIXCRAWL_DATA.getLength(); i++) {
+            const pictures = PIXCRAWL_DATA.getKeyword(i).pictures;
+            for (const picture of pictures) {
+                if (!picture.index) continue;
+                for (let i = 0; i < picture.index; i++) {
+                    const pictureCopy = JSON.parse(JSON.stringify(picture));
+                    pictureCopy.index = i;
+                    const downloader = Downloader.blockDownload(
+                        pictureCopy,
+                        downloadPool,
+                        this.pictureIndexes,
+                        this.socket
+                    );
+                    await queryPool.submit(Retrial.retry, downloader);
+                }
+            }
+            await queryPool.close();
+            await downloadPool.close();
+            LOGGER.ok("Download complete");
         }
-        await queryPool.close();
-        await downloadPool.close();
-        LOGGER.ok("Download complete");
     }
 }

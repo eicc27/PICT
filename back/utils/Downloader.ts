@@ -35,18 +35,11 @@ export class Downloader {
         socket: Socket
     ) {
         if (!picture.url) return;
-        const url = picture.url;
+        const url = picture.url.replace('_p0', `_p${picture.index}`);
         const key = `${picture.pid}_${picture.index}`;
         const fpath = `../lsp/${key}.png`;
         const block = async function (start?: number, end?: number) {
-            end
-                ? LOGGER.info(
-                      `GET ${chalk.blue(url)} RANGE ${chalk.yellowBright(
-                          start
-                      )}-${chalk.yellowBright(end)}`
-                  )
-                : LOGGER.info(`GET ${chalk.blue(url)} BLOCK`);
-            const headers: any = HEADERS;
+            const headers: any = JSON.parse(JSON.stringify(HEADERS));
             if (end) headers.range = `bytes=${start}-${end}`;
             const blockResponse = await axios.get(url, {
                 headers: headers,
@@ -64,39 +57,52 @@ export class Downloader {
             index[key].count++;
             // download ends
             if (index[key].count == index[key].total) {
+                PIXCRAWL_DATA.addDownloadProgress();
                 socket.broadcast(
                     JSON.stringify({
                         type: "download",
+                        value: PIXCRAWL_DATA.getDownloadProgress(),
                     })
                 );
                 SQLITE_DB.addPicture(picture);
+                if (PIXCRAWL_DATA.getDownloadProgress() == PIXCRAWL_DATA.getPictureLength()) {
+                    LOGGER.ok('download totally complete');
+                    socket.broadcast(
+                        JSON.stringify({
+                            type: "download-complete",
+                        })
+                    );
+                }
             }
         };
         const query = async function () {
-            console.log(`HEAD ${chalk.blueBright(url)}`);
-            const headerResponse = await axios.head(url, {
-                headers: HEADERS,
-                httpsAgent: PROXY,
-            });
-            const data = headerResponse.headers;
-            const acceptRanges = data["accept-ranges"];
-            if (!acceptRanges) {
-                index[key].total = 1;
-                await downloadPool.submit(Retrial.retry, block);
-                return;
+            try {
+                const headerResponse = await axios.head(url, {
+                    headers: HEADERS,
+                    httpsAgent: PROXY,
+                });
+                const data = headerResponse.headers;
+                const lengthString = data["content-length"];
+                if (!lengthString) return;
+                const length = parseInt(lengthString);
+                const blksize = 512 * 1024;
+                const blks = Math.ceil(length / blksize);
+                index[key].total = blks;
+                for (let i = 0; i < blks; i++) {
+                    const start = i * blksize;
+                    const end = Math.min((i + 1) * blksize, length);
+                    await downloadPool.submit(Retrial.retry, block, start, end);
+                }
+            } catch (error: any) {
+                if (error.response && error.response.status == 416) { // range not accepted
+                    LOGGER.warn(`${picture.pid}: Range not accepted.`);
+                    index[key].total = 1;
+                    await downloadPool.submit(Retrial.retry, block);
+                    return;
+                }
+                else throw error;
             }
-            const lengthString = data["content-length"];
-            if (!lengthString) return;
-            const length = parseInt(lengthString);
-            const blksize = 512 * 1024;
-            const blks = Math.ceil(length / blksize);
-            index[key].total = blks;
-            for (let i = 0; i < blks; i++) {
-                const start = i * blksize;
-                const end = Math.min((i + 1) * blksize, length);
-                await downloadPool.submit(Retrial.retry, block, start, end);
-            }
-        };
+        }
         return query;
     }
 }

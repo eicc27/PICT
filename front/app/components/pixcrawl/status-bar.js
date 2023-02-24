@@ -25,6 +25,8 @@ export default class PixcrawlChecker extends Component {
 
     @action
     checkSearch() {
+        if (this.pixcrawlService.step != 'search')
+            return;
         this.pixcrawlService.step = 'index';
         this.pixcrawlService.sendIndexRequest();
     }

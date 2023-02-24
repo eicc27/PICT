@@ -77,6 +77,7 @@ export class IndexHandler extends BaseHandler {
             const result = {
                 type: "index",
                 index: keywordIndex,
+                total: pages
             };
             socket.broadcast(JSON.stringify(result));
             PIXCRAWL_DATA.addIndexProgress();
