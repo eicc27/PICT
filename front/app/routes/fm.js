@@ -7,6 +7,9 @@ export default class FmRoute extends Route {
 
     async model() {
         const that = this;
+        if (window.location.search.length) { // search
+            return;
+        }
         const response = await axios.get("http://localhost:3000/fileManager");
         const data = response.data;
         that.fm.setTotal(data.total.pictures, data.total.illusts, data.selected);

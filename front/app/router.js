@@ -13,6 +13,7 @@ Router.map(function () {
     this.route('iris');
     this.route('pixcrawl');
     this.route('picture', { path: '/picture/:pid' });
+    this.route('search');
 });
 
 

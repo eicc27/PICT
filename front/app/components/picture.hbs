@@ -1,31 +1,41 @@
 {{page-title this.picture.title}}
-<div class="picture">
-    <div class="img-original">
-        <div class="info">
-            <div class="title">{{this.picture.title}}</div>
-            <div class="illust">{{this.picture.illust}} <i>{{this.picture.illustId}}</i></div>
-            <div class="time">
+<Common::Navbar />
+<div class='picture'>
+    <div class='img-original'>
+        <div class='info'>
+            <div class='title'>{{this.picture.title}}</div>
+            <button
+                type='button'
+                class='illust'
+                {{on 'click' this.filterIllust}}
+            >{{this.picture.illust}} <i>{{this.picture.illustId}}</i></button>
+            <button type='button' class='time' {{on 'click' this.filterTime}}>
                 <Svg::ClockSolid />
                 {{this.picture.time}}
-            </div>
-            <div class="views"><span>{{this.picture.views}}</span>浏览</div>
+            </button>
+            <div class='views'><span>{{this.picture.views}}</span>浏览</div>
         </div>
-        <div class="preview" {{did-insert this.loadPicture}}>
+        <div class='preview' {{did-insert this.loadPicture}}>
             {{#each this.picture.urls as |url|}}
-            <img alt="original" src={{url}} />
+                <img alt='original' src={{url}} />
             {{/each}}
         </div>
     </div>
-    <div class="tags">
-        <div class="title">
+    <div class='tags'>
+        <div class='title'>
             <Svg::HashtagSolid />
             <div>标签</div>
         </div>
-        <div class="tags-main">
+        <div class='tags-main'>
             {{#each this.picture.tags as |tag|}}
-            <div class="tag">
-                {{tag.tag}} <span>{{tag.translation}}</span>
-            </div>
+                <button
+                    type='button'
+                    class='tag'
+                    {{on 'click' (fn this.filterTag tag)}}
+                >
+                    {{tag.tag}}
+                    <span>{{tag.translation}}</span>
+                </button>
             {{/each}}
         </div>
     </div>

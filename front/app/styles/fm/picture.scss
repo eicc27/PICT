@@ -1,6 +1,11 @@
 html :has(.picture) {
-    overflow: scroll;
+    overflow-y: scroll;
 }
+
+html :has(.ani.rain) {
+    overflow: hidden;
+}
+    
 .picture {
     @include flex-cc;
     width: 80vw;
@@ -10,29 +15,32 @@ html :has(.picture) {
             align-self: flex-start;
             font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
             margin: 2em 0;
-            div {
-                margin: 1em 0;
-            }
             .title {
                 font-size: 2.5em;
                 font-weight: bold;
                 color: royalblue;
+                margin-top: 50px;
+                margin-bottom: .2em;
             }
             .illust {
-                font-size: 1.5em;
+                font-size: 1.8em;
                 i {
                     font-size: 0.8em;
                     color: gray;
                 }
+                margin-bottom: .6em;
+                @include makeUrl;
             }
             .time {
                 @include flex-cr;
                 justify-content: flex-start;
+                @include makeUrl;
                 .clock-solid {
                     width: 16px;
                     height: 16px;
                     margin-right: 10px;
                 }
+                margin-bottom: 1em;
             }
             .views {
                 span {
@@ -43,6 +51,7 @@ html :has(.picture) {
         .preview {
             @include flex-cc;
             img {
+                max-width: 80vw;
                 object-fit: contain;
             }
         }
@@ -67,13 +76,12 @@ html :has(.picture) {
             flex-wrap: wrap;
             justify-content: flex-start;
             margin-top: 20px;
-            width: 80vw;
             .tag {
                 margin-right: 1em;
                 font-size: 1.2em;
                 width: max-content;
+                @include makeUrl;
                 span {
-                    margin-left: .5em;
                     color: gray;
                     font-size: 0.8em;
                 }

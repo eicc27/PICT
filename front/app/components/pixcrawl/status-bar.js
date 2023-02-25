@@ -17,6 +17,7 @@ export default class PixcrawlChecker extends Component {
     @action
     checkKeyword() {
         const checkResult = this.pixcrawlService.checkKeyword();
+        this.pixcrawlService.clearRepeatingKeywords();
         if (checkResult == 0 && this.pixcrawlService.step == 'keyword') {
             this.pixcrawlService.step = 'search';
             this.pixcrawlService.sendSearchRequest();

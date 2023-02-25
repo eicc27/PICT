@@ -10,3 +10,10 @@
     100% {
     }
 }
+
+@mixin makeUrl {
+    transition: all 0.3s ease-out;
+    &:hover {
+        color: royalblue;
+    }
+}

@@ -6,6 +6,11 @@
         <div class="total">共<em>{{this.fm.totalIllusts}}</em>位画师所作的<em>{{this.fm.totalPictures}}</em>张图片正受到PICT的管理。
         </div>
     </div>
+    <div class="searchbar">
+        <div class="filter">
+            ???
+        </div>
+    </div>
     <div class="pictures">
         {{#each this.fm.pictures as |picture|}} 
             <Fm::PicturePreview @picture={{picture}} />

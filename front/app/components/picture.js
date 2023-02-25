@@ -18,4 +18,16 @@ export default class PictureComponent extends Component {
             that.picture.setPictureUrl(that.picture.findIndex(index), data.picture);
         });
     }
+
+    @action filterIllust() {
+
+    }
+
+    @action filterTime() {
+
+    }
+
+    @action filterTag(tag) {
+        
+    }
 }

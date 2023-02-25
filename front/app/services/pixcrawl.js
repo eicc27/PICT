@@ -54,7 +54,21 @@ export default class PixcrawlService extends Service {
         this.keywords.set(index, copy(keyword));
     }
 
-    /** 0 for OK, 1 for empty, 2 for missing, 3 for type error */
+    /** Clears keywords with identical type and value. */
+    clearRepeatingKeywords() {
+        for (let i = 0; i < this.keywords.length; i++) {
+            const keyword = this.keywords[i];            
+            for (let j = i; j < this.keywords.length; j++) {
+                const target = this.keywords[j];
+                if (keyword.type == target.type && keyword.value == target.value) {
+                    this.keywords.splice(j, 1);
+                }
+            }
+        }
+        this.keywords = copy(this.keywords);
+    }
+
+    /** 0 for OK, 1 for empty, 2 for missing, 3 for type error, auto-clear repeating keywords */
     checkKeyword() {
         const value = {};
         if (!this.keywords.length) return 1;
