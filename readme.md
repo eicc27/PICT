@@ -3,8 +3,7 @@
 [toc]
 
 ## Current Progress
-
-Refining the robustness. Training SRGAN.
+Bugfixing.
 
 ## Content
 
