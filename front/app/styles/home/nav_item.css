@@ -1,0 +1,46 @@
+.home.main li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  justify-content: flex-start;
+  position: relative;
+}
+.home.main li :hover {
+  cursor: pointer;
+}
+.home.main li .chev-right {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  animation: chev-right-showup 0.3s linear forwards;
+}
+.home.main li .chev-right svg {
+  fill: black;
+  stroke: black;
+}
+.home.main li button {
+  margin: 1em 0;
+  font-size: 2em;
+  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+}
+
+@keyframes chev-right-showup {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes nav-text-move-left {
+  0% {
+    transform: translateX(0);
+    color: black;
+  }
+  100% {
+    transform: translateX(40px);
+    color: darkorange;
+    border-bottom: 1px solid black;
+  }
+}/*# sourceMappingURL=nav_item.css.map */

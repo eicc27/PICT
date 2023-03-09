@@ -1,6 +1,11 @@
+html :has(.ani) {
+    overflow: hidden;
+}
+
 html :has(.fm) {
     overflow-y: scroll;
 }
+
 .fm {
     position: absolute;
     width: 80%;
@@ -33,7 +38,8 @@ html :has(.fm) {
             filter: brightness(50%);
         }
         .total {
-            font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
+                'Lucida Sans', Arial, sans-serif;
             font-weight: bolder;
             color: wheat;
             font-size: 2em;
@@ -44,7 +50,42 @@ html :has(.fm) {
             }
         }
     }
+    .searchbar {
+        width: 80vw;
+        height: 3em;
+        border-radius: 3em;
+        border: 1px solid gray;
+        z-index: 10;
+        @include flex-cr;
+        justify-content: flex-start;
+        transition: all 0.3s ease-out;
+        input {
+            flex-grow: 1;
+            &:focus ~ input {
 
+            }
+        }
+        .layer {
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: transparent;
+            width: 100vw;
+            height: 100vh;
+            z-index: 5;
+        }
+        filter {
+            @include flex-cr;
+            span {
+                margin-left: 0.2em;
+                font-size: 0.8em;
+            }
+        }
+        &:has(input:focus) {
+            border: 1px solid royalblue;
+        }
+    
+    }
     .pictures {
         @include flex-cr;
         justify-content: flex-start;
@@ -74,7 +115,8 @@ html :has(.fm) {
                 }
             }
             .title {
-                font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+                font-family: 'Trebuchet MS', 'Lucida Sans Unicode',
+                    'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
                 font-size: 1.5em;
                 font-weight: bold;
                 transition: all 0.3s ease-in-out;
@@ -87,7 +129,8 @@ html :has(.fm) {
                 margin: 10px 0;
             }
             .illust {
-                font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+                font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman',
+                    serif;
                 font-size: 0.9em;
                 font-style: italic;
                 color: darkgray;

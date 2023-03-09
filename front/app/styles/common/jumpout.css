@@ -1,0 +1,32 @@
+.jumpout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 50%;
+  max-height: 200px;
+  padding: 10px 0;
+  font-size: 1.2em;
+  position: fixed;
+  top: 75px;
+  color: white;
+  background: darkorange;
+  border-radius: 200px;
+  animation: jumpout-show 5s ease-in-out forwards;
+  z-index: 100;
+}
+
+@keyframes jumpout-show {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}/*# sourceMappingURL=jumpout.css.map */

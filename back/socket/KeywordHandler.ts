@@ -23,6 +23,7 @@ export class KeywordHandler extends BaseHandler {
     @logfcall()
     public override async handle() {
         const pool = new AsyncPool(16);
+        console.log(this.keywords);
         for (let i = 0; i < this.keywords.length; i++) {
             const keyword = this.keywords[i];
             switch (keyword.type) {
@@ -47,6 +48,11 @@ export class KeywordHandler extends BaseHandler {
             }
         }
         await pool.close();
+        this.socket.broadcast(
+            JSON.stringify({
+                type: "search-complete",
+            })
+        );
         LOGGER.ok("Search complete");
     }
 
@@ -121,8 +127,7 @@ export class KeywordHandler extends BaseHandler {
             if (!href) continue;
             const pid = href.slice(4, -1);
             result.pictures.push({ pid: pid });
-            if (i == 0)
-                result.avatar = await getNavirankPicture(pid);
+            if (i == 0) result.avatar = await getNavirankPicture(pid);
             i++;
         }
         PIXCRAWL_DATA.setKeyword(index, result);

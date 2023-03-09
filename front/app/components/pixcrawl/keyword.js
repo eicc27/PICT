@@ -15,6 +15,8 @@ export default class PixcrawlKeywordComponent extends Component {
 
     @tracked types = A([]);
 
+    isCtrlPressed = false;
+
     /** @param {number} index */
     @action
     toggleShowTypes() {
@@ -57,5 +59,13 @@ export default class PixcrawlKeywordComponent extends Component {
         const index = this.args.index;
         const inputElement = document.querySelectorAll('.keyword .value')[index];
         inputElement.innerHTML = value;
+    }
+
+    /** @param {MouseEvent} event */
+    @action
+    deleteKeyword(event) {
+        if (event.ctrlKey && event.button == 0) {
+            this.pixcrawlService.deleteKeyowrd(this.args.index);
+        }
     }
 }

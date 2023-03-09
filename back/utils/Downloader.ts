@@ -1,13 +1,11 @@
 import axios from "axios";
-import httpsProxyAgent from "https-proxy-agent";
 import * as fs from "fs";
 import { AsyncPool } from "./AsyncPool.js";
 import { Retrial } from "./Retrial.js";
 import { Picture, PIXCRAWL_DATA } from "../src/pixcrawl.js";
-import { HEADERS, PROXY, System, SYSTEM_SETTINGS } from "./System.js";
+import { HEADERS, PROXY, System } from "./System.js";
 import { SQLITE_DB } from "./SQLite.js";
 import { logfcall, LOGGER } from "./Logger.js";
-import chalk from "chalk";
 import { Socket } from "../socket/Socket.js";
 
 export class Downloader {
@@ -55,7 +53,7 @@ export class Downloader {
                 })
             );
             index[key].count++;
-            // download ends
+            // download of 1 picture ends
             if (index[key].count == index[key].total) {
                 PIXCRAWL_DATA.addDownloadProgress();
                 socket.broadcast(
@@ -65,14 +63,6 @@ export class Downloader {
                     })
                 );
                 SQLITE_DB.addPicture(picture);
-                if (PIXCRAWL_DATA.getDownloadProgress() == PIXCRAWL_DATA.getPictureLength()) {
-                    LOGGER.ok('download totally complete');
-                    socket.broadcast(
-                        JSON.stringify({
-                            type: "download-complete",
-                        })
-                    );
-                }
             }
         };
         const query = async function () {
@@ -94,7 +84,8 @@ export class Downloader {
                     await downloadPool.submit(Retrial.retry, block, start, end);
                 }
             } catch (error: any) {
-                if (error.response && error.response.status == 416) { // range not accepted
+                // range not accepted
+                if (error.response && error.response.status == 416) { 
                     LOGGER.warn(`${picture.pid}: Range not accepted.`);
                     index[key].total = 1;
                     await downloadPool.submit(Retrial.retry, block);

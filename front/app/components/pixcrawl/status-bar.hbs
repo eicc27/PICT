@@ -1,77 +1,62 @@
 <div class='status-bar {{if this.pixcrawlService.working "working"}}'>
     <div class='left'>
-        <Pixcrawl::StatusBarItem
-            class='step'
-            @clickable={{false}}
-            @details='当前步骤'
-        >{{this.pixcrawlService.step}}</Pixcrawl::StatusBarItem>
-        <Pixcrawl::StatusBarItem
-            class='work-status'
-            @clickable={{false}}
-            @details='工作状态'
-        >
+        <Pixcrawl::StatusBarItem class='step' @clickable={{false}} @details='当前步骤'>{{this.pixcrawlService.step}}
+        </Pixcrawl::StatusBarItem>
+        <Pixcrawl::StatusBarItem class='work-status' @clickable={{false}} @details='工作状态'>
             {{#if
-                (and
-                    (eq this.pixcrawlService.step 'download')
-                    this.pixcrawlService.working
-                )
+            (and
+            (eq this.pixcrawlService.step 'download')
+            this.pixcrawlService.working
+            )
             }}
-                <Svg::Downloading />
+            <Svg::Downloading />
             {{else if (and
-                (eq this.pixcrawlService.step 'search')
-                this.pixcrawlService.working
+            (eq this.pixcrawlService.step 'search')
+            this.pixcrawlService.working
             )}}
-                <Svg::ManageSearch />
+            <Svg::ManageSearch />
             {{else if (and
-                (eq this.pixcrawlService.step 'index')
-                this.pixcrawlService.working
+            (eq this.pixcrawlService.step 'index')
+            this.pixcrawlService.working
             )}}
-                <Svg::ImageSearch />
+            <Svg::ImageSearch />
             {{else}}
-                <Svg::DownloadDone />
+            <Svg::DownloadDone />
             {{/if}}
         </Pixcrawl::StatusBarItem>
-        <Pixcrawl::StatusBarItem
-            class='socket-status'
-            @clickable={{false}}
-            @details='连接状态'
-        >
+        <Pixcrawl::StatusBarItem class='socket-status' @clickable={{false}} @details='连接状态'>
             {{#if this.pixcrawlService.connected}}
-                <Svg::LinkSolid />
+            <Svg::LinkSolid />
             {{else}}
-                <Svg::LinkSlashSolid />
+            <Svg::LinkSlashSolid />
             {{/if}}
         </Pixcrawl::StatusBarItem>
-        <Pixcrawl::StatusBarItem
-            class='refresh'
-            @clickable={{true}}
-            @clickfn={{this.refresh}}
-            @details='!清除所有结果!'
-        >
+        <Pixcrawl::StatusBarItem class='refresh' @clickable={{true}} @clickfn={{this.refresh}} @details='!清除所有结果!'>
             <Svg::Refresh />
         </Pixcrawl::StatusBarItem>
     </div>
     <div class='right'>
+        <Pixcrawl::StatusBarItem class="progress-percent">
+            {{#if (eq this.pixcrawlService.step "index")}}
+            索引： {{this.pixcrawlService.progress}}%
+            {{else if (eq this.pixcrawlService.step "search")}}
+            搜索： {{this.pixcrawlService.progress}}%
+            {{else if (eq this.pixcrawlService.step "download")}}
+            下载： {{this.pixcrawlService.progress}}%
+            {{/if}}
+        </Pixcrawl::StatusBarItem>
         <Pixcrawl::StatusBarItem class='keyword-count'>
             关键字：{{this.pixcrawlService.keywords.length}}
         </Pixcrawl::StatusBarItem>
-        <Pixcrawl::StatusBarItem
-            class='keyword-check
-                {{if (not-eq this.pixcrawlService.step "keyword") "disabled"}}'
-            @clickable={{true}}
-            @clickfn={{this.checkKeyword}}
-            @details='确认关键字'
-        >
+        <Pixcrawl::StatusBarItem class='keyword-check
+                {{if (not-eq this.pixcrawlService.step "keyword") "disabled"}}' @clickable={{true}}
+            @clickfn={{this.checkKeyword}} @details='确认关键字'>
             <Svg::Check />
             <span>keyword</span>
         </Pixcrawl::StatusBarItem>
-        <Pixcrawl::StatusBarItem
-            class='search-check
-                {{if (not-eq this.pixcrawlService.step "search") "disabled"}}'
-            @clickable={{true}}
-            @clickfn={{this.checkSearch}}
-            @details='确认搜索结果'
-        >
+        <Pixcrawl::StatusBarItem class='search-check
+                {{if (not-eq this.pixcrawlService.step "search") "disabled"}}' @clickable={{true}}
+            @clickfn={{this.checkSearch}} @details='确认搜索结果'>
             <Svg::DoneAll />
             <span>search</span>
         </Pixcrawl::StatusBarItem>

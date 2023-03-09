@@ -58,13 +58,11 @@ router.get("/system", async (ctx) => {
 router.post("/saveProgress", async (ctx) => {
     LOGGER.info("POST /saveProgress");
     const data = ctx.request.body;
-    
 });
 
 router.get("/loadProgress", async (ctx) => {
     LOGGER.info("GET /loadProgress");
     ctx.response.body = {
-        
     };
 });
 
@@ -90,6 +88,11 @@ router.get("/fileManager/all", async (ctx) => {
     ctx.response.body = {
         pictures: await SQLITE_DB.getPictures(limit, offset),
     };
+});
+
+router.get("/search", async (ctx) => {
+    const params = ctx.params;
+    
 });
 
 router.get("/picture/:pid", async (ctx) => {

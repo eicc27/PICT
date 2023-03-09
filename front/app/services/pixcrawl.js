@@ -41,6 +41,11 @@ export default class PixcrawlService extends Service {
         return this.keywords.get(index);
     }
 
+    deleteKeyowrd(index) {
+        this.keywords.splice(index, 1);
+        this.keywords = copy(this.keywords);
+    }
+
     setKeywordType(index, type) {
         const keyword = this.keywords.get(index);
         keyword.type = type;
@@ -57,8 +62,8 @@ export default class PixcrawlService extends Service {
     /** Clears keywords with identical type and value. */
     clearRepeatingKeywords() {
         for (let i = 0; i < this.keywords.length; i++) {
-            const keyword = this.keywords[i];            
-            for (let j = i; j < this.keywords.length; j++) {
+            const keyword = this.keywords[i];
+            for (let j = i + 1; j < this.keywords.length; j++) {
                 const target = this.keywords[j];
                 if (keyword.type == target.type && keyword.value == target.value) {
                     this.keywords.splice(j, 1);
@@ -98,9 +103,14 @@ export default class PixcrawlService extends Service {
         let i = 0;
         const total = this.keywords.length;
         let progress = 0;
+        console.log('keywords');
         /** recieve search data */
         this.socket.onmessage = function (event) {
             const data = JSON.parse(event.data);
+            if (data.type == 'search-complete') {
+                this.progress = 100;
+                return;
+            }
             console.log(data);
             i++;
             if (i == that.keywords.length) {
@@ -175,6 +185,7 @@ export default class PixcrawlService extends Service {
                     that.keywords[index].length += data.total - 1;
                     break;
                 case 'index-complete':
+                    that.progress = 100;
                     that.sendDownloadRequest();
                     break;
             }
@@ -196,6 +207,7 @@ export default class PixcrawlService extends Service {
                     that.progress = (progress / total * 100).toFixed(1);
                     break;
                 case 'download-complete':
+                    that.progress = 100;
                     that.working = false;
                     break;
             }

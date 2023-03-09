@@ -1,7 +1,7 @@
 import { PIXCRAWL_DATA } from "../src/pixcrawl.js";
 import { AsyncPool } from "../utils/AsyncPool.js";
 import { Downloader } from "../utils/Downloader.js";
-import { logfcall, LOGGER } from "../utils/Logger.js";
+import { logfcall } from "../utils/Logger.js";
 import { Retrial } from "../utils/Retrial.js";
 import { System } from "../utils/System.js";
 import { BaseHandler } from "./BaseHandler.js";
@@ -32,7 +32,7 @@ export class DownloadHandler extends BaseHandler {
 
     @logfcall() public async handle() {
         System.mkdir("../lsp");
-        const queryPool = new AsyncPool(16);
+        const queryPool = new AsyncPool(8);
         const downloadPool = new AsyncPool(16);
         for (let i = 0; i < PIXCRAWL_DATA.getLength(); i++) {
             const pictures = PIXCRAWL_DATA.getKeyword(i).pictures;
@@ -52,7 +52,11 @@ export class DownloadHandler extends BaseHandler {
             }
             await queryPool.close();
             await downloadPool.close();
-            LOGGER.ok("Download complete");
+            this.socket.broadcast(
+                JSON.stringify({
+                    type: "download-complete",
+                })
+            );
         }
     }
 }
