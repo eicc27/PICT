@@ -1,0 +1,8 @@
+<button
+    type='button'
+    class='{{@item.value}} {{if (and (eq (get @focus 0) @i) (eq (get @focus 1) @j))"selected"}}'
+    {{on 'click' this.onSelect}}
+    ...attributes
+>
+    {{@item.title}}
+</button>

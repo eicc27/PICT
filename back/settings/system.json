@@ -7,5 +7,5 @@
 		"timeout": 20
 	},
 	"submitDelay": 2,
-	"proxyPort": 20171
+	"proxyPort": 10809
 }

@@ -58,7 +58,7 @@ export default class PixcrawlService extends Service {
     clearRepeatingKeywords() {
         for (let i = 0; i < this.keywords.length; i++) {
             const keyword = this.keywords[i];            
-            for (let j = i; j < this.keywords.length; j++) {
+            for (let j = i + 1; j < this.keywords.length; j++) {
                 const target = this.keywords[j];
                 if (keyword.type == target.type && keyword.value == target.value) {
                     this.keywords.splice(j, 1);

@@ -1,0 +1,11 @@
+<div class='filter-type' ...attributes>
+    <h3>{{@title}}</h3>
+    {{#each @options as |option i|}}
+        <span>
+            {{component option.icon}}
+            {{#each option.items as |item j|}}
+                <Fm::FilterItem @type={{@type}} @item={{item}} @options={{@options}} @i={{i}} @j={{j}} @setParam={{@setParam}} @focus={{@focus}}/>
+            {{/each}}
+        </span>
+    {{/each}}
+</div>

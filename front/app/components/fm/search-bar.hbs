@@ -1,0 +1,33 @@
+<div class='searchbar'>
+    <div class='search'>
+        <Svg::MagnifyingGlassSolid />
+        <input
+            type='text'
+            aria-label='search'
+            {{did-insert this.toggleHint}}
+            {{on 'focus' this.toggleHint}}
+            {{on 'blur' this.toggleHint}}
+            {{on 'input' this.toggleHint}}
+        />
+        <div class='hint'>按下<Svg::KeyboardReturn />搜索</div>
+    </div>
+
+    <button type='button' class='filter {{if this.showFilter "active"}}' {{on 'click' this.toggleFilter}}>
+        <Svg::ChevronRight />
+        <Svg::FilterAlt />
+        <div class='filter-by'>
+            {{filter this.SEARCH_TYPES this.searchType}}搜索，
+            {{filter this.FILTER_TYPES this.filterType}}分类，
+            {{filter this.SORT_TYPES this.sortType}}{{filter this.SORT_BY this.sortBy}}排序
+        </div>
+        <Svg::ChevronRight />
+    </button>
+    {{#if this.showFilter}}
+        <div class='filter-list'>
+            <Fm::FilterType @title={{this.SEARCH_TYPES.title}} @focus={{this.searchType}} @options={{this.SEARCH_TYPES.options}} @type="searchType" @setParam={{this.setParam}}/>
+            <Fm::FilterType @title={{this.FILTER_TYPES.title}} @focus={{this.filterType}} @options={{this.FILTER_TYPES.options}} @type="filterType" @setParam={{this.setParam}} />
+            <Fm::FilterType @title={{this.SORT_TYPES.title}} @focus={{this.sortType}} @options={{this.SORT_TYPES.options}} @type="sortType" @setParam={{this.setParam}}/>
+            <Fm::FilterType @title={{this.SORT_BY.title}} @focus={{this.sortBy}} @options={{this.SORT_BY.options}} @type="sortBy" @setParam={{this.setParam}} />
+        </div>
+    {{/if}}
+</div>
