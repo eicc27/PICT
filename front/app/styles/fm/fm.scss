@@ -1,6 +1,11 @@
+html :has(.ani) {
+    overflow: hidden;
+}
+
 html :has(.fm) {
     overflow-y: scroll;
 }
+
 .fm {
     position: absolute;
     width: 80%;
@@ -44,180 +49,196 @@ html :has(.fm) {
             }
         }
     }
-
     .searchbar {
-        display: grid;
-        grid-template-columns: auto auto auto;
-        align-items: center;
-        grid-template-rows: 3em;
-        margin: 2em 0;
-        font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
-        position: relative;
-        .search {
-            > svg {
-                width: 1.5em;
-                height: 1.5em;
-                margin-left: 1em;
-            }
-            @include flex-cr;
-            justify-content: flex-start;
-            border: 1px solid gray;
-            border-radius: 5rem;
-            position: relative;
-            transition: all 0.2s ease-out;
-            &:has(input:focus) {
-                border: 1px solid royalblue;
-                box-shadow: 0 0 2px 0 royalblue;
-            }
-            input {
-                border: none;
-                padding: 0.5em 1em;
-                border-radius: 5rem;
-                font-size: 1.2rem;
-                min-width: 30vw;
-            }
-            .hint {
-                position: absolute;
-                @include flex-cr;
-                svg {
-                    width: 1.5em;
-                    height: 1.5em;
-                }
-                left: 3.5em;
-
-                font-size: 1em;
-                color: darkgray;
-                fill: darkgray;
-            }
-        }
-
-        .filter {
-            svg {
-                width: 2em;
-                height: 2em;
-                transition: all 0.3s ease-in-out;
-            }
-            svg:first-child {
-                transform: rotate(180deg) translateX(-3px);
-            }
-            &:hover, &.active {
-                fill: royalblue;
-                color: royalblue;
-                cursor: pointer;
-                svg:first-child {
-                    transform: rotate(180deg) translateX(.5rem);
-                }
-                svg:last-child {
-                    transform: translateX(.5rem);
-                }
-            }
-            @include flex-cr;
-            font-size: 1em;
-            margin: 0 2rem;
-            padding: .2em .5em;
-            border-radius: 3px;
-        }
-
-        .filter-list {
-            @include flex-cc;
-            align-items: flex-start;
-            align-self: start;
-            background: white;
-            box-shadow: 0 0 2px 0 gray;
-            z-index: 10;
-            button.selected {
-                color: royalblue;
-                text-decoration: underline;
-            }
-            h3 {
-                margin: .8em 0;
-                color: darkgray;
-                // &:first-child {
-                //     margin: 0;
-                //     margin-bottom: .8em;
-                // }
-            }
-            svg {
-                width: 1.5em;
-                height: 1.5em;
-                margin-right: .5rem;
-            }
-            .filter-type {
-                @include flex-cc;
-                margin: 0 1em;
-                align-items: flex-start;
-            }
-            span {
-                @include flex-cr;
-                justify-content: center;
-                margin: 0 .5rem;
-                button {
-                    margin: 0;
-                    margin-right: .5rem;
-                }
-                margin-bottom: .5rem;
-            }
-            button  {
-                @include flex-cr;
-                margin-left: .5em;
-                justify-content: flex-start;
-                font-size: 1em;
-                margin-bottom: .5em;
-                transition: all 0.1s ease-in-out;
-                &:hover {
-                    color: royalblue;
-                    text-decoration: underline;
-                }
-            }
-        }
-    }
-
-    .pictures {
+        width: 80vw;
+        height: 3em;
+        border-radius: 3em;
+        border: 1px solid gray;
+        z-index: 10;
         @include flex-cr;
         justify-content: flex-start;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        .picture-preview {
-            @include flex-cc;
-            align-items: flex-start;
-            margin: 2em;
-            max-width: 10vw;
-            .preview {
-                width: 10vw;
-                height: 10vw;
-                overflow: hidden;
-                @include flex-cc;
-                img {
-                    width: inherit;
-                    height: inherit;
-                    object-fit: cover;
-                    position: absolute;
-                    box-shadow: 0 0 2px 0 gray;
-                    border-radius: 10px;
-                    transition: all 0.3s ease-in-out;
-                    &:hover {
-                        transform: scale(1.2);
+        transition: all 0.3s ease-out;
+        input {
+            flex-grow: 1;
+            &:focus ~ input {
+                .searchbar {
+                    display: grid;
+                    grid-template-columns: auto auto auto;
+                    align-items: center;
+                    grid-template-rows: 3em;
+                    margin: 2em 0;
+                    font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+                    position: relative;
+                    .search {
+                        > svg {
+                            width: 1.5em;
+                            height: 1.5em;
+                            margin-left: 1em;
+                        }
+                        @include flex-cr;
+                        justify-content: flex-start;
+                        border: 1px solid gray;
+                        border-radius: 5rem;
+                        position: relative;
+                        transition: all 0.2s ease-out;
+                        &:has(input:focus) {
+                            border: 1px solid royalblue;
+                            box-shadow: 0 0 2px 0 royalblue;
+                        }
+                        input {
+                            border: none;
+                            padding: 0.5em 1em;
+                            border-radius: 5rem;
+                            font-size: 1.2rem;
+                            min-width: 30vw;
+                        }
+                        .hint {
+                            position: absolute;
+                            @include flex-cr;
+                            svg {
+                                width: 1.5em;
+                                height: 1.5em;
+                            }
+                            left: 3.5em;
+
+                            font-size: 1em;
+                            color: darkgray;
+                            fill: darkgray;
+                        }
+                    }
+
+                    .filter {
+                        svg {
+                            width: 2em;
+                            height: 2em;
+                            transition: all 0.3s ease-in-out;
+                        }
+                        svg:first-child {
+                            transform: rotate(180deg) translateX(-3px);
+                        }
+                        &:hover,
+                        &.active {
+                            fill: royalblue;
+                            color: royalblue;
+                            cursor: pointer;
+                            svg:first-child {
+                                transform: rotate(180deg) translateX(0.5rem);
+                            }
+                            svg:last-child {
+                                transform: translateX(0.5rem);
+                            }
+                        }
+                        @include flex-cr;
+                        font-size: 1em;
+                        margin: 0 2rem;
+                        padding: 0.2em 0.5em;
+                        border-radius: 3px;
+                    }
+
+                    .filter-list {
+                        @include flex-cc;
+                        align-items: flex-start;
+                        align-self: start;
+                        background: white;
+                        box-shadow: 0 0 2px 0 gray;
+                        z-index: 10;
+                        button.selected {
+                            color: royalblue;
+                            text-decoration: underline;
+                        }
+                        h3 {
+                            margin: 0.8em 0;
+                            color: darkgray;
+                            // &:first-child {
+                            //     margin: 0;
+                            //     margin-bottom: .8em;
+                            // }
+                        }
+                        svg {
+                            width: 1.5em;
+                            height: 1.5em;
+                            margin-right: 0.5rem;
+                        }
+                        .filter-type {
+                            @include flex-cc;
+                            margin: 0 1em;
+                            align-items: flex-start;
+                        }
+                        span {
+                            @include flex-cr;
+                            justify-content: center;
+                            margin: 0 0.5rem;
+                            button {
+                                margin: 0;
+                                margin-right: 0.5rem;
+                            }
+                            margin-bottom: 0.5rem;
+                        }
+                        button {
+                            @include flex-cr;
+                            margin-left: 0.5em;
+                            justify-content: flex-start;
+                            font-size: 1em;
+                            margin-bottom: 0.5em;
+                            transition: all 0.1s ease-in-out;
+                            &:hover {
+                                color: royalblue;
+                                text-decoration: underline;
+                            }
+                        }
                     }
                 }
-            }
-            .title {
-                font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
-                font-size: 1.5em;
-                font-weight: bold;
-                transition: all 0.3s ease-in-out;
-                color: black;
-                text-decoration: none;
-                &:hover {
-                    color: royalblue;
-                    text-decoration: underline;
+
+                .pictures {
+                    @include flex-cr;
+                    justify-content: flex-start;
+                    align-items: flex-start;
+                    flex-wrap: wrap;
+                    .picture-preview {
+                        @include flex-cc;
+                        align-items: flex-start;
+                        margin: 2em;
+                        max-width: 10vw;
+                        .preview {
+                            width: 10vw;
+                            height: 10vw;
+                            overflow: hidden;
+                            @include flex-cc;
+                            img {
+                                width: inherit;
+                                height: inherit;
+                                object-fit: cover;
+                                position: absolute;
+                                box-shadow: 0 0 2px 0 gray;
+                                border-radius: 10px;
+                                transition: all 0.3s ease-in-out;
+                                &:hover {
+                                    transform: scale(1.2);
+                                }
+                            }
+                        }
+                        .title {
+                            font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial,
+                                sans-serif;
+                            font-size: 1.5em;
+                            font-weight: bold;
+                            transition: all 0.3s ease-in-out;
+                            color: black;
+                            text-decoration: none;
+                            &:hover {
+                                color: royalblue;
+                                text-decoration: underline;
+                            }
+                            margin: 10px 0;
+                        }
+                        .illust {
+                            font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+                            font-size: 0.9em;
+                            font-style: italic;
+                            color: darkgray;
+                        }
+                    }
                 }
-                margin: 10px 0;
-            }
-            .illust {
-                font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
-                font-size: 0.9em;
-                font-style: italic;
-                color: darkgray;
             }
         }
     }

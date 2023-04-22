@@ -13,8 +13,8 @@ Import-Module -Name .\starter-git\windows\start-mongo.ps1
 
 Write-Output "Using Windows Terminal."
 Write-Colored "Trying to build from scratch..." "DarkYellow"
-# query port 4200, 3000, 3001
-Get-Port @(4200,3000,3001)
+# query port 4200, 3000
+Get-Port @(4200,3000)
 Write-Colored "|---- Building ./front/**..." "DarkBlue"
 # start a puppy windows terminal
 wt.exe -w 0 -d (Resolve-Path .\front).Path powershell -c ember serve

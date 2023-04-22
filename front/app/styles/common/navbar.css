@@ -1,0 +1,30 @@
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 50px;
+  background-color: gainsboro;
+  z-index: 10;
+  transition: all 0.2s ease-out;
+}
+nav button {
+  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+  font-size: 1.3em;
+  transition: all 0.2s ease-out;
+  height: 50px;
+  padding: 0 5vw;
+  width: -moz-max-content;
+  width: max-content;
+}
+nav button:hover {
+  background: lightsteelblue;
+  color: white;
+}
+nav :first-child button {
+  font-size: 1em;
+}/*# sourceMappingURL=navbar.css.map */

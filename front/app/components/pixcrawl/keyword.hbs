@@ -1,4 +1,10 @@
-<div class='keyword'>
+{{! listens to ctrl + right click }}
+{{! template-lint-disable no-invalid-interactive }}
+{{!-- template-lint-disable no-down-event-binding --}}
+<div
+    class='keyword'
+    {{on 'click' this.deleteKeyword}}
+>
     <div class='keyword-container'>
         {{#if this.showTypes}}
             <ul {{on 'mouseleave' this.hideTypes}}>

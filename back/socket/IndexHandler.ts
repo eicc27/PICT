@@ -1,7 +1,7 @@
 import axios from "axios";
 import { AsyncPool } from "../utils/AsyncPool.js";
 import { Retrial } from "../utils/Retrial.js";
-import { Picture, PIXCRAWL_DATA } from "../src/pixcrawl.js";
+import { PIXCRAWL_DATA } from "../src/pixcrawl.js";
 import { logfcall, LOGGER } from "../utils/Logger.js";
 import { HEADERS, PROXY, System, SYSTEM_SETTINGS } from "../utils/System.js";
 import { BaseHandler } from "./BaseHandler.js";
@@ -33,6 +33,7 @@ export class IndexHandler extends BaseHandler {
             }
         }
         await pool.close();
+        this.socket.broadcast(JSON.stringify({ type: "index-complete" }));
     }
 
     /** This function contains an inner try-catch block that may bypass the retrial. */
@@ -77,7 +78,7 @@ export class IndexHandler extends BaseHandler {
             const result = {
                 type: "index",
                 index: keywordIndex,
-                total: pages
+                total: pages,
             };
             socket.broadcast(JSON.stringify(result));
             PIXCRAWL_DATA.addIndexProgress();
@@ -98,9 +99,6 @@ export class IndexHandler extends BaseHandler {
             LOGGER.info(
                 `${PIXCRAWL_DATA.getIndexProgress()}/${PIXCRAWL_DATA.getIndexTotal()}`
             );
-            if (PIXCRAWL_DATA.isIndexComplete()) {
-                socket.broadcast(JSON.stringify({ type: "index-complete" }));
-            }
         }
     }
 }
