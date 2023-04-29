@@ -1,11 +1,3 @@
-html :has(.ani) {
-    overflow: hidden;
-}
-
-html :has(.fm) {
-    overflow-y: scroll;
-}
-
 .fm {
     position: absolute;
     width: 80%;

@@ -1,11 +1,3 @@
-html :has(.picture) {
-    overflow-y: scroll;
-}
-
-html :has(.ani.rain) {
-    overflow: hidden;
-}
-    
 .picture {
     @include flex-cc;
     width: 80vw;
